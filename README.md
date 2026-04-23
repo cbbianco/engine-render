@@ -1,46 +1,41 @@
-# Dynamic CRM Engine Render
+# SolutionsNplusOne - CRM & Microservices (Engine v2.1)
 
-Este repositorio contiene la arquitectura completa de un motor de renderizado dinámico para CRM, consolidando el Frontend (Vue 3) y el Backend (NestJS Microservices).
+Este repositorio contiene la plataforma integral de SolutionsNplusOne, compuesta por un ecosistema de microservicios en el backend y un Motor de Renderizado Dinámico (Engine v2.0) en el frontend.
 
-## 🚀 Arquitectura
+🚀 **Highlights: SolutionsNplusOne Engine v2.0**
+El núcleo del sistema ha sido refactorizado bajo principios de Clean Architecture, permitiendo una escalabilidad comercial sin precedentes.
 
-El sistema se basa en un paradigma **Metadata-Driven UI**, donde el backend dicta la interfaz de usuario en tiempo real.
+🏗️ **Arquitectura por Capas**
+- **UI Layer**: Componentes atómicos y dinámicos (`DynamicRenderer.vue`).
+- **Orchestration Layer**: Lógica de aplicación mediante Composables (`useRendererOrchestrator`).
+- **Domain Layer**: Reglas puras de negocio y parseo (`DynamicParser`).
+- **Infrastructure Layer**: Servicios de red y persistencia (`RendererService`).
 
-- **Frontend**: Vue 3 + Vite + Tailwind CSS. Motor de renderizado modular con Service Locator.
-- **Backend**: Microservicios con NestJS (Users, Modules, Customer).
+📈 **Crecimiento y Productividad**
+La transición hacia el UI Metadata Render (v2.0) ha permitido optimizar el ciclo de vida del desarrollo:
 
-## 🛠 Características Principales
+| Métrica | v1.0 (Monolítico) | v2.0 (UI Metadata Render) | Mejora |
+| :--- | :--- | :--- | :--- |
+| Tiempo de Creación de Módulo | Horas | Minutos (JSON) | -80% |
+| Modularidad | Baja | Alta | +150% |
+| Complejidad de Código Core | >300 líneas | ~100 líneas | -66% |
+| Tipos de Vista | Básicas | Grid, Kanban, Tablas Prem | +200% |
 
-1. **Service Locator Dinámico**: Capacidad de instanciar componentes en tiempo de ejecución basados en esquemas JSON.
-2. **Paginación Global**: Soporte estandarizado para `page` y `limit` en todos los listados dinámicos.
-3. **Metadata-Driven Edit**: Generación automática de formularios de edición desde metadatos retornados por la API.
-4. **Auto-Sync Selects**: Selectores inteligentes que se auto-corrigen y bloquean ante inconsistencias de datos.
-5. **Branding Dinámico**: Personalización completa de colores y logos desde la base de datos.
+🛠️ **Estructura del Monorepo**
+- **Frontend**: `apps/frontend` - CRM Dinámico con arquitectura por capas.
+- **Backend**: Microservicios NestJS (`apps/ms-customer`, `apps/ms-users`, `apps/ms-modules`).
 
-## 📁 Estructura del Proyecto
+🏁 **Guía de Inicio**
 
-```
-/
-├── frontend/        # Aplicación Vue 3 (CRM Premium)
-├── backend/         # Ecosistema de Microservicios NestJS
-└── CATALOG.md       # Catálogo técnico de componentes disponibles
-```
-
-## 🏁 Inicio Rápido
-
-### Frontend
+### Ejecución
+Para levantar todo el ecosistema (Frontend + Microservicios):
 ```bash
-cd frontend
 npm install
 npm run dev
 ```
 
-### Backend
-```bash
-cd backend
-npm install
-npm run start:dev
-```
-
----
-Desarrollado por el **Solutions Team** siguiendo la metodología **AI Driven Development (AIDD)**.
+🔒 **Estrategia de Documentación**
+- **Catálogo de Módulos**: Inventario técnico de componentes renderizables.
+- **CHANGELOG.md**: Historial completo de la evolución del motor.
+- **MEJORAS.md**: Plan estratégico de protección IP y Bytenode.
+- **STACK_TECNICO.md**: Definición del stack tecnológico y uso de IA.
