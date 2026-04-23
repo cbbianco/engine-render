@@ -204,7 +204,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import draggable from 'vuedraggable'
-import demoTasks from '../../../tmp/kanban-demo.json'
+import demoTasks from '@/assets/data/kanban-demo.json'
 
 const props = defineProps<{
   modelValue?: any

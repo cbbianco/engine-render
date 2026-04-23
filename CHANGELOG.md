@@ -2,6 +2,29 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
+## [1.4.0] - 2026-04-23
+### 🚀 Monorepo Stabilization & Startup Orchestration
+- **Metodología**: Implementación de **"Zero-Conflict Startup"** mediante limpieza automatizada de puertos y estandarización de orquestación.
+- **Autoría**: Equipo de Solutions.
+
+#### Monorepo & DevOps
+- **Port Standardization**: Puertos fijos para desarrollo local:
+  - `ms-customer`: **4000**
+  - `ms-users`: **4001**
+  - `ms-modules`: **4002**
+  - `frontend`: **5173**
+- **Startup Cleanup**: Integración de scripts de limpieza de puertos huérfanos para evitar errores `EADDRINUSE`.
+- **Environment Injection**: Implementada carga robusta de `.env` (raíz y apps/) en todos los microservicios mediante `dotenv` y resolución dinámica de rutas.
+- **Workspace Alignment**: Renombrado el paquete de frontend a `frontend` para total compatibilidad con los scripts de workspace de npm.
+
+#### Frontend
+- **TypeScript Alias Fix**: Restaurada la configuración de `tsconfig.json` para soporte nativo de alias `@/` y tipos globales de Vite.
+- **Kanban Resilience**: Corregido fallo crítico de importación en `TaskKanbanNative.vue` y generados datos de demostración estables en `src/assets/data`.
+- **API Dispatcher Sync**: Sincronizado el puerto por defecto de despacho de módulos al puerto 4002.
+
+#### Backend
+- **Microservices Entrypoint**: Refactorizados los archivos `main.ts` de todos los servicios para garantizar la carga de variables de entorno antes del bootstrap de NestJS.
+
 ## [1.3.1] - 2026-04-21
 ### 🛡️ Orchestration Robustness & UI Polish
 - **Metodología**: Implementación de **"Zombie Session Self-Destruction"** en el bootstrap para evitar fallos de sincronización con tokens expirados.

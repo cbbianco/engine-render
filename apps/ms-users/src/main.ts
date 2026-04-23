@@ -1,6 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Cargar .env desde la raíz de la app, apps/ o la raíz del monorepo
+dotenv.config(); // Por defecto
+dotenv.config({ path: path.join(process.cwd(), '../.env') }); // apps/.env
+dotenv.config({ path: path.join(process.cwd(), '../../.env') }); // root/.env
 import { HttpErrorFilter } from './user/exception/filter/http.error.filter';
 
 async function bootstrap(): Promise<void> {

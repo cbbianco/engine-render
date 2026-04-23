@@ -6,6 +6,7 @@ import {
 import { performance } from 'perf_hooks';
 import { FunctionCallingConfigMode, GoogleGenAI, Type } from '@google/genai';
 import * as dotenv from 'dotenv';
+import * as path from 'path';
 
 import { ModuleRequestDto } from '../../dto/module/module-request.dto';
 import { ModelResponseDto } from '../../dto/response/model.response.dto';
@@ -15,7 +16,11 @@ import { PromptUtils } from '../../utils/prompt/prompt.utils';
 import { ModuleHydratorUtils } from '../../utils/hydrator/module-hydrator.utils';
 import { FunctionsExecutionsService } from './functions/functions.executions.service';
 
-dotenv.config();
+// Cargar .env desde la raíz de la app, apps/ o la raíz del monorepo
+dotenv.config(); // Por defecto
+dotenv.config({ path: path.join(process.cwd(), '../.env') }); // apps/.env
+dotenv.config({ path: path.join(process.cwd(), '../../.env') }); // root/.env
+
 
 @Injectable()
 export class IAService implements OnModuleInit {

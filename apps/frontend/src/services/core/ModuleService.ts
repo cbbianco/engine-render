@@ -3,7 +3,7 @@ import { normalizeToArray } from '@/utils/module'
 import type { ModuleConfigResponse, ModuleConfigApiResponse } from '@/lib/types/module'
 
 const BASE_URL =
-  import.meta.env.VITE_MODULE_API_BASE_URL ?? 'http://localhost:4001'
+  import.meta.env.VITE_MODULE_API_BASE_URL ?? 'http://localhost:4002'
 
 /**
  * Servicio de módulos: obtiene la configuración UI por nombre de módulo.

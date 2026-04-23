@@ -34,6 +34,14 @@ npm install
 npm run dev
 ```
 
+### Puertos Local (Configuración Estándar)
+| Servicio | Puerto | Descripción |
+| :--- | :--- | :--- |
+| **Frontend** | 5173 | CRM Dinámico (Vite) |
+| **ms-customer** | 4000 | Gestión de Clientes y Branding |
+| **ms-users** | 4001 | Autenticación y Perfiles |
+| **ms-modules** | 4002 | Generador Dinámico de Módulos (IA) |
+
 🔒 **Estrategia de Documentación**
 - **Catálogo de Módulos**: Inventario técnico de componentes renderizables.
 - **CHANGELOG.md**: Historial completo de la evolución del motor.

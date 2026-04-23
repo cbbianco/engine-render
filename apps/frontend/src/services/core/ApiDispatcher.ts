@@ -1,6 +1,6 @@
 import { HttpClient } from '@/services/core/http/HttpClient'
 
-const DEFAULT_BASE = import.meta.env.VITE_MODULE_API_BASE_URL ?? 'http://localhost:3000'
+const DEFAULT_BASE = import.meta.env.VITE_MODULE_API_BASE_URL ?? 'http://localhost:4002'
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 
