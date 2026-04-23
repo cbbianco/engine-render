@@ -1,0 +1,22 @@
+{
+  "name": "ms-solutionsnplusone-backend-monorepo",
+  "version": "1.0.0",
+  "description": "Monorepo for SolutionsNplusOne microservices",
+  "private": true,
+  "workspaces": [
+    "ms-customer",
+    "ms-modules",
+    "ms-users"
+  ],
+  "scripts": {
+    "dev": "concurrently -n \"customer,modules,users\" -c \"bgBlue,bgGreen,bgMagenta\" \"npm run start:dev -w ms-customer\" \"npm run start:dev -w ms-modules\" \"npm run start:dev -w ms-users\"",
+    "start:customer": "npm run start:dev -w ms-customer",
+    "start:modules": "npm run start:dev -w ms-modules",
+    "start:users": "npm run start:dev -w ms-users",
+    "build:all": "npm run build --workspaces",
+    "test:all": "npm run test --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

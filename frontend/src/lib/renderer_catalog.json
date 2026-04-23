@@ -1,0 +1,117 @@
+{
+  "version": "1.2.0",
+  "project": "SolutionsN+1 CRM - Dynamic Render Engine",
+  "methodology": "AI Driven Development (AIDD)",
+  "components": {
+    "form_elements": [
+      {
+        "type": "text",
+        "description": "Standard text input",
+        "variants": ["input", "input-text", "inputtext"]
+      },
+      {
+        "type": "password",
+        "description": "Secure password input with visibility toggle"
+      },
+      {
+        "type": "email",
+        "description": "Validated email input"
+      },
+      {
+        "type": "textarea",
+        "description": "Multi-line text input",
+        "variants": ["input_body"]
+      },
+      {
+        "type": "phone",
+        "description": "Phone number formatted input"
+      },
+      {
+        "type": "url",
+        "description": "URL validated input"
+      },
+      {
+        "type": "switch",
+        "description": "On/Off toggle switch",
+        "variants": ["toggle"]
+      },
+      {
+        "type": "datepicker",
+        "description": "Date selection component",
+        "variants": ["date"]
+      }
+    ],
+    "selection": [
+      {
+        "type": "select",
+        "description": "Drop-down selection menu"
+      },
+      {
+        "type": "multiple-select-options",
+        "description": "Multi-select tag-based component"
+      },
+      {
+        "type": "radio",
+        "description": "Single option radio group"
+      },
+      {
+        "type": "checkbox",
+        "description": "Multiple choice checkbox"
+      }
+    ],
+    "data_display": [
+      {
+        "type": "table-premium",
+        "description": "Advanced data grid with sorting and filtering",
+        "variants": ["table", "data-table"]
+      },
+      {
+        "type": "table-products",
+        "description": "Specialized product inventory grid"
+      },
+      {
+        "type": "kanban-board",
+        "description": "Task management board",
+        "variants": ["task-kanban", "kanban"]
+      },
+      {
+        "type": "list-invoices",
+        "description": "Optimized invoice listing"
+      }
+    ],
+    "ui_elements": [
+      {
+        "type": "title",
+        "description": "Dynamic heading levels (h1-h3)"
+      },
+      {
+        "type": "hr",
+        "description": "Visual horizontal separator"
+      },
+      {
+        "type": "button",
+        "description": "Action button with variants",
+        "variants": ["primary", "secondary", "danger"]
+      }
+    ],
+    "specialized": [
+      {
+        "type": "invoice",
+        "description": "Full invoice document viewer",
+        "variants": ["single-invoice", "single_invoice"]
+      },
+      {
+        "type": "draw",
+        "description": "Signature or drawing canvas"
+      },
+      {
+        "type": "estimated_revenue",
+        "description": "Dashboard chart for revenue estimation"
+      }
+    ]
+  },
+  "global_configurations": {
+    "orchestration": ["CREATE", "EDIT", "CONSULT", "LIST", "SUBMODULE", "DASHBOARD"],
+    "theming": ["primary-color", "secondary-color", "background-page", "error-color"]
+  }
+}

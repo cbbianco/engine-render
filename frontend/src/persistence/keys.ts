@@ -1,0 +1,6 @@
+export const AUTH_CSS_KEY = 'auth_css'
+export const AUTH_TOKEN_KEY = 'auth_token'
+export const AUTH_ROUTES_KEY = 'auth_routes'
+export const AUTH_DOMAIN_KEY = 'auth_domain'
+export const AUTH_LOGO_KEY = 'auth_logo'
+export const AUTH_USERNAME_KEY = 'auth_username'

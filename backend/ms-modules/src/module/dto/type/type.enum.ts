@@ -1,0 +1,8 @@
+enum Type {
+  STRING,
+  NUMBER,
+  INTEGER,
+  BOOLEAN,
+  ARRAY,
+  OBJECT,
+}

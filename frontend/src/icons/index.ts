@@ -1,0 +1,5 @@
+export { default as GridIcon } from './GridIcon.vue'
+export { default as UserCircleIcon } from './UserCircleIcon.vue'
+export { default as HorizontalDots } from './HorizontalDots.vue'
+export { default as ChevronDownIcon } from './ChevronDownIcon.vue'
+export { default as LogoutIcon } from './LogoutIcon.vue'
