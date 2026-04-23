@@ -21,6 +21,7 @@ Todos los cambios notables en este proyecto (Backend y Frontend) serán document
 - **TypeScript Alias Fix**: Restaurada la configuración de `tsconfig.json` para soporte nativo de alias `@/` y tipos globales de Vite.
 - **Kanban Resilience**: Corregido fallo crítico de importación en `TaskKanbanNative.vue` y generados datos de demostración estables en `src/assets/data`.
 - **API Dispatcher Sync**: Sincronizado el puerto por defecto de despacho de módulos al puerto 4002.
+- **Documentation**: Creado el [Catálogo de Componentes](file:///home/csar/Documentos/Proyectos/Engine-Render/engine-render/CATALOGO.md) completo con ejemplos de esquemas JSON para cada componente del motor.
 
 #### Backend
 - **Microservices Entrypoint**: Refactorizados los archivos `main.ts` de todos los servicios para garantizar la carga de variables de entorno antes del bootstrap de NestJS.

@@ -43,7 +43,7 @@ npm run dev
 | **ms-modules** | 4002 | Generador Dinámico de Módulos (IA) |
 
 🔒 **Estrategia de Documentación**
-- **Catálogo de Módulos**: Inventario técnico de componentes renderizables.
+- **[Catálogo de Módulos](file:///home/csar/Documentos/Proyectos/Engine-Render/engine-render/CATALOGO.md)**: Inventario técnico detallado de componentes renderizables con ejemplos JSON.
 - **CHANGELOG.md**: Historial completo de la evolución del motor.
 - **MEJORAS.md**: Plan estratégico de protección IP y Bytenode.
 - **STACK_TECNICO.md**: Definición del stack tecnológico y uso de IA.
