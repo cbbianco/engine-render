@@ -61,7 +61,9 @@ Las acciones permiten la interactividad dentro de componentes como `table-premiu
 -   **`orchestration`**: Lógica compleja que involucra múltiples microservicios.
 
 ### ⛓️ Sub-módulos (`schemaChild`)
-Permiten la composición de interfaces complejas (Maestro-Detalle). Se definen con un `moduleId` único y su propio `module` (array de componentes).
+Permiten la composición de interfaces complejas (Maestro-Detalle). Se definen con un `moduleId` único y su propio `module` (array de componentes). 
+
+👉 Ver ejemplo funcional en: **[`templates/componentes/layout/nesting.json`](file:///home/csar/Documentos/Proyectos/Engine-Render/engine-render/templates/componentes/layout/nesting.json)**
 
 📈 **Crecimiento y Productividad**
 La transición hacia el UI Metadata Render (v2.0) ha permitido optimizar el ciclo de vida del desarrollo:

@@ -3,41 +3,64 @@
     "config": {
       "metadata": {
         "orchestrationType": "CONSULT",
-        "title": "Vista Detallada (Nesting)"
+        "title": "Gestión de Equipos y Miembros"
       },
-      "module": "Detalle Maestro",
-      "path": "/master-detail",
+      "module": "Equipos",
+      "path": "/teams-management",
       "method": "GET",
-      "order": 10,
-      "menu": "menu-item:Admin:Nesting",
-      "icon": "svg-layers",
+      "order": 1,
+      "menu": "menu-item:Admin:Equipos",
+      "icon": "svg-users",
       "breadcrumb": [
-        {
-          "label": "Inicio",
-          "path": "/"
-        }
+        { "label": "Inicio", "path": "/dashboard" }
       ]
     },
     "schema": [
       {
         "type": "table-premium",
-        "label": "Listado Maestro",
-        "property": "master_list",
-        "column": "col-12"
+        "label": "Listado de Equipos",
+        "property": "teams",
+        "column": "col-12",
+        "config": {
+          "columns": [
+            { "label": "Nombre del Equipo", "key": "teamName", "type": "text" },
+            { "label": "Líder", "key": "leaderName", "type": "text" }
+          ],
+          "actions": {
+            "view-members": {
+              "type": "navigate",
+              "moduleId": "team-members-detail",
+              "path": "/teams/members/{id}",
+              "params": { "teamId": "{id}" }
+            }
+          }
+        }
       }
     ],
     "schemaChild": [
       {
-        "moduleId": "child-detail",
-        "path": "/child-path",
+        "moduleId": "team-members-detail",
+        "path": "/members",
         "config": {
-          "title": "Módulo Hijo de Detalle"
+          "title": "Miembros del Equipo Seleccionado",
+          "column": "col-12"
         },
         "module": [
           {
-            "type": "input",
-            "label": "Propiedad del Hijo",
-            "property": "child_prop"
+            "type": "title",
+            "label": "Detalles de Integrantes",
+            "column": "col-12"
+          },
+          {
+            "type": "table-premium",
+            "label": "Miembros",
+            "property": "members",
+            "config": {
+              "columns": [
+                { "label": "Nombre", "key": "firstName", "type": "text" },
+                { "label": "Puesto", "key": "position", "type": "text" }
+              ]
+            }
           }
         ]
       }
@@ -47,8 +70,8 @@
     "consult": {
       "method": "GET",
       "uri": "{backend}/{endpoint}",
-      "endpoint": "/api/v1/master",
-      "backend": "http://localhost:4000"
+      "endpoint": "/api/v1/teams",
+      "backend": "http://localhost:4002"
     }
   }
 }
