@@ -58,7 +58,8 @@
           }
         }
       }
-    ]
+    ],
+    "schemaChild": []
   },
   "orchestrationDetails": {
     "consult": {

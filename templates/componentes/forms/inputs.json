@@ -33,7 +33,8 @@
         "placeholder": "ejemplo@correo.com",
         "column": "col-6"
       }
-    ]
+    ],
+    "schemaChild": []
   },
   "orchestrationDetails": {
     "consult": {

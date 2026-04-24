@@ -30,7 +30,8 @@
           "endpoint": "/api/v1/sync/all"
         }
       }
-    ]
+    ],
+    "schemaChild": []
   },
   "orchestrationDetails": {
     "consult": {

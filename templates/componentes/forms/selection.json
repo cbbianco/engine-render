@@ -35,7 +35,8 @@
         "property": "dueDate",
         "column": "col-6"
       }
-    ]
+    ],
+    "schemaChild": []
   },
   "orchestrationDetails": {
     "consult": {
