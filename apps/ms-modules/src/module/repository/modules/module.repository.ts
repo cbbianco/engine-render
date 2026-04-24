@@ -25,17 +25,7 @@ export class ModuleRepository {
     queryRunner: QueryRunner,
     module: Partial<ModuleEntity>,
   ): Promise<ModuleEntity> {
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      const savedModule = await queryRunner.manager.save(ModuleEntity, module);
-      await queryRunner.commitTransaction();
-      return savedModule;
-    } catch (e) {
-      await queryRunner.rollbackTransaction();
-      throw e;
-    }
+    return await queryRunner.manager.save(ModuleEntity, module);
   }
 
   /**

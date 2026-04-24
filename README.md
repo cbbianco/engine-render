@@ -36,8 +36,11 @@ El ecosistema de microservicios (NestJS) sigue un patrón de **Arquitectura por 
 - **Eficiencia**: Optimizado para respuestas rápidas y totalmente modular.
 
 ### 🟡 ms-modules (Generador Dinámico)
-- **Estado**: En proceso de alineación con el patrón Facade de `ms-users`.
-- **Enfoque**: Integración con servicios de IA para la hidratación de metadatos.
+*Motor de inteligencia artificial para la hidratación de metadatos UI.*
+- **Cumplimiento Arquitectónico**: **100%** (v2.2).
+- **Capas**: Controller → **Facade (ModuleGenerateFacade)** → Specialized Services (IA, Persist) → Repository.
+- **Robustez**: **Máxima**. Implementa una orquestación limpia de transacciones SQL solo tras la confirmación exitosa de la generación vía IA.
+- **Enfoque**: Integración fluida entre la lógica generativa y la persistencia relacional/documental.
 
 📈 **Crecimiento y Productividad**
 La transición hacia el UI Metadata Render (v2.0) ha permitido optimizar el ciclo de vida del desarrollo:

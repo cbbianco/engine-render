@@ -3,6 +3,7 @@ import { ModuleController } from './controller/module.controller';
 import { ExtractPayload } from './utils/cipher/extract.payload';
 import { JwtModule } from '@nestjs/jwt';
 import { ModuleGenerateService } from './service/generate/module-generate.service';
+import { ModuleGenerateFacade } from './service/generate/module-generate.facade';
 import { IAService } from './service/commons/ia.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -61,6 +62,7 @@ import { UserExtractUtils } from './utils/extract/user/user.extract.utils';
     PromptUtils,
     ModuleHydratorUtils,
     AuthGuard,
+    ModuleGenerateFacade,
   ],
 })
 export class ModuleModule {}
