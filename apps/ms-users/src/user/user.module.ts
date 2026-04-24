@@ -23,6 +23,7 @@ import { UserVerificationService } from './service/user/user-verification.servic
 import { UserListService } from './service/user/user-list.service';
 import { UserCreationService } from './service/user/user-creation.service';
 import { UserProfileService } from './service/user/user-profile.service';
+import { UserConfigService } from './service/user/user-config.service';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { UserProfileService } from './service/user/user-profile.service';
     UserListService,
     UserCreationService,
     UserProfileService,
+    UserConfigService,
     {
       provide: APP_INTERCEPTOR,
       useClass: UserResponseInterceptor,

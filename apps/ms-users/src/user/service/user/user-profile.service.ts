@@ -4,7 +4,6 @@ import { AuthService } from '../auth/auth.service';
 import { PayloadService } from '../payload/payload.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from '../../entities/user/user.entity';
-import { ModuleEntity } from '../../entities/module/module.entity';
 import * as crypto from 'crypto';
 import { ExtractTokenDto, UserDomainDTO } from '../../dto/jwt/user.data.dto';
 import { UserExtractUtils } from '../../utils/extract/user/user.extract.utils';
@@ -24,69 +23,72 @@ export class UserProfileService {
 
   /**
    * @method updateUser
-   * @description Executes the user profile update after validating the schema dynamically.
-   * 
-   * @param profile 
-   * @param user 
+   * @description Fachada para la actualización del perfil de usuario con validación dinámica y regeneración de sesión.
    */
   async updateUser(profile: UserProfileDto, user: ExtractTokenDto) {
     if (!profile) {
       throw new UnauthorizedException('Los datos de actualización no han sido proporcionados');
     }
+
+    // 1. Contexto y Recuperación de Usuario
     const userToken: UserDomainDTO = await this.extractUser.extractUser(user);
+    const consultUser = await this.getUserWithPermissions(userToken.userName);
 
-    // 1. Consultar Usuario (ahora como primer paso para optimizar)
-    const consultUser: UserEntity | null =
-      await this.authRepository.getUserAndPermissions(userToken.userName);
-
-    if (!consultUser) {
-      throw new UnauthorizedException('Usuario no encontrado');
-    }
-
-    // Aplanar los módulos del usuario desde sus roles
-    const userModules: ModuleEntity[] = consultUser.userRoles.flatMap(ur => ur.role.modules);
-
-    // 2. Validar dinámicamente contra el esquema de Mongo usando los módulos ya cargados
+    // 2. Validación Dinámica de Esquema
+    const userModules = consultUser.userRoles.flatMap(ur => ur.role.modules);
     await this.moduleValidation.validateProfileSchema('Mi Perfil', userModules, profile);
 
-    // 3. Ejecutar lógica de negocio
+    // 3. Procesamiento de Cambios
     const oldUserName = consultUser.userName;
     const isUpdatingUserName = profile.userName && profile.userName !== oldUserName;
-
-    // Actualizar campos
-    consultUser.firstName = profile.firstName || consultUser.firstName;
-    consultUser.lastName = profile.lastName || consultUser.lastName;
-    consultUser.userName = profile.userName || consultUser.userName;
-
-    // 4. Actualizar contraseña con seguridad si se proporciona (Gestionado por Interceptor)
-    if (profile.password) {
-      consultUser.password = await this.auth.hashPassword(profile.password);
-    }
+    
+    await this.applyProfileChanges(consultUser, profile);
 
     try {
-      // Sincronizar Mongo si aplica
+      // 4. Persistencia y Sincronización
       if (isUpdatingUserName && profile.userName) {
         await this.authRepository.updateMongoConfig(oldUserName, profile.userName);
       }
-
-      // Persistir en MySQL
       const userResult = await this.authRepository.saveUser(consultUser);
 
-      // Regenerar payload y token
-      const config = await this.authRepository.consultUser(consultUser.userName);
-      const payloadUser = await this.payload.generatePayload(consultUser, config.publicKey);
-      const iv = crypto.randomBytes(16);
+      // 5. Regeneración de Sesión
+      return await this.generateUpdateResponse(userResult);
 
-      return {
-        message: 'Perfil Actualizado con Éxito',
-        user: userResult,
-        access_token: this.jwtService.sign({
-          content: payloadUser,
-          iv: iv.toString('hex'),
-        }),
-      };
     } catch (error) {
       throw new UnauthorizedException('Error al actualizar el perfil del usuario');
     }
+  }
+
+  private async getUserWithPermissions(userName: string): Promise<UserEntity> {
+    const user = await this.authRepository.getUserAndPermissions(userName);
+    if (!user) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+    return user;
+  }
+
+  private async applyProfileChanges(user: UserEntity, profile: UserProfileDto) {
+    user.firstName = profile.firstName || user.firstName;
+    user.lastName = profile.lastName || user.lastName;
+    user.userName = profile.userName || user.userName;
+
+    if (profile.password) {
+      user.password = await this.auth.hashPassword(profile.password);
+    }
+  }
+
+  private async generateUpdateResponse(user: UserEntity) {
+    const config = await this.authRepository.consultUser(user.userName);
+    const payloadUser = await this.payload.generatePayload(user, config.publicKey);
+    const iv = crypto.randomBytes(16);
+
+    return {
+      message: 'Perfil Actualizado con Éxito',
+      user: user,
+      access_token: this.jwtService.sign({
+        content: payloadUser,
+        iv: iv.toString('hex'),
+      }),
+    };
   }
 }

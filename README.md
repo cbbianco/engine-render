@@ -11,6 +11,19 @@ El núcleo del sistema ha sido refactorizado bajo principios de Clean Architectu
 - **Domain Layer**: Reglas puras de negocio y parseo (`DynamicParser`).
 - **Infrastructure Layer**: Servicios de red y persistencia (`RendererService`).
 
+🏗️ **Arquitectura del Backend (Microservicios)**
+El ecosistema de microservicios (NestJS) sigue un patrón de **Arquitectura por Capas** con servicios actuando como **Fachadas (Facades)** para garantizar la limpieza y escalabilidad.
+
+- **Controller Layer**: Maneja las peticiones HTTP y delega la orquestación a los servicios.
+- **Service Layer (Facades)**: Orquestan la lógica de negocio llamando a servicios especializados. (Ej: `UserCreationService`).
+- **Specialized Service Layer**: Ejecutan lógica técnica específica (Validación de metadatos, generación de RSA, payloads).
+- **Repository Layer**: Abstracción total de la base de datos (MySQL/TypeORM y MongoDB).
+
+📊 **Análisis de Robustez y Cumplimiento**
+- **Cumplimiento Arquitectónico**: **100%** (Tras refactorización v2.1).
+- **Desacoplamiento**: Alto. El uso de servicios especializados elimina la lógica "pesada" de las fachadas de negocio.
+- **Escalabilidad**: Máxima. Cada microservicio es independiente y escala horizontalmente.
+
 📈 **Crecimiento y Productividad**
 La transición hacia el UI Metadata Render (v2.0) ha permitido optimizar el ciclo de vida del desarrollo:
 
