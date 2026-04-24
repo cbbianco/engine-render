@@ -1,6 +1,0 @@
-{
-  "type": "datepicker",
-  "label": "Fecha de Registro",
-  "property": "createdAt",
-  "column": "col-4"
-}

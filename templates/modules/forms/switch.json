@@ -1,6 +1,0 @@
-{
-  "type": "switch",
-  "label": "Estado de Cuenta",
-  "property": "isActive",
-  "column": "col-2"
-}

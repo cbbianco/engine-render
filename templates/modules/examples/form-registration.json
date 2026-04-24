@@ -1,0 +1,39 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CREATE", "title": "Registro de Nuevo Usuario" },
+      "module": "Registro",
+      "path": "/register",
+      "method": "POST",
+      "order": 1,
+      "menu": "menu-item:Usuarios:Crear",
+      "icon": "svg-user-plus",
+      "breadcrumb": [{ "label": "Usuarios", "path": "/list-users" }]
+    },
+    "schema": [
+      { "type": "input", "label": "Nombre", "property": "firstName", "column": "col-6" },
+      { "type": "input", "label": "Apellido", "property": "lastName", "column": "col-6" },
+      { "type": "email", "label": "Email", "property": "email", "column": "col-12" },
+      {
+        "type": "button",
+        "label": "Guardar Usuario",
+        "action": "orchestration",
+        "orchestrationDetails": {
+          "target": "ms-users",
+          "method": "POST",
+          "endpoint": "/api/v1/users/create"
+        }
+      }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": {
+    "actions": {
+      "submit": {
+        "type": "api-call",
+        "method": "POST",
+        "endpoint": "/api/v1/users/save"
+      }
+    }
+  }
+}

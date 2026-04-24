@@ -42,6 +42,27 @@ El ecosistema de microservicios (NestJS) sigue un patrón de **Arquitectura por 
 - **Robustez**: **Máxima**. Implementa una orquestación limpia de transacciones SQL solo tras la confirmación exitosa de la generación vía IA.
 - **Enfoque**: Integración fluida entre la lógica generativa y la persistencia relacional/documental.
 
+📊 **Estructura Definitiva de Módulos (JSON)**
+Cada módulo debe seguir la jerarquía de `configurationUi` y `orchestrationDetails` para ser procesado correctamente por el motor de renderizado.
+
+### 🧩 Jerarquía del Objeto Raíz
+1.  **`configurationUi`**: Contiene la definición visual y metadatos del módulo.
+    -   **`config`**: Metadatos (título, orden del menú, icono, breadcrumb, path).
+    -   **`schema`**: Array de componentes principales (inputs, tablas, etc.).
+    -   **`schemaChild`**: Array de sub-módulos anidados (ej: detalles de una fila).
+2.  **`orchestrationDetails`**: Define las comunicaciones con el backend.
+    -   **`consult`**: Endpoint principal de carga de datos (`GET`).
+    -   **`actions`**: Mapa de acciones disponibles (CRUD, navegaciones, orquestaciones).
+
+### ⚡ Uso de `actions`
+Las acciones permiten la interactividad dentro de componentes como `table-premium` o `button`:
+-   **`navigate`**: Cambia de ruta en el frontend.
+-   **`api-call`**: Ejecuta una petición HTTP (`DELETE`, `PUT`, `POST`).
+-   **`orchestration`**: Lógica compleja que involucra múltiples microservicios.
+
+### ⛓️ Sub-módulos (`schemaChild`)
+Permiten la composición de interfaces complejas (Maestro-Detalle). Se definen con un `moduleId` único y su propio `module` (array de componentes).
+
 📈 **Crecimiento y Productividad**
 La transición hacia el UI Metadata Render (v2.0) ha permitido optimizar el ciclo de vida del desarrollo:
 
