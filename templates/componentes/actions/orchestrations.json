@@ -1,0 +1,37 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "EXECUTE", "title": "Ejemplo de Acciones" },
+      "module": "Acciones",
+      "path": "/actions-demo",
+      "method": "POST",
+      "order": 4
+    },
+    "schema": [
+      {
+        "type": "button",
+        "label": "Sincronizar Datos",
+        "action": "orchestration",
+        "orchestrationDetails": {
+          "target": "ms-users",
+          "method": "POST",
+          "endpoint": "/api/v1/sync"
+        }
+      },
+      {
+        "type": "toolbar",
+        "label": "Opciones de Exportación",
+        "actions": [
+          { "label": "PDF", "type": "api-call", "endpoint": "/export/pdf" },
+          { "label": "Excel", "type": "api-call", "endpoint": "/export/excel" }
+        ]
+      }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": {
+    "actions": {
+      "sync": { "type": "orchestration", "target": "ms-modules", "endpoint": "/refresh" }
+    }
+  }
+}

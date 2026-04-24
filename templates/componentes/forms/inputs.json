@@ -1,0 +1,38 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CREATE", "title": "Ejemplo de Inputs" },
+      "module": "Formulario Básico",
+      "path": "/form-inputs",
+      "method": "POST",
+      "order": 1
+    },
+    "schema": [
+      {
+        "type": "input",
+        "label": "Campo de Texto",
+        "property": "text_field",
+        "placeholder": "Ingrese texto...",
+        "column": "col-6"
+      },
+      {
+        "type": "email",
+        "label": "Correo Electrónico",
+        "property": "user_email",
+        "column": "col-6"
+      },
+      {
+        "type": "password",
+        "label": "Contraseña",
+        "property": "user_pass",
+        "column": "col-12"
+      }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": {
+    "actions": {
+      "submit": { "type": "api-call", "method": "POST", "endpoint": "/api/v1/save" }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CONSULT", "title": "Ejemplo de Selects" },
+      "module": "Selección",
+      "path": "/form-selects",
+      "method": "GET",
+      "order": 2
+    },
+    "schema": [
+      {
+        "type": "select",
+        "label": "País de Origen",
+        "property": "country_id",
+        "options": [
+          { "label": "México", "value": "mx" },
+          { "label": "Colombia", "value": "co" }
+        ],
+        "column": "col-6"
+      },
+      {
+        "type": "datepicker",
+        "label": "Fecha de Inicio",
+        "property": "start_date",
+        "column": "col-6"
+      }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": {
+    "consult": { "method": "GET", "endpoint": "/api/v1/options" }
+  }
+}

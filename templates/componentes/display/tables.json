@@ -1,0 +1,30 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CONSULT", "title": "Ejemplo de Tablas" },
+      "module": "Listados",
+      "path": "/display-tables",
+      "method": "GET",
+      "order": 3
+    },
+    "schema": [
+      {
+        "type": "table-premium",
+        "label": "Grilla de Datos",
+        "property": "data_grid",
+        "column": "col-12",
+        "config": {
+          "columns": [
+            { "label": "ID", "key": "id", "type": "text" },
+            { "label": "Descripción", "key": "desc", "type": "text" }
+          ],
+          "actions": ["edit", "delete"]
+        }
+      }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": {
+    "consult": { "method": "GET", "endpoint": "/api/v1/data" }
+  }
+}
