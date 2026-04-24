@@ -1,0 +1,54 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": {
+        "orchestrationType": "CONSULT",
+        "title": "Vista Detallada (Nesting)"
+      },
+      "module": "Detalle Maestro",
+      "path": "/master-detail",
+      "method": "GET",
+      "order": 10,
+      "menu": "menu-item:Admin:Nesting",
+      "icon": "svg-layers",
+      "breadcrumb": [
+        {
+          "label": "Inicio",
+          "path": "/"
+        }
+      ]
+    },
+    "schema": [
+      {
+        "type": "table-premium",
+        "label": "Listado Maestro",
+        "property": "master_list",
+        "column": "col-12"
+      }
+    ],
+    "schemaChild": [
+      {
+        "moduleId": "child-detail",
+        "path": "/child-path",
+        "config": {
+          "title": "Módulo Hijo de Detalle"
+        },
+        "module": [
+          {
+            "type": "input",
+            "label": "Propiedad del Hijo",
+            "property": "child_prop"
+          }
+        ]
+      }
+    ]
+  },
+  "orchestrationDetails": {
+    "consult": {
+      "method": "GET",
+      "uri": "{backend}/{endpoint}",
+      "endpoint": "/api/v1/master",
+      "backend": "http://localhost:4000"
+    }
+  }
+}

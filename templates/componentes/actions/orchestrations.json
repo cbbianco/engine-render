@@ -1,37 +1,43 @@
 {
   "configurationUi": {
     "config": {
-      "metadata": { "orchestrationType": "EXECUTE", "title": "Ejemplo de Acciones" },
-      "module": "Acciones",
-      "path": "/actions-demo",
+      "metadata": {
+        "orchestrationType": "EXECUTE",
+        "title": "Orquestación de Procesos"
+      },
+      "module": "Sincronización",
+      "path": "/sync",
       "method": "POST",
-      "order": 4
+      "order": 5,
+      "menu": "menu-item:Admin:Sync",
+      "icon": "svg-sync",
+      "breadcrumb": [
+        {
+          "label": "Admin",
+          "path": "/admin"
+        }
+      ]
     },
     "schema": [
       {
         "type": "button",
-        "label": "Sincronizar Datos",
+        "label": "Sincronizar Microservicios",
         "action": "orchestration",
+        "column": "col-12",
         "orchestrationDetails": {
           "target": "ms-users",
           "method": "POST",
-          "endpoint": "/api/v1/sync"
+          "endpoint": "/api/v1/sync/all"
         }
-      },
-      {
-        "type": "toolbar",
-        "label": "Opciones de Exportación",
-        "actions": [
-          { "label": "PDF", "type": "api-call", "endpoint": "/export/pdf" },
-          { "label": "Excel", "type": "api-call", "endpoint": "/export/excel" }
-        ]
       }
-    ],
-    "schemaChild": []
+    ]
   },
   "orchestrationDetails": {
-    "actions": {
-      "sync": { "type": "orchestration", "target": "ms-modules", "endpoint": "/refresh" }
+    "consult": {
+      "method": "GET",
+      "uri": "{backend}/{endpoint}",
+      "endpoint": "/api/v1/sync/status",
+      "backend": "http://localhost:4002"
     }
   }
 }

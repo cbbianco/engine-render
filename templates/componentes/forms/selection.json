@@ -1,33 +1,48 @@
 {
   "configurationUi": {
     "config": {
-      "metadata": { "orchestrationType": "CONSULT", "title": "Ejemplo de Selects" },
-      "module": "Selección",
-      "path": "/form-selects",
+      "metadata": {
+        "orchestrationType": "CONSULT",
+        "title": "Selector de Opciones"
+      },
+      "module": "Selección Avanzada",
+      "path": "/selection",
       "method": "GET",
-      "order": 2
+      "order": 2,
+      "menu": "menu-item:Configuracion:Seleccion",
+      "icon": "svg-list",
+      "breadcrumb": [
+        {
+          "label": "Dashboard",
+          "path": "/dashboard"
+        }
+      ]
     },
     "schema": [
       {
         "type": "select",
-        "label": "País de Origen",
-        "property": "country_id",
+        "label": "Categoría de Producto",
+        "property": "categoryId",
         "options": [
-          { "label": "México", "value": "mx" },
-          { "label": "Colombia", "value": "co" }
+          { "label": "Electrónica", "value": 1 },
+          { "label": "Hogar", "value": 2 }
         ],
         "column": "col-6"
       },
       {
         "type": "datepicker",
-        "label": "Fecha de Inicio",
-        "property": "start_date",
+        "label": "Fecha de Vencimiento",
+        "property": "dueDate",
         "column": "col-6"
       }
-    ],
-    "schemaChild": []
+    ]
   },
   "orchestrationDetails": {
-    "consult": { "method": "GET", "endpoint": "/api/v1/options" }
+    "consult": {
+      "method": "GET",
+      "uri": "{backend}/{endpoint}",
+      "endpoint": "/api/v1/categories",
+      "backend": "http://localhost:4000"
+    }
   }
 }

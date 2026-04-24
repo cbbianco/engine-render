@@ -1,30 +1,71 @@
 {
   "configurationUi": {
     "config": {
-      "metadata": { "orchestrationType": "CONSULT", "title": "Ejemplo de Tablas" },
-      "module": "Listados",
-      "path": "/display-tables",
+      "metadata": {
+        "orchestrationType": "CONSULT",
+        "title": "Listado de Usuarios"
+      },
+      "module": "Listar Usuarios",
+      "path": "/list-users",
       "method": "GET",
-      "order": 3
+      "order": 2,
+      "menu": "menu-item:Usuarios:Listar",
+      "icon": "svg-user-plus",
+      "breadcrumb": [
+        {
+          "label": "Dashboard",
+          "path": "/dashboard"
+        }
+      ]
     },
     "schema": [
       {
         "type": "table-premium",
-        "label": "Grilla de Datos",
-        "property": "data_grid",
+        "label": "Usuarios Registrados",
+        "property": "users_data",
+        "value": "{res}",
+        "align": "left",
         "column": "col-12",
         "config": {
           "columns": [
-            { "label": "ID", "key": "id", "type": "text" },
-            { "label": "Descripción", "key": "desc", "type": "text" }
+            { "label": "Nombre", "key": "firstName", "type": "text" },
+            { "label": "Apellido", "key": "lastName", "type": "text", "sortable": true },
+            { "label": "Usuario", "key": "username", "type": "text", "sortable": true },
+            { "label": "Rol", "key": "roles", "type": "text", "sortable": true },
+            { "label": "Acción", "key": "actions", "type": "actions" }
           ],
-          "actions": ["edit", "delete"]
+          "toolbar": [
+            { "label": "Crear Usuario", "action": "create-user", "icon": "plus", "variant": "primary" }
+          ],
+          "actions": {
+            "create-user": {
+              "type": "navigate",
+              "moduleId": "register-user",
+              "path": "/create-user",
+              "params": { "from": "user-list", "trigger": "toolbar-button" }
+            },
+            "edit": {
+              "type": "navigate",
+              "moduleId": "register-user",
+              "path": "/modules/register-user",
+              "params": { "id": "{id}", "mode": "edit" }
+            },
+            "delete": {
+              "type": "api-call",
+              "endpoint": "/api/v1/user/{id}",
+              "method": "DELETE"
+            }
+          }
         }
       }
-    ],
-    "schemaChild": []
+    ]
   },
   "orchestrationDetails": {
-    "consult": { "method": "GET", "endpoint": "/api/v1/data" }
+    "consult": {
+      "method": "GET",
+      "uri": "{backend}/{endpoint}",
+      "endpoint": "/api/v1/users",
+      "backend": "http://localhost:4001"
+    }
   }
 }

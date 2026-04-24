@@ -1,38 +1,46 @@
 {
   "configurationUi": {
     "config": {
-      "metadata": { "orchestrationType": "CREATE", "title": "Ejemplo de Inputs" },
-      "module": "Formulario Básico",
-      "path": "/form-inputs",
+      "metadata": {
+        "orchestrationType": "CREATE",
+        "title": "Registro de Datos"
+      },
+      "module": "Formulario de Registro",
+      "path": "/register",
       "method": "POST",
-      "order": 1
+      "order": 1,
+      "menu": "menu-item:Configuracion:Registro",
+      "icon": "svg-user",
+      "breadcrumb": [
+        {
+          "label": "Dashboard",
+          "path": "/dashboard"
+        }
+      ]
     },
     "schema": [
       {
         "type": "input",
-        "label": "Campo de Texto",
-        "property": "text_field",
-        "placeholder": "Ingrese texto...",
+        "label": "Nombre Completo",
+        "property": "fullName",
+        "placeholder": "Ej: Juan Pérez",
         "column": "col-6"
       },
       {
         "type": "email",
         "label": "Correo Electrónico",
-        "property": "user_email",
+        "property": "email",
+        "placeholder": "ejemplo@correo.com",
         "column": "col-6"
-      },
-      {
-        "type": "password",
-        "label": "Contraseña",
-        "property": "user_pass",
-        "column": "col-12"
       }
-    ],
-    "schemaChild": []
+    ]
   },
   "orchestrationDetails": {
-    "actions": {
-      "submit": { "type": "api-call", "method": "POST", "endpoint": "/api/v1/save" }
+    "consult": {
+      "method": "GET",
+      "uri": "{backend}/{endpoint}",
+      "endpoint": "/api/v1/options",
+      "backend": "http://localhost:4000"
     }
   }
 }
