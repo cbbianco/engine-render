@@ -1,0 +1,49 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": {
+        "orchestrationType": "CONSULT",
+        "title": "Facturación y Firma"
+      },
+      "module": "Operaciones",
+      "path": "/business-ops",
+      "method": "GET",
+      "order": 10,
+      "menu": "menu-item:Finanzas:Operaciones",
+      "icon": "svg-file-text",
+      "breadcrumb": [{ "label": "Inicio", "path": "/" }]
+    },
+    "schema": [
+      {
+        "type": "estimated-revenue",
+        "label": "Ingresos Proyectados",
+        "property": "revenue_stats",
+        "column": "col-4"
+      },
+      {
+        "type": "invoice",
+        "label": "Vista de Factura Premium",
+        "property": "invoice_data",
+        "column": "col-8",
+        "config": { "show_logo": true, "currency": "USD" }
+      },
+      { "separator": true, "label": "Autorización", "column": "col-12" },
+      {
+        "type": "draw",
+        "label": "Firma Digital",
+        "property": "signature",
+        "column": "col-6",
+        "placeholder": "Firme aquí para confirmar"
+      }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": {
+    "consult": {
+      "method": "GET",
+      "uri": "{backend}/{endpoint}",
+      "endpoint": "/api/v1/finance/summary",
+      "backend": "http://localhost:4002"
+    }
+  }
+}
