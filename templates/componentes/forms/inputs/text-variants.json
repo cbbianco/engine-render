@@ -1,0 +1,21 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CREATE", "title": "Variantes de Input" },
+      "module": "Inputs", "path": "/inputs-variants", "method": "POST", "order": 1
+    },
+    "schema": [
+      { "type": "input", "label": "Tag: input", "property": "p1", "column": "col-4" },
+      { "type": "text", "label": "Tag: text", "property": "p2", "column": "col-4" },
+      { "type": "input-text", "label": "Tag: input-text", "property": "p3", "column": "col-4" },
+      { "type": "input_text", "label": "Tag: input_text", "property": "p4", "column": "col-4" },
+      { "type": "inputtext", "label": "Tag: inputtext", "property": "p5", "column": "col-4" },
+      { "type": "email", "label": "Tag: email", "property": "p6", "column": "col-4" },
+      { "type": "password", "label": "Tag: password", "property": "p7", "column": "col-4" },
+      { "type": "textarea", "label": "Tag: textarea", "property": "p8", "column": "col-6" },
+      { "type": "input_body", "label": "Tag: input_body", "property": "p9", "column": "col-6" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4000/api/v1/meta" } }
+}

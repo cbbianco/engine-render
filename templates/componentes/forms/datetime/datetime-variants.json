@@ -1,0 +1,15 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "NONE", "title": "Botones y Fechas" },
+      "module": "Controls", "path": "/controls", "method": "GET", "order": 5
+    },
+    "schema": [
+      { "type": "button", "label": "Tag: button", "property": "b1", "column": "col-4" },
+      { "type": "datepicker", "label": "Tag: datepicker", "property": "d1", "column": "col-4" },
+      { "type": "date", "label": "Tag: date", "property": "d2", "column": "col-4" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4000/api/v1/meta" } }
+}

@@ -1,0 +1,17 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CONSULT", "title": "Tableros y Estadísticas" },
+      "module": "Boards", "path": "/boards-variants", "method": "GET", "order": 2
+    },
+    "schema": [
+      { "type": "kanban-board", "label": "Tag: kanban-board", "property": "k1", "column": "col-12" },
+      { "type": "kanban", "label": "Tag: kanban", "property": "k2", "column": "col-12" },
+      { "type": "task-kanban", "label": "Tag: task-kanban", "property": "k3", "column": "col-12" },
+      { "type": "estimated_revenue", "label": "Tag: estimated_revenue", "property": "r1", "column": "col-6" },
+      { "type": "estimated-revenue", "label": "Tag: estimated-revenue", "property": "r2", "column": "col-6" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4002/api/v1/meta" } }
+}

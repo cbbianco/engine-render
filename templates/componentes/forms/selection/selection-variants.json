@@ -1,0 +1,18 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CONSULT", "title": "Variantes de Selección" },
+      "module": "Selection", "path": "/selection-variants", "method": "GET", "order": 3
+    },
+    "schema": [
+      { "type": "select", "label": "Tag: select", "property": "s1", "column": "col-4" },
+      { "type": "multiple-select-options", "label": "Tag: multiple-select-options", "property": "s2", "column": "col-4" },
+      { "type": "radio", "label": "Tag: radio", "property": "s3", "column": "col-4" },
+      { "type": "checkbox", "label": "Tag: checkbox", "property": "s4", "column": "col-4" },
+      { "type": "switch", "label": "Tag: switch", "property": "s5", "column": "col-4" },
+      { "type": "toggle", "label": "Tag: toggle", "property": "s6", "column": "col-4" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4000/api/v1/options" } }
+}

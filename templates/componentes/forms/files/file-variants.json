@@ -1,0 +1,16 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CREATE", "title": "Variantes de Archivo" },
+      "module": "Files", "path": "/file-variants", "method": "POST", "order": 4
+    },
+    "schema": [
+      { "type": "file", "label": "Tag: file", "property": "f1", "column": "col-6" },
+      { "type": "file-input", "label": "Tag: file-input", "property": "f2", "column": "col-6" },
+      { "type": "file-upload", "label": "Tag: file-upload", "property": "f3", "column": "col-6" },
+      { "type": "upload", "label": "Tag: upload", "property": "f4", "column": "col-6" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4000/api/v1/meta" } }
+}

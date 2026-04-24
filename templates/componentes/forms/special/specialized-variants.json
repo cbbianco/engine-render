@@ -1,0 +1,16 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CREATE", "title": "Inputs Especializados" },
+      "module": "Special Inputs", "path": "/special-inputs", "method": "POST", "order": 2
+    },
+    "schema": [
+      { "type": "phone", "label": "Tag: phone", "property": "p1", "column": "col-6" },
+      { "type": "url", "label": "Tag: url", "property": "p2", "column": "col-6" },
+      { "type": "input_uri", "label": "Tag: input_uri", "property": "p3", "column": "col-6" },
+      { "type": "input-with-placeholder", "label": "Tag: input-with-placeholder", "property": "p4", "column": "col-6" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4000/api/v1/meta" } }
+}

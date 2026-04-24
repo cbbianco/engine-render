@@ -1,0 +1,15 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CONSULT", "title": "Variantes de Factura" },
+      "module": "Facturas", "path": "/invoices", "method": "GET", "order": 2
+    },
+    "schema": [
+      { "type": "invoice", "label": "Tag: invoice", "property": "inv1", "column": "col-4" },
+      { "type": "single-invoice", "label": "Tag: single-invoice", "property": "inv2", "column": "col-4" },
+      { "type": "single_invoice", "label": "Tag: single_invoice", "property": "inv3", "column": "col-4" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4002/api/v1/invoice" } }
+}

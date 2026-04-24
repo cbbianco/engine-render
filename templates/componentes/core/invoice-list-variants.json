@@ -1,0 +1,15 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CONSULT", "title": "Listados de Facturas" },
+      "module": "Facturas Listado", "path": "/invoices-list", "method": "GET", "order": 3
+    },
+    "schema": [
+      { "type": "list-invoices", "label": "Tag: list-invoices", "property": "list1", "column": "col-4" },
+      { "type": "list_invoices", "label": "Tag: list_invoices", "property": "list2", "column": "col-4" },
+      { "type": "invoices-list", "label": "Tag: invoices-list", "property": "list3", "column": "col-4" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4002/api/v1/invoices" } }
+}

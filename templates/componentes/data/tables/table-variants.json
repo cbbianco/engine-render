@@ -1,0 +1,17 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CONSULT", "title": "Variantes de Tabla" },
+      "module": "Tables", "path": "/table-variants", "method": "GET", "order": 1
+    },
+    "schema": [
+      { "type": "table", "label": "Tag: table", "property": "t1", "column": "col-12" },
+      { "type": "data-table", "label": "Tag: data-table", "property": "t2", "column": "col-12" },
+      { "type": "table-premium", "label": "Tag: table-premium", "property": "t3", "column": "col-12" },
+      { "type": "table-products", "label": "Tag: table-products", "property": "t4", "column": "col-12" },
+      { "type": "products-list", "label": "Tag: products-list", "property": "t5", "column": "col-12" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4002/api/v1/data" } }
+}

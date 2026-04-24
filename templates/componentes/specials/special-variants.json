@@ -1,0 +1,14 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "NONE", "title": "Especiales" },
+      "module": "Specials", "path": "/specials-variants", "method": "GET", "order": 3
+    },
+    "schema": [
+      { "type": "draw", "label": "Tag: draw", "property": "d1", "column": "col-6" },
+      { "type": "fallback", "label": "Tag: fallback", "column": "col-6" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4000/api/v1/meta" } }
+}
