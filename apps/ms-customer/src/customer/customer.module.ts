@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CustomerController } from './controller/customer.controller';
 import { CustomerService } from './service/customer.service';
+import { HandshakeSecurityService } from './service/handshake-security.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CustomerEntity } from './entity/customer.entity';
 import { CustomerRepository } from './repository/customer.repository';
@@ -16,6 +17,6 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   controllers: [CustomerController],
-  providers: [CustomerService, AesSecurity, CustomerRepository],
+  providers: [CustomerService, AesSecurity, CustomerRepository, HandshakeSecurityService],
 })
 export class CustomerModule {}

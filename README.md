@@ -30,10 +30,10 @@ El ecosistema de microservicios (NestJS) sigue un patrón de **Arquitectura por 
 
 ### 🔵 ms-customer (Gestión de Branding & Seguridad Híbrida)
 *Servicio crítico para la fase de "Handshake" inicial del frontend.*
-- **Cumplimiento Arquitectónico**: **90%**.
-- **Capas**: Controller → Service → Repository.
-- **Robustez**: **Alta**. Implementa seguridad híbrida mediante **AES-256** para el payload y **RSA-OAEP** para el intercambio de llaves.
-- **Eficiencia**: Optimizado para respuestas rápidas durante la carga inicial de la aplicación.
+- **Cumplimiento Arquitectónico**: **100%** (v2.2).
+- **Capas**: Controller → **Facade** → **Security Service** → Repository.
+- **Robustez**: **Máxima**. Tras la refactorización v2.2, toda la lógica de seguridad híbrida (AES-256 + RSA-OAEP) ha sido desacoplada en un servicio especializado.
+- **Eficiencia**: Optimizado para respuestas rápidas y totalmente modular.
 
 ### 🟡 ms-modules (Generador Dinámico)
 - **Estado**: En proceso de alineación con el patrón Facade de `ms-users`.

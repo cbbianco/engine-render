@@ -2,51 +2,40 @@ import { Injectable } from '@nestjs/common';
 import { AuthRequestDto } from '../dto/auth.request.dto';
 import { CustomerRepository } from '../repository/customer.repository';
 import { CustomerEntity } from '../entity/customer.entity';
-import { AesSecurity } from '../commons/security/aes/aes.security';
-import * as crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
+import { HandshakeSecurityService } from './handshake-security.service';
 
 @Injectable()
 export class CustomerService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly repository: CustomerRepository,
+    private readonly securityService: HandshakeSecurityService,
   ) { }
 
   /**
    * @method getConfigCustomer
-   * @description Handles the validation of a customer.
-   * 
-   * @param {AuthRequestDto} customer
-   * @returns {Promise<any>}
+   * @description Fachada para la obtención de configuración del cliente con Handshake seguro.
    */
   async getConfigCustomer(customer: AuthRequestDto): Promise<any> {
-    const customerFinder: CustomerEntity =
-      await this.repository.consultCustomer(customer.domain);
+    // 1. Recuperación de datos de dominio
+    const customerFinder: CustomerEntity = await this.repository.consultCustomer(customer.domain);
 
-    const aesKey = crypto.randomBytes(32);
-    const iv = crypto.randomBytes(16);
-
-    const payload = JSON.stringify({
+    // 2. Preparación de Payload
+    const payload = {
       cid: customerFinder.id,
       mail: customerFinder.customer,
       publicKey: customerFinder.publicKey,
       iat: Date.now(),
-    });
+    };
 
-    const encryptedData = AesSecurity.encrypt(payload, aesKey, iv);
-
-    const publicKeyPem = `-----BEGIN PUBLIC KEY-----\n${customerFinder.publicKey}\n-----END PUBLIC KEY-----`;
-
-    const encryptedKey = crypto.publicEncrypt(
-      {
-        key: publicKeyPem,
-        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
-        oaepHash: 'sha256',
-      },
-      aesKey,
+    // 3. Orquestación de Cifrado Híbrido (Delegado a SecurityService)
+    const { encryptedData, encryptedKey, iv } = this.securityService.encryptHandshake(
+      payload, 
+      customerFinder.publicKey
     );
 
+    // 4. Construcción de Respuesta
     return {
       userName: customerFinder.userName,
       loginTexts: customerFinder.loginTexts,
@@ -55,8 +44,8 @@ export class CustomerService {
       serverPublicKey: customerFinder.publicKey,
       access_token: this.jwtService.sign({
         content: encryptedData,
-        envelope: encryptedKey.toString('base64'),
-        iv: iv.toString('hex'),
+        envelope: encryptedKey,
+        iv: iv,
       }),
     };
   }
