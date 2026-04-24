@@ -77,6 +77,10 @@ export class ModuleGenerateFacade {
     await queryRunner.startTransaction();
 
     try {
+      if (!module.id) {
+        throw new Error('ID de módulo no disponible para persistencia SQL');
+      }
+
       console.log('[ModuleGenerateFacade] Registrando en base SQL...');
       await this.repositoryModule.insertModule(queryRunner, {
         path: generate.configurationUi.config.path,
