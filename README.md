@@ -19,10 +19,25 @@ El ecosistema de microservicios (NestJS) sigue un patrón de **Arquitectura por 
 - **Specialized Service Layer**: Ejecutan lógica técnica específica (Validación de metadatos, generación de RSA, payloads).
 - **Repository Layer**: Abstracción total de la base de datos (MySQL/TypeORM y MongoDB).
 
-📊 **Análisis de Robustez y Cumplimiento**
-- **Cumplimiento Arquitectónico**: **100%** (Tras refactorización v2.1).
-- **Desacoplamiento**: Alto. El uso de servicios especializados elimina la lógica "pesada" de las fachadas de negocio.
-- **Escalabilidad**: Máxima. Cada microservicio es independiente y escala horizontalmente.
+📊 **Análisis de Robustez y Cumplimiento por Microservicio**
+
+### 🟢 ms-users (Benchmark de Arquitectura)
+*Este microservicio ha sido elevado al estándar máximo de desacoplamiento.*
+- **Cumplimiento Arquitectónico**: **100%** (v2.1).
+- **Capas**: Controller → **Facade (Orquestador)** → Specialized Services (Config, Validation, Payload) → Repository.
+- **Robustez**: **Máxima**. Implementa validación dinámica de esquemas contra MongoDB y orquestación de seguridad RSA/JWT delegada.
+- **Estado**: Refactorizado para SRP (Single Responsibility Principle).
+
+### 🔵 ms-customer (Gestión de Branding & Seguridad Híbrida)
+*Servicio crítico para la fase de "Handshake" inicial del frontend.*
+- **Cumplimiento Arquitectónico**: **90%**.
+- **Capas**: Controller → Service → Repository.
+- **Robustez**: **Alta**. Implementa seguridad híbrida mediante **AES-256** para el payload y **RSA-OAEP** para el intercambio de llaves.
+- **Eficiencia**: Optimizado para respuestas rápidas durante la carga inicial de la aplicación.
+
+### 🟡 ms-modules (Generador Dinámico)
+- **Estado**: En proceso de alineación con el patrón Facade de `ms-users`.
+- **Enfoque**: Integración con servicios de IA para la hidratación de metadatos.
 
 📈 **Crecimiento y Productividad**
 La transición hacia el UI Metadata Render (v2.0) ha permitido optimizar el ciclo de vida del desarrollo:
