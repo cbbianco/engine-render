@@ -1,72 +1,17 @@
 {
   "configurationUi": {
     "config": {
-      "metadata": {
-        "orchestrationType": "CONSULT",
-        "title": "Listado de Usuarios"
-      },
-      "module": "Listar Usuarios",
-      "path": "/list-users",
-      "method": "GET",
-      "order": 2,
-      "menu": "menu-item:Usuarios:Listar",
-      "icon": "svg-user-plus",
-      "breadcrumb": [
-        {
-          "label": "Dashboard",
-          "path": "/dashboard"
-        }
-      ]
+      "metadata": { "orchestrationType": "CONSULT", "title": "Listados y Grillas" },
+      "module": "Tablas", "path": "/tables", "method": "GET", "order": 5
     },
     "schema": [
-      {
-        "type": "table-premium",
-        "label": "Usuarios Registrados",
-        "property": "users_data",
-        "value": "{res}",
-        "align": "left",
-        "column": "col-12",
-        "config": {
-          "columns": [
-            { "label": "Nombre", "key": "firstName", "type": "text" },
-            { "label": "Apellido", "key": "lastName", "type": "text", "sortable": true },
-            { "label": "Usuario", "key": "username", "type": "text", "sortable": true },
-            { "label": "Rol", "key": "roles", "type": "text", "sortable": true },
-            { "label": "Acción", "key": "actions", "type": "actions" }
-          ],
-          "toolbar": [
-            { "label": "Crear Usuario", "action": "create-user", "icon": "plus", "variant": "primary" }
-          ],
-          "actions": {
-            "create-user": {
-              "type": "navigate",
-              "moduleId": "register-user",
-              "path": "/create-user",
-              "params": { "from": "user-list", "trigger": "toolbar-button" }
-            },
-            "edit": {
-              "type": "navigate",
-              "moduleId": "register-user",
-              "path": "/modules/register-user",
-              "params": { "id": "{id}", "mode": "edit" }
-            },
-            "delete": {
-              "type": "api-call",
-              "endpoint": "/api/v1/user/{id}",
-              "method": "DELETE"
-            }
-          }
-        }
-      }
+      { "type": "table-premium", "label": "Tabla Premium", "property": "data", "column": "col-12" },
+      { "type": "table-products", "label": "Catálogo de Productos", "property": "products", "column": "col-12" },
+      { "type": "list-invoices", "label": "Lista de Facturas", "property": "invoices", "column": "col-12" }
     ],
     "schemaChild": []
   },
   "orchestrationDetails": {
-    "consult": {
-      "method": "GET",
-      "uri": "{backend}/{endpoint}",
-      "endpoint": "/api/v1/users",
-      "backend": "http://localhost:4001"
-    }
+    "consult": { "method": "GET", "uri": "{backend}/{endpoint}", "endpoint": "/api/v1/meta", "backend": "http://localhost:4000" }
   }
 }

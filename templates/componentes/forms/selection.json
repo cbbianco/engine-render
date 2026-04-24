@@ -1,49 +1,20 @@
 {
   "configurationUi": {
     "config": {
-      "metadata": {
-        "orchestrationType": "CONSULT",
-        "title": "Selector de Opciones"
-      },
-      "module": "Selección Avanzada",
-      "path": "/selection",
-      "method": "GET",
-      "order": 2,
-      "menu": "menu-item:Configuracion:Seleccion",
-      "icon": "svg-list",
-      "breadcrumb": [
-        {
-          "label": "Dashboard",
-          "path": "/dashboard"
-        }
-      ]
+      "metadata": { "orchestrationType": "CONSULT", "title": "Controles de Selección" },
+      "module": "Selección", "path": "/selection", "method": "GET", "order": 4
     },
     "schema": [
-      {
-        "type": "select",
-        "label": "Categoría de Producto",
-        "property": "categoryId",
-        "options": [
-          { "label": "Electrónica", "value": 1 },
-          { "label": "Hogar", "value": 2 }
-        ],
-        "column": "col-6"
-      },
-      {
-        "type": "datepicker",
-        "label": "Fecha de Vencimiento",
-        "property": "dueDate",
-        "column": "col-6"
-      }
+      { "type": "select", "label": "Desplegable", "property": "select", "column": "col-4" },
+      { "type": "multiple-select-options", "label": "Multiselección", "property": "multi", "column": "col-4" },
+      { "type": "datepicker", "label": "Fecha", "property": "date", "column": "col-4" },
+      { "type": "switch", "label": "Interruptor", "property": "switch", "column": "col-3" },
+      { "type": "checkbox", "label": "Check", "property": "check", "column": "col-3" },
+      { "type": "radio", "label": "Radio", "property": "radio", "column": "col-3" }
     ],
     "schemaChild": []
   },
   "orchestrationDetails": {
-    "consult": {
-      "method": "GET",
-      "uri": "{backend}/{endpoint}",
-      "endpoint": "/api/v1/categories",
-      "backend": "http://localhost:4000"
-    }
+    "consult": { "method": "GET", "uri": "{backend}/{endpoint}", "endpoint": "/api/v1/meta", "backend": "http://localhost:4000" }
   }
 }

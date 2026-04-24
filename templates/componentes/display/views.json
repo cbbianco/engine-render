@@ -1,0 +1,17 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "CONSULT", "title": "Visualización Especial" },
+      "module": "Vistas", "path": "/views", "method": "GET", "order": 6
+    },
+    "schema": [
+      { "type": "kanban-board", "label": "Tablero", "property": "tasks", "column": "col-12" },
+      { "type": "invoice", "label": "Factura", "property": "invoice", "column": "col-8" },
+      { "type": "estimated-revenue", "label": "Ingresos", "property": "revenue", "column": "col-4" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": {
+    "consult": { "method": "GET", "uri": "{backend}/{endpoint}", "endpoint": "/api/v1/meta", "backend": "http://localhost:4000" }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": { "orchestrationType": "NONE", "title": "Elementos de Estructura" },
+      "module": "Layout", "path": "/layout", "method": "GET", "order": 7
+    },
+    "schema": [
+      { "type": "title", "label": "Título de Sección", "column": "col-12" },
+      { "type": "hr", "label": "Separador Lineal", "column": "col-12" },
+      { "separator": true, "label": "Separador por Propiedad", "column": "col-12" }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": {
+    "consult": { "method": "GET", "uri": "{backend}/{endpoint}", "endpoint": "/api/v1/meta", "backend": "http://localhost:4000" }
+  }
+}
