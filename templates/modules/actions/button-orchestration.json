@@ -1,0 +1,11 @@
+{
+  "type": "button",
+  "label": "Ejecutar Acción",
+  "property": "run_action",
+  "action": "orchestration",
+  "orchestrationDetails": {
+    "target": "ms-users",
+    "method": "POST",
+    "endpoint": "/api/v1/users/sync"
+  }
+}

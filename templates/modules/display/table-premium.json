@@ -1,0 +1,17 @@
+{
+  "type": "table-premium",
+  "label": "Gestión de Clientes",
+  "property": "customers",
+  "column": "col-12",
+  "config": {
+    "searchable": true,
+    "paginated": true,
+    "pageSize": 10,
+    "actions": ["edit", "delete", "view"],
+    "columns": [
+      { "label": "Nombre", "property": "name" },
+      { "label": "Email", "property": "email" },
+      { "label": "Estado", "property": "status", "type": "badge" }
+    ]
+  }
+}

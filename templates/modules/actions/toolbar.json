@@ -1,0 +1,8 @@
+{
+  "type": "toolbar",
+  "label": "Acciones de Tabla",
+  "actions": [
+    { "label": "Descargar Excel", "icon": "download", "type": "export" },
+    { "label": "Nuevo Registro", "icon": "plus", "type": "create" }
+  ]
+}

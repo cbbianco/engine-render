@@ -1,0 +1,12 @@
+{
+  "type": "select",
+  "label": "Rol de Usuario",
+  "property": "roleId",
+  "options": [
+    { "label": "Administrador", "value": "admin" },
+    { "label": "Operador", "value": "operator" },
+    { "label": "Visualizador", "value": "viewer" }
+  ],
+  "column": "col-6",
+  "placeholder": "Seleccione un rol..."
+}

@@ -1,0 +1,11 @@
+{
+  "type": "input",
+  "label": "Nombre del Usuario",
+  "property": "userName",
+  "placeholder": "Ej: JuanPerez88",
+  "column": "col-6",
+  "validation": {
+    "required": true,
+    "minLength": 3
+  }
+}

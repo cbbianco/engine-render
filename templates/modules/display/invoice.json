@@ -1,0 +1,10 @@
+{
+  "type": "invoice",
+  "label": "Detalle de Pago",
+  "property": "payment_detail",
+  "column": "col-12",
+  "config": {
+    "show_logo": true,
+    "currency": "USD"
+  }
+}
