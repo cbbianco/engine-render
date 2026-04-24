@@ -1,0 +1,42 @@
+{
+  "configurationUi": {
+    "config": {
+      "metadata": {
+        "orchestrationType": "CONSULT",
+        "title": "Vista Detallada de Factura"
+      },
+      "module": "Facturación",
+      "path": "/invoice-view",
+      "method": "GET",
+      "order": 9,
+      "menu": "menu-item:Finanzas:Facturas",
+      "icon": "svg-file-text",
+      "breadcrumb": [
+        { "label": "Dashboard", "path": "/dashboard" },
+        { "label": "Facturas", "path": "/invoices" }
+      ]
+    },
+    "schema": [
+      {
+        "type": "invoice",
+        "label": "Factura de Venta",
+        "property": "invoice_detail",
+        "column": "col-12",
+        "config": {
+          "show_logo": true,
+          "currency": "USD",
+          "theme": "premium"
+        }
+      }
+    ],
+    "schemaChild": []
+  },
+  "orchestrationDetails": {
+    "consult": {
+      "method": "GET",
+      "uri": "{backend}/{endpoint}",
+      "endpoint": "/api/v1/finance/invoice/{id}",
+      "backend": "http://localhost:4002"
+    }
+  }
+}
