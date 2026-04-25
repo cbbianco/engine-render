@@ -2,6 +2,22 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
+## [1.6.0] - 2026-04-25
+### Added
+- **Domain Utility Layer**: New architecture for frontend utilities (`FormUtils`, `RouteUtils`) to handle domain logic outside the orchestrator.
+- **Inactivity Detection System**: Configurable inactivity timeout via `VITE_INACTIVE_MINUTES` to trigger re-authentication.
+- **Component Catalog**: Dedicated technical documentation for all renderable components in `templates/componentes`.
+
+### Changed
+- **Architectural Compliance (v2.2)**: Microservices (`ms-users`, `ms-customer`, `ms-modules`) elevated to 100% compliance with Facade/Orchestrator patterns.
+- **IA Precision**: Set IA temperature to `0.0` for deterministic and technical module generation.
+- **Nested Module UI**: Unified headers and improved equidistance between navigation buttons and titles.
+- **Orchestration Logic**: Enhanced `submit-master` with global validation (Parent + Child) and automatic "back-to-parent" navigation on validation failure.
+
+### Fixed
+- **SelectNative Bug**: Fixed selection and display issues by normalizing `id` and `value` properties.
+- **Validation Glitch**: Fixed false-positive configuration errors during initial hydration of "match" validation rules.
+
 ## [1.5.0] - 2026-04-25
 ### Added
 - **Unified Orchestration**: Support for Master-Detail (Parent-Child) navigation within the same module view.
