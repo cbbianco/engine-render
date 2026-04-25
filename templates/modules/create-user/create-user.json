@@ -52,6 +52,7 @@
                 "property": "firstName",
                 "column": "col-6",
                 "align": "left",
+                "noSubmit": false,
                 "placeholder": "Ingrese el nombre"
             },
             {
@@ -60,6 +61,7 @@
                 "property": "lastName",
                 "column": "col-6",
                 "align": "left",
+                "noSubmit": false,
                 "placeholder": "Ingrese el apellido"
             },
             {
@@ -68,6 +70,7 @@
                 "property": "userName",
                 "column": "col-6",
                 "align": "left",
+                "noSubmit": false,
                 "placeholder": "jdoe2024"
             },
             {
@@ -76,25 +79,43 @@
                 "property": "role",
                 "column": "col-6",
                 "align": "left",
+                "noSubmit": false,
                 "options": [
-                    { "label": "Administrador", "value": "admin" },
-                    { "label": "Usuario", "value": "user" }
+                    {
+                        "label": "Administrador",
+                        "value": "admin"
+                    },
+                    {
+                        "label": "Usuario",
+                        "value": "user"
+                    }
                 ]
             },
             {
                 "type": "password",
                 "label": "Contraseña",
+                "placeholder": "Ingrese la contraseña",
                 "property": "password",
                 "column": "col-6",
-                "align": "left"
+                "align": "left",
+                "noSubmit": false
             },
             {
                 "type": "password",
+                "placeholder": "Reingrese la contraseña",
                 "label": "Confirmar Contraseña",
                 "property": "confirmPassword",
                 "column": "col-6",
                 "align": "left",
                 "match": "password",
+                "noSubmit": true
+            },
+            {
+                "type": "button",
+                "label": "Crear Usuario",
+                "property": "btnSubmitMaster",
+                "column": "col-12",
+                "align": "center",
                 "noSubmit": true
             }
         ],
@@ -125,10 +146,20 @@
                         "label": "Color Primario",
                         "property": "primary",
                         "column": "col-4",
+                        "noSubmit": false,
                         "options": [
-                            { "label": "Azul Profundo", "value": "#1C3FB7" },
-                            { "label": "Verde Esmeralda", "value": "#10B981" },
-                            { "label": "Púrpura Royal", "value": "#7C3AED" }
+                            {
+                                "label": "Azul Profundo",
+                                "value": "#1C3FB7"
+                            },
+                            {
+                                "label": "Verde Esmeralda",
+                                "value": "#10B981"
+                            },
+                            {
+                                "label": "Púrpura Royal",
+                                "value": "#7C3AED"
+                            }
                         ]
                     },
                     {
@@ -136,10 +167,20 @@
                         "label": "Color Secundario",
                         "property": "secondary",
                         "column": "col-4",
+                        "noSubmit": false,
                         "options": [
-                            { "label": "Gris Suave", "value": "#64748B" },
-                            { "label": "Ámbar Cálido", "value": "#F59E0B" },
-                            { "label": "Cian Moderno", "value": "#06B6D4" }
+                            {
+                                "label": "Gris Suave",
+                                "value": "#64748B"
+                            },
+                            {
+                                "label": "Ámbar Cálido",
+                                "value": "#F59E0B"
+                            },
+                            {
+                                "label": "Cian Moderno",
+                                "value": "#06B6D4"
+                            }
                         ]
                     },
                     {
@@ -147,11 +188,36 @@
                         "label": "Color de Error",
                         "property": "errorColor",
                         "column": "col-4",
+                        "noSubmit": false,
                         "options": [
-                            { "label": "Rojo Alerta", "value": "#EF4444" },
-                            { "label": "Naranja Intenso", "value": "#F97316" },
-                            { "label": "Rosa Neón", "value": "#F43F5E" }
+                            {
+                                "label": "Rojo Alerta",
+                                "value": "#EF4444"
+                            },
+                            {
+                                "label": "Naranja Intenso",
+                                "value": "#F97316"
+                            },
+                            {
+                                "label": "Rosa Neón",
+                                "value": "#F43F5E"
+                            }
                         ]
+                    },
+                    {
+                        "type": "separator",
+                        "label": "Identificación de Dominio",
+                        "property": "domainSection",
+                        "column": "col-12"
+                    },
+                    {
+                        "type": "text",
+                        "label": "Customer Identifier",
+                        "property": "customer",
+                        "column": "col-12",
+                        "align": "left",
+                        "noSubmit": false,
+                        "placeholder": "Ingrese el identificador del cliente"
                     },
                     {
                         "type": "separator",
@@ -164,13 +230,15 @@
                         "label": "URL del Logo",
                         "property": "logoUrl",
                         "column": "col-6",
+                        "noSubmit": false,
                         "placeholder": "https://ejemplo.com/logo.png"
                     },
                     {
                         "type": "file",
                         "label": "Archivo de Logo (Local)",
                         "property": "logoFile",
-                        "column": "col-6"
+                        "column": "col-6",
+                        "noSubmit": false
                     },
                     {
                         "type": "button",
@@ -181,6 +249,12 @@
                         "action": "submit-master",
                         "config": {
                             "useMasterModel": true
+                        },
+                        "endpoint": {
+                            "method": "POST",
+                            "uri": "{backend}/{endpoint}",
+                            "endpoint": "/api/v1/users",
+                            "backend": "http://localhost:4001"
                         }
                     }
                 ]

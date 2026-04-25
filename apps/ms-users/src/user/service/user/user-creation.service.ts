@@ -10,7 +10,6 @@ import { ExtractTokenDto, UserDomainDTO } from '../../dto/jwt/user.data.dto';
 import { UserExtractUtils } from '../../utils/extract/user/user.extract.utils';
 import { ModuleValidationService } from '../validation/module-validation.service';
 import { UserRoleEntity } from '../../entities/role/user-role.entity';
-import { UserCreateDto } from '../../dto/user/user.create.dto';
 import { UserConfigService } from './user-config.service';
 
 @Injectable()
@@ -29,31 +28,31 @@ export class UserCreationService {
    * @method createUser
    * @description Fachada para la creación de un nuevo usuario con orquestación de seguridad y configuración.
    */
-  async createUser(create: UserCreateDto, currentUser: ExtractTokenDto) {
+  async createUser(create: Record<string, unknown>, currentUser: ExtractTokenDto, moduleId?: string, logoFile?: Express.Multer.File) {
+    if (logoFile) {
+      create['logoPath'] = logoFile.path;
+    }
     if (!create) {
       throw new BadRequestException('El perfil del usuario no ha sido proporcionado o es inválido');
     }
 
     // 1. Contexto y Validación de Existencia
     const userContext: UserDomainDTO = await this.extractUser.extractUser(currentUser);
-    await this.validateUserUniqueness(create.userName!);
+    const userName = (create['userName'] as string) || '';
+    await this.validateUserUniqueness(userName);
 
     // 2. Validación Dinámica de Esquema (Metadata)
     const currentUserModules = await this.getUserModules(userContext.userName);
-    await this.moduleValidation.validateProfileSchema('Crear Usuario', currentUserModules, create);
+    const moduleIdentifier = moduleId || 'Creación de Usuario';
+    await this.moduleValidation.validateProfileSchema(moduleIdentifier, currentUserModules, create);
 
     try {
       // 3. Persistencia Core (MySQL)
       const savedUser = await this.persistBaseUser(create);
-      await this.assignDefaultRole(savedUser, create.role, userContext.userName);
+      await this.assignDefaultRole(savedUser, create['role'] as string, userContext.userName);
 
       // 4. Configuración y Seguridad (MongoDB)
-      const { config, privateKey } = this.configService.createDefaultConfig(
-        create.userName!, 
-        create.primary, 
-        create.secondary, 
-        create.errorColor
-      );
+      const { config, privateKey } = this.configService.createDefaultConfig(create);
       await this.authRepository.saveUserConfig(config);
 
       // 5. Generación de Respuesta y Payload
@@ -80,12 +79,12 @@ export class UserCreationService {
     return user.userRoles.flatMap(ur => ur.role.modules);
   }
 
-  private async persistBaseUser(create: UserCreateDto): Promise<UserEntity> {
+  private async persistBaseUser(create: Record<string, unknown>): Promise<UserEntity> {
     const newUser = new UserEntity();
-    newUser.firstName = create.firstName!;
-    newUser.lastName = create.lastName!;
-    newUser.userName = create.userName!;
-    newUser.password = await this.auth.hashPassword(create.password!);
+    newUser.firstName = (create['firstName'] as string) || '';
+    newUser.lastName = (create['lastName'] as string) || '';
+    newUser.userName = (create['userName'] as string) || '';
+    newUser.password = await this.auth.hashPassword((create['password'] as string) || '');
     newUser.isActive = 1;
 
     return await this.authRepository.saveUser(newUser);

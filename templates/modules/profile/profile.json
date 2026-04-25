@@ -57,6 +57,7 @@
                 "label": "Nombre de Usuario",
                 "type": "text",
                 "property": "userName",
+                "required": true,
                 "disabled": false,
                 "noSubmit": false,
                 "column": "col-12",

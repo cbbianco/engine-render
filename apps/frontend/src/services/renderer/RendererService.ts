@@ -44,7 +44,7 @@ export class RendererService {
   /**
    * Ejecuta una llamada a API basada en una definición de acción.
    */
-  async executeApiCall(actionDef: any, payload: any, params?: { page?: number; limit?: number }): Promise<ActionExecutionResult> {
+  async executeApiCall(actionDef: any, payload: any, options?: { page?: number; limit?: number; moduleId?: string }): Promise<ActionExecutionResult> {
     if (!actionDef.endpoint) return { success: false, message: 'Endpoint no definido' }
 
     try {
@@ -52,10 +52,10 @@ export class RendererService {
       let url = DynamicParser.resolveEndpointUri(actionDef.endpoint, payload)
       
       // Inyectar parámetros de paginación si existen
-      if (params) {
+      if (options) {
         const query = new URLSearchParams()
-        if (params.page) query.append('page', String(params.page))
-        if (params.limit) query.append('limit', String(params.limit))
+        if (options.page) query.append('page', String(options.page))
+        if (options.limit) query.append('limit', String(options.limit))
         const queryString = query.toString()
         if (queryString) {
           url += (url.includes('?') ? '&' : '?') + queryString
@@ -70,7 +70,20 @@ export class RendererService {
       let body: any = undefined
 
       if (method !== 'GET') {
-        if (!bodySource || bodySource === 'form') {
+        const hasFile = Object.values(payload).some(val => val instanceof File || val instanceof Blob)
+
+        if (hasFile) {
+          const formData = new FormData()
+          Object.keys(payload).forEach(key => {
+            const val = payload[key]
+            if (val instanceof File || val instanceof Blob) {
+              formData.append(key, val)
+            } else if (val !== undefined && val !== null) {
+              formData.append(key, typeof val === 'object' ? JSON.stringify(val) : String(val))
+            }
+          })
+          body = formData
+        } else if (!bodySource || bodySource === 'form') {
           body = JSON.stringify(payload)
         } else {
           const raw = payload[bodySource]
@@ -85,9 +98,15 @@ export class RendererService {
         }
       }
 
+      const headers: Record<string, string> = {}
+      if (options?.moduleId) {
+        headers['x-module-id'] = options.moduleId
+      }
+
       const response = await apiFetch(url, {
         method: method.toUpperCase(),
-        body
+        body,
+        headers
       })
 
       if (response.ok) {

@@ -1,8 +1,9 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth/index'
-import { FormUtils } from '@/lib/components/core/form/FormUtils'
-import { RouteUtils } from '@/lib/components/core/route/RouteUtils'
+import { FormUtils } from '@/lib/components/core/module/FormUtils'
+import { RouteUtils } from '@/lib/components/core/module/RouteUtils'
+import { ModuleUtils } from '@/lib/components/core/module/ModuleUtils'
 import { DynamicParser } from '@/lib/components/core/DynamicRenderer.utils'
 import { rendererService } from '@/services/renderer/RendererService'
 
@@ -42,7 +43,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
    * Procesa el esquema crudo eliminando duplicados y elementos inválidos.
    */
   const schema = computed(() => {
-    let rawSchema = props.config?.schema ?? []
+    let rawSchema = (props.config?.schema || (props.config as any)?.configurationUi?.schema) ?? []
 
     // DEFENSA: Si por algún error de merge el schema llega como objeto, intentamos convertirlo a array
     if (rawSchema && typeof rawSchema === 'object' && !Array.isArray(rawSchema)) {
@@ -71,21 +72,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
    * Genera la lista de breadcrumbs procesada para la navegación actual.
    * Maneja el historial de navegación 'desde' (fromPath/fromLabel).
    */
-  const processedBreadcrumbs = computed(() => {
-    const base = props.config?.config?.breadcrumb || []
-    const title = props.config?.config?.metadata?.title || props.config?.config?.module || 'Tablero'
-    const items = [{ ...(base[0] || { label: 'Dashboard', path: '/dashboard' }) }]
-    const fLabel = route.query.fromLabel as string
-    const fPath = route.query.fromPath as string
-
-    if (fLabel && fPath && fLabel.toLowerCase() !== items[0].label?.toLowerCase()) {
-      items.push({ label: fLabel, path: fPath })
-    }
-    if (title.toLowerCase() !== items[0].label?.toLowerCase() && fLabel?.toLowerCase() !== title.toLowerCase()) {
-      items.push({ label: title })
-    }
-    return items
-  })
+  const processedBreadcrumbs = computed(() => ModuleUtils.getProcessedBreadcrumbs(props.config, route))
 
   /**
    * Inicializa o resetea el modelo de datos basado en la configuración del esquema.
@@ -109,7 +96,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
     criticalConfigError.value = null
     const rawSchema = props.config?.schema || props.config?.configurationUi?.schema || []
     const rawChildren = props.config?.schemaChild || props.config?.configurationUi?.schemaChild || []
-    const allFields = [...rawSchema, ...rawChildren.flatMap((c: any) => c.module || [])]
+    const allFields = [...rawSchema, ...rawChildren.flatMap((c: any) => c.module || c.schema || [])]
 
     allFields.forEach((f: any) => {
       const prop = DynamicParser.getProp(f)
@@ -127,7 +114,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
     // 2. Campos de schemaChild (si existen) - Búsqueda Defensiva
     const schemaChildren = props.config?.schemaChild || props.config?.configurationUi?.schemaChild || []
     schemaChildren.forEach((child: any) => {
-      const childSchema = child.module || []
+      const childSchema = child.module || child.schema || []
       childSchema.forEach((f: any) => {
         if (!DynamicParser.isDataField(f)) return
         const propKey = DynamicParser.getProp(f)
@@ -146,26 +133,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
    * Actualiza el modelo del submódulo y sincroniza con el modelo maestro si la propiedad existe.
    */
   function updateSubmoduleModel(prop: string, val: any): void {
-    submoduleModel[prop] = val
-    // Sincronización: Si el campo también existe en el modelo maestro, lo actualizamos
-    if (model[prop] !== undefined) {
-      model[prop] = val
-    }
-
-    // EXCLUSIÓN MUTUA: Logo URL vs Logo File
-    if (prop === 'logoUrl' && val) {
-      // Si hay URL, bloqueamos el archivo (podemos hacerlo mediante una prop reactiva o limpiando)
-      submoduleModel.logoFile = null
-    } else if (prop === 'logoFile' && val) {
-      submoduleModel.logoUrl = ''
-    }
-
-    // Validaciones locales
-    const items = activeSubmodule.value?.schema || activeSubmodule.value?.module || []
-    const item = items.find((f: any) => DynamicParser.getProp(f) === prop)
-    if (item) {
-      DynamicParser.runValidation(validationErrors, submoduleModel, prop, val, item)
-    }
+    ModuleUtils.updateSubmoduleModel(prop, val, submoduleModel, model, activeSubmodule.value, validationErrors)
   }
 
   /**
@@ -178,7 +146,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
 
     // Inicializar modelo aislado del submódulo
     Object.keys(submoduleModel).forEach(k => delete submoduleModel[k])
-    const childSchema = child.module || []
+    const childSchema = child.module || child.schema || []
     childSchema.forEach((f: any) => {
       if (!DynamicParser.isDataField(f)) return
       const propKey = DynamicParser.getProp(f)
@@ -303,8 +271,44 @@ export function useRendererOrchestrator(props: any, emit: any) {
         const isUnified = item.config?.useMasterModel !== false // Por defecto unificado en submit-master
         const currentModel = isUnified ? { ...model, ...submoduleModel } : (activeSubmodule.value ? submoduleModel : model)
 
+        // 3.5 Filtrado estricto (solo lo que tiene noSubmit: false en cualquiera de los esquemas)
+        const filteredPayload = {} as any
+        
+        // A. Procesar Esquema del Padre
+        schema.value.forEach((f: any) => {
+          const prop = DynamicParser.getProp(f)
+          const val = model[prop]
+          const isFileEmpty = f.type === 'file' && (
+            val === null || 
+            val === '' || 
+            (typeof val === 'object' && !(val instanceof File || val instanceof Blob) && Object.keys(val as any).length === 0)
+          )
+
+          if (prop && f.noSubmit === false && val !== undefined && val !== null && !isFileEmpty) {
+            filteredPayload[prop] = val
+          }
+        })
+
+        // B. Procesar Esquema del Hijo (si existe y está unificado)
+        if (activeSubmodule.value && isUnified) {
+          const childSchemaFields = (activeSubmodule.value.module || activeSubmodule.value.schema || [])
+          childSchemaFields.forEach((f: any) => {
+            const prop = DynamicParser.getProp(f)
+            const val = submoduleModel[prop] ?? model[prop]
+            const isFileEmpty = f.type === 'file' && (
+              val === null || 
+              val === '' || 
+              (typeof val === 'object' && !(val instanceof File || val instanceof Blob) && Object.keys(val as any).length === 0)
+            )
+
+            if (prop && f.noSubmit === false && val !== undefined && val !== null && !isFileEmpty) {
+              filteredPayload[prop] = val
+            }
+          })
+        }
+
         isSubmitting.value = true
-        const result = await rendererService.executeApiCall(masterSubmit, currentModel)
+        const result = await rendererService.executeApiCall(masterSubmit, filteredPayload, { moduleId: props.config?._id })
         handleApiResult(result, masterSubmit)
         isSubmitting.value = false
         return
@@ -321,7 +325,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
     let isFormValid = true
 
     // REGLA: Validar el esquema correcto (principal o submódulo activo)
-    const targetSchema = (activeSubmodule.value?.module || schema.value)
+    const targetSchema = (activeSubmodule.value?.module || activeSubmodule.value?.schema || schema.value)
 
     targetSchema.forEach((itm: any) => {
       const prop = DynamicParser.getProp(itm)
@@ -347,15 +351,26 @@ export function useRendererOrchestrator(props: any, emit: any) {
     const rawModel = (activeSubmodule.value && !isUnified) ? submoduleModel : model
 
     // SOPORTE: Filtrado estricto (solo lo que tiene noSubmit: false)
-    const payload = Object.keys(rawModel).reduce((acc: any, key) => {
-      const field = targetSchema.find((f: any) => DynamicParser.getProp(f) === key)
-      if (field && field.noSubmit === false) {
-        acc[key] = rawModel[key]
-      }
-      return acc
-    }, {})
+    const payload = {} as any
+    const filterSchema = isUnified 
+      ? [...schema.value, ...(activeSubmodule.value?.module || activeSubmodule.value?.schema || [])]
+      : targetSchema
 
-    const result = await rendererService.executeApiCall(item, payload)
+    filterSchema.forEach((f: any) => {
+      const prop = DynamicParser.getProp(f)
+      const val = rawModel[prop]
+      const isFileEmpty = f.type === 'file' && (
+        val === null || 
+        val === '' || 
+        (typeof val === 'object' && !(val instanceof File || val instanceof Blob) && Object.keys(val as any).length === 0)
+      )
+
+      if (prop && f.noSubmit === false && val !== undefined && val !== null && !isFileEmpty) {
+        payload[prop] = val
+      }
+    })
+
+    const result = await rendererService.executeApiCall(item, payload, { moduleId: props.config?._id })
     handleApiResult(result, item)
     isSubmitting.value = false
   }
@@ -372,32 +387,38 @@ export function useRendererOrchestrator(props: any, emit: any) {
 
       const { user, access_token, message } = payload
 
-      feedback.value = { type: 'success', message: message || 'Operación completada con éxito' }
+      feedback.value = { type: 'success', message: message || 'Operación completada con éxito' };
+      
+      // 2. Hidratación Dinámica y 3. Sincronización de Sesión
+      // Determinamos si es el perfil propio para proteger la sesión y los datos del creador
+      const isProfileAction = props.config?.path === '/profile' || props.config?.module === 'Mi Perfil';
+      const dataToMap = user || payload;
 
-      // 2. Hidratación Dinámica: Actualizamos el modelo con los datos del usuario o el payload directo
-      const dataToMap = user || payload
-      if (dataToMap && typeof dataToMap === 'object') {
+      // --- A. Hidratación: Solo si es el perfil propio ---
+      if (dataToMap && typeof dataToMap === 'object' && isProfileAction) {
         Object.keys(dataToMap).forEach(key => {
-          if (key === 'password') return
-          // Solo actualizamos si el campo existe en nuestro modelo actual o esquema
+          if (key === 'password') return;
           if (model[key] !== undefined || schema.value.some((f: any) => DynamicParser.getProp(f) === key)) {
-            updateModel(key, dataToMap[key])
+            updateModel(key, dataToMap[key]);
           }
-        })
+        });
       } else {
-        // Solo limpiamos el formulario si NO recibimos datos de retorno (comportamiento estándar)
-        resetForm()
+        // Para creación y otras acciones, limpiamos el formulario para evitar confusión de datos
+        resetForm();
       }
+ 
+      // --- B. Sincronización de Sesión: SOLO si es una actualización de perfil ---
+      // REGLA: No actualizar sesión si estamos creando otros recursos (evita suplantación involuntaria)
+      const hasValidPaths = paths && Array.isArray(paths) && paths.length > 0;
 
-      // 3. Sincronización de Sesión: Si el API retorna nuevo token/rutas
-      if (access_token && paths && Array.isArray(paths)) {
+      if (access_token && hasValidPaths && isProfileAction) {
         // Mapeo de snake_case (backend) a camelCase (frontend) para pathActive
         const normalizedPaths = paths.map((p: any) => ({
           path: p.path,
           method: p.method,
           pathActive: p.path_active ?? p.pathActive ?? 1
-        }))
-        authStore.updateSession(access_token, normalizedPaths, (user?.userName || payload.userName))
+        }));
+        authStore.updateSession(access_token, normalizedPaths, (user?.userName || payload.userName));
       }
 
       // Lógica especial de re-autenticación si la API lo requiere

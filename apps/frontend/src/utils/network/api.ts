@@ -4,7 +4,10 @@ export const apiFetch = async (url: string, options: RequestInit = {}): Promise<
     const authStore = useAuthStore()
 
     const headers = new Headers(options.headers)
-    if (!headers.has('Content-Type')) {
+    let body = options.body
+    const isFormData = body instanceof FormData
+
+    if (!headers.has('Content-Type') && !isFormData) {
         headers.set('Content-Type', 'application/json')
     }
 
@@ -14,9 +17,7 @@ export const apiFetch = async (url: string, options: RequestInit = {}): Promise<
         }
     }
 
-    let body = options.body
-
-    if (body != null && options.method !== 'GET') {
+    if (body != null && options.method !== 'GET' && !isFormData) {
         try {
             const { encryptPayloadRecursive } = await import('@/utils/security/encryption')
 

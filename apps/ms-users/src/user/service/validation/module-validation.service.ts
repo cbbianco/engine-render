@@ -13,28 +13,40 @@ export class ModuleValidationService {
    * @description Validates the incoming payload against the dynamic schema stored in MongoDB 
    * for a specific module, using a pre-filtered list of authorized modules.
    * 
-   * @param moduleName - The name of the module to validate against (e.g., 'Mi Perfil')
+   * @param identifier - The name or id of the module to validate against (e.g., 'Mi Perfil' or 'uuid')
    * @param userModules - The pre-fetched modules associated with the user.
    * @param payload - The data to validate
    * @throws {UnauthorizedException} If the module is not found or validation fails.
    */
-  async validateProfileSchema(moduleName: string, userModules: ModuleEntity[], payload: any): Promise<void> {
-    // 1. Filtrar el módulo desde la lista ya cargada del usuario
-    const module = userModules.find(m => m.name === moduleName);
+  async validateProfileSchema(identifier: string, userModules: ModuleEntity[], payload: any): Promise<void> {
+    // 1. Filtrar el módulo por Nombre o por _id (Soporte dinámico)
+    const module = userModules.find(m => 
+      m.name === identifier || 
+      (m as any)._id?.toString() === identifier || 
+      (m as any).uuid === identifier
+    );
+
     if (!module) {
-      throw new UnauthorizedException(`Módulo ${moduleName} no encontrado entre tus permisos.`);
+      throw new UnauthorizedException(`Acceso denegado: El módulo con identificador '${identifier}' no está asignado a tu perfil.`);
     }
 
     // 2. Buscar la configuración en MongoDB usando el UUID del módulo encontrado
     const moduleConfig = await this.authRepository.getModuleConfig(module.uuid);
     if (!moduleConfig) {
-      throw new UnauthorizedException(`Configuración de módulo '${moduleName}' no encontrada en Mongo`);
+      throw new UnauthorizedException(`Configuración de metadata para '${module.name}' no encontrada.`);
     }
 
-    // 3. Extraer propiedades autorizadas (No visuales y sin flag noSubmit)
-    const schema = moduleConfig.configurationUi.schema || (moduleConfig.configurationUi as any).config?.schema || [];
+    // 3. Extraer propiedades autorizadas (Padre + Hijos)
+    const rawSchema = moduleConfig.configurationUi.schema || (moduleConfig.configurationUi as any).config?.schema || [];
+    const schemaChild = moduleConfig.configurationUi.schemaChild || [];
     
-    const authorizedProperties = schema
+    // Unificamos todos los campos que pueden recibir datos
+    const allComponents = [
+      ...rawSchema,
+      ...schemaChild.flatMap((c: any) => c.module || c.schema || [])
+    ];
+    
+    const authorizedProperties = allComponents
       .filter((comp: any) => comp.noSubmit === false)
       .filter((comp: any) => !['separator', 'sep', 'hr', 'title'].includes(comp.type))
       .map((comp: any) => comp.property)
@@ -45,7 +57,7 @@ export class ModuleValidationService {
       .filter(key => !key.startsWith('btn'))
       .filter(key => payload[key] !== undefined);
 
-    console.log(`[Validation Debug] Module: ${moduleName}`);
+    console.log(`[Validation Debug] Module: ${module.name}`);
     console.log(`[Validation Debug] Authorized Properties:`, authorizedProperties);
     console.log(`[Validation Debug] Incoming Body Keys:`, bodyKeys);
     console.log(`[Validation Debug] Full Payload:`, JSON.stringify(payload));
@@ -55,7 +67,7 @@ export class ModuleValidationService {
     
     if (extraKeys.length > 0) {
        throw new UnauthorizedException(
-         `La validación falló para el módulo '${moduleName}'. ` +
+         `La validación falló para el módulo '${module.name}'. ` +
          `Propiedades no permitidas: [${extraKeys.join(', ')}]. ` +
          `Propiedades esperadas: [${authorizedProperties.join(', ')}].`
        );

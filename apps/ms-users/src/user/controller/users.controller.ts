@@ -9,8 +9,7 @@ import { AuthGuard } from '../commons/guards/auth.guards';
 import { PasswordDecryptionInterceptor } from '../commons/interceptors/password-decryption.interceptor';
 import { DecryptPassword } from '../commons/decorators/decrypt-password.decorator';
 import { ExtractTokenDto } from '../dto/jwt/user.data.dto';
-import { UserProfileDto } from '../dto/user/user.profile.dto';
-import { UserCreateDto } from '../dto/user/user.create.dto';
+import { ModuleGuard } from '../commons/guards/module.guard';
 
 @Controller('users')
 @UseInterceptors(PasswordDecryptionInterceptor)
@@ -63,18 +62,21 @@ export class UsersController {
   /**
    * @method  updateProfile
    */
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, ModuleGuard)
   @DecryptPassword()
   @Put('profile')
-  updateProfile(@Body() user: UserProfileDto, @Req() request: Request): unknown {
-    return this.userService.updateUser(user, request['user'] as ExtractTokenDto);
+  updateProfile(
+    @Body() body: Record<string, unknown>, 
+    @Req() request: Request,
+  ): unknown {
+    return this.userService.updateUser(body, request['user'] as ExtractTokenDto, request['moduleId'] as string);
   }
 
   /**
    * @method  create
    * @description Handler the creation of a new user with optional logo file
    */
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, ModuleGuard)
   @DecryptPassword()
   @Post('/')
   @UseInterceptors(FileInterceptor('logoFile', {
@@ -87,13 +89,13 @@ export class UsersController {
     }),
   }))
   create(
-    @Body() user: UserCreateDto, 
+    @Body() body: Record<string, unknown>, 
     @Req() request: Request,
     @UploadedFile() file?: Express.Multer.File
   ): unknown {
     if (file) {
-      user['logoPath'] = file.path;
+      body['logoPath'] = file.path;
     }
-    return this.userService.createUser(user, request['user'] as ExtractTokenDto);
+    return this.userService.createUser(body, request['user'] as ExtractTokenDto, request['moduleId'] as string);
   }
 }

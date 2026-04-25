@@ -5,26 +5,30 @@ import { RsaSecurity } from '../../commons/security/rsa/rsa.security';
 @Injectable()
 export class UserConfigService {
   /**
-   * Genera la configuración por defecto para un nuevo usuario, incluyendo llaves RSA y branding.
+   * Genera la configuración por defecto para un nuevo usuario basándose en el payload dinámico.
    */
-  createDefaultConfig(userName: string, primary?: string, secondary?: string, errorColor?: string): { config: UserConfigEntity; privateKey: string } {
+  createDefaultConfig(payload: Record<string, unknown>): { config: UserConfigEntity; privateKey: string } {
     const keys = RsaSecurity.generateRSAKeys();
     const config = new UserConfigEntity();
     
-    config.customer = userName;
+    // Extracción dinámica del payload con fallbacks
+    const userName = (payload['userName'] as string) || 'unknown';
+    const customer = (payload['customerIdentifier'] as string) || (payload['domain'] as string) || userName;
+    
+    config.customer = customer;
     config.userName = userName;
     config.publicKey = keys.publicKey;
     config.privateKey = keys.privateKey;
     
-    // Branding por defecto
-    config.logo = "https://i.ibb.co/5xvrqHCx/logo-1.png";
+    // Branding dinámico desde el payload
+    config.logo = (payload['logoUrl'] as string) || "https://i.ibb.co/5xvrqHCx/logo-1.png";
     config.colorCss = {
-      primary: primary || "blue",
-      secondary: secondary || "blue",
-      errorColor: errorColor || "red"
+      primary: (payload['primary'] as string) || "#1C3FB7",
+      secondary: (payload['secondary'] as string) || "#64748B",
+      errorColor: (payload['errorColor'] as string) || "#EF4444"
     };
     
-    // Textos de Login por defecto
+    // Textos de Login
     config.loginTexts = this.getDefaultLoginTexts();
     
     return { config, privateKey: keys.privateKey };

@@ -8,7 +8,6 @@ import * as crypto from 'crypto';
 import { ExtractTokenDto, UserDomainDTO } from '../../dto/jwt/user.data.dto';
 import { UserExtractUtils } from '../../utils/extract/user/user.extract.utils';
 import { ModuleValidationService } from '../validation/module-validation.service';
-import { UserProfileDto } from '../../dto/user/user.profile.dto';
 
 @Injectable()
 export class UserProfileService {
@@ -25,7 +24,7 @@ export class UserProfileService {
    * @method updateUser
    * @description Fachada para la actualización del perfil de usuario con validación dinámica y regeneración de sesión.
    */
-  async updateUser(profile: UserProfileDto, user: ExtractTokenDto) {
+  async updateUser(profile: Record<string, unknown>, user: ExtractTokenDto, moduleId?: string) {
     if (!profile) {
       throw new UnauthorizedException('Los datos de actualización no han sido proporcionados');
     }
@@ -36,18 +35,20 @@ export class UserProfileService {
 
     // 2. Validación Dinámica de Esquema
     const userModules = consultUser.userRoles.flatMap(ur => ur.role.modules);
-    await this.moduleValidation.validateProfileSchema('Mi Perfil', userModules, profile);
+    const moduleIdentifier = moduleId || 'Mi Perfil';
+    await this.moduleValidation.validateProfileSchema(moduleIdentifier, userModules, profile);
 
     // 3. Procesamiento de Cambios
     const oldUserName = consultUser.userName;
-    const isUpdatingUserName = profile.userName && profile.userName !== oldUserName;
+    const isUpdatingUserName = profile['userName'] && profile['userName'] !== oldUserName;
     
     await this.applyProfileChanges(consultUser, profile);
 
     try {
       // 4. Persistencia y Sincronización
-      if (isUpdatingUserName && profile.userName) {
-        await this.authRepository.updateMongoConfig(oldUserName, profile.userName);
+      const newUserName = profile['userName'] as string;
+      if (isUpdatingUserName && newUserName) {
+        await this.authRepository.updateMongoConfig(oldUserName, newUserName);
       }
       const userResult = await this.authRepository.saveUser(consultUser);
 
@@ -67,13 +68,14 @@ export class UserProfileService {
     return user;
   }
 
-  private async applyProfileChanges(user: UserEntity, profile: UserProfileDto) {
-    user.firstName = profile.firstName || user.firstName;
-    user.lastName = profile.lastName || user.lastName;
-    user.userName = profile.userName || user.userName;
+  private async applyProfileChanges(user: UserEntity, profile: Record<string, unknown>) {
+    user.firstName = (profile['firstName'] as string) || user.firstName;
+    user.lastName = (profile['lastName'] as string) || user.lastName;
+    user.userName = (profile['userName'] as string) || user.userName;
 
-    if (profile.password) {
-      user.password = await this.auth.hashPassword(profile.password);
+    const password = profile['password'] as string;
+    if (password) {
+      user.password = await this.auth.hashPassword(password);
     }
   }
 

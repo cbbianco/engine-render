@@ -115,7 +115,7 @@ export class ModuleGenerateService {
     }
 
     const consultUser: UserEntity | null =
-      await this.repositoryUser.consultUser(assignation.domain);
+      await this.repositoryUser.consultUser(assignation.userName);
     if (consultUser) {
       const moduleAssigned = await this.repositoryAssigned.consultAssignation(
         {

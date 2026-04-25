@@ -58,8 +58,8 @@ export class DynamicParser {
    */
   private static readonly DEFAULT_PATTERNS: Record<string, { pattern: string; message: string }> = {
     password: { 
-      pattern: "^.{8,255}$", 
-      message: "La contraseña debe tener al menos 8 caracteres" 
+      pattern: "^(?=.*[A-Z])(?=.*[0-9]).{8,255}$", 
+      message: "Mínimo 8 caracteres, una mayúscula y un número" 
     },
     userName: { 
       pattern: "^[a-zA-Z0-9._]{4,20}$", 
@@ -163,43 +163,40 @@ export class DynamicParser {
 
     try {
       let invalid = false
-      let message = validation?.message ?? 'Valor no válido'
+      let finalMessage = message
 
       // 1. Validación de coincidencia (match)
       const matchProp = (item as any).match
       if (matchProp) {
         const hasMatchProp = matchProp in model && model[matchProp] !== undefined
-        if (!hasMatchProp) {
-          // Si no existe en el modelo, lo ignoramos momentáneamente para evitar falsos positivos
-          // durante la hidratación inicial, a menos que ya hayamos intentado enviar el form.
-          invalid = false 
-        } else if (value !== model[matchProp]) {
+        if (hasMatchProp && value !== model[matchProp]) {
           invalid = true
-          message = (item.validation as any)?.message || 'Las contraseñas no coinciden'
+          finalMessage = 'Las contraseñas no coinciden'
         }
       }
 
       // 2. Validación de Patrón y Requerido
-      if (pattern && !invalid) {
-        const regex = new RegExp(pattern)
+      if (!invalid && pattern) {
         const str = (value !== undefined && value !== null) ? String(value) : ''
         
         // Si es requerido y está vacío, error inmediato
         if ((item as any).required && !str) {
           invalid = true
-          message = 'Este campo es obligatorio'
+          finalMessage = 'Este campo es obligatorio'
         } else if (pattern && str && !(new RegExp(pattern)).test(str)) {
           // Si tiene contenido pero no cumple el patrón, error de formato
           invalid = true
+          // finalMessage ya tiene el mensaje de la regla por defecto o del item
         }
       }
 
       validationErrors[prop] = {
         invalid,
-        message: invalid ? (message || 'Valor no válido') : undefined
+        message: invalid ? (finalMessage || 'Valor no válido') : undefined
       }
       return !invalid
-    } catch {
+    } catch (e) {
+      console.error('[runValidation] Error:', e)
       validationErrors[prop] = { invalid: false }
       return true
     }

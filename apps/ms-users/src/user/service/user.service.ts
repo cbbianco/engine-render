@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { LoginDto } from '../dto/login/login.dto';
 import { ExtractTokenDto } from '../dto/jwt/user.data.dto';
-import { UserCreateDto } from '../dto/user/user.create.dto';
-import { UserProfileDto } from '../dto/user/user.profile.dto';
 import { AuthService } from './auth/auth.service';
 import { UserVerificationService } from './user/user-verification.service';
 import { UserListService } from './user/user-list.service';
@@ -44,16 +42,16 @@ export class UserService {
    * @method updateUser
    * @description Delegates user profile update.
    */
-  async updateUser(profile: UserProfileDto, user: ExtractTokenDto) {
-    return this.profileService.updateUser(profile, user);
+  async updateUser(profile: Record<string, unknown>, user: ExtractTokenDto, moduleId?: string) {
+    return this.profileService.updateUser(profile, user, moduleId);
   }
 
   /**
    * @method createUser
    * @description Delegates user creation.
    */
-  async createUser(create: UserCreateDto, currentUser: ExtractTokenDto) {
-    return this.creationService.createUser(create, currentUser);
+  async createUser(create: Record<string, unknown>, currentUser: ExtractTokenDto, moduleId?: string, logoFile?: Express.Multer.File) {
+    return this.creationService.createUser(create, currentUser, moduleId, logoFile);
   }
 
   /**
