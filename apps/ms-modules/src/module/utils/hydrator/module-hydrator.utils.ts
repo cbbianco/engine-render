@@ -17,7 +17,7 @@ export class ModuleHydratorUtils {
 
   private readonly VALIDATION_RULES: Record<string, { pattern: string; message: string }> = {
     nombre: { pattern: '^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$', message: 'Solo letras, 2-50 caracteres' },
-    userName: { pattern: '^[a-zA-Z0-9_]{3,20}$', message: 'Alfanumérico, 3-20 caracteres, sin espacios' },
+    userName: { pattern: '^[a-zA-Z0-9._]{4,20}$', message: '4-20 caracteres, alfanumérico, punto o guión bajo' },
     password: { pattern: '^(?=.*[A-Z])(?=.*[0-9]).{8,}$', message: 'Mínimo 8 caracteres, una mayúscula y un número' },
     email: { pattern: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$', message: 'Formato de correo inválido' },
     number: { pattern: '^[0-9]+$', message: 'Solo números' },

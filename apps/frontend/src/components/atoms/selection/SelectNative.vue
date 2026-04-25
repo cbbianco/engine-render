@@ -94,7 +94,13 @@ const hasMismatch = ref(false)
 
 const normalizedOptions = computed(() => {
   return props.options.map(opt => {
-    if (typeof opt === 'object') return opt
+    if (typeof opt === 'object') {
+      return {
+        ...opt,
+        id: opt.id ?? opt.value ?? opt.label,
+        label: opt.label ?? opt.value ?? opt.id
+      }
+    }
     return { id: opt, label: opt }
   })
 })
@@ -141,7 +147,7 @@ const isActuallyDisabled = computed(() => {
 
 function selectOption(opt: any) {
   if (isActuallyDisabled.value) return
-  emit('update:modelValue', opt.id)
+  emit('update:modelValue', String(opt.id))
   isOpen.value = false
 }
 

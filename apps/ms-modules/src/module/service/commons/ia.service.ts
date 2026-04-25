@@ -221,7 +221,7 @@ export class IAService implements OnModuleInit {
           },
         ],
         config: {
-          temperature: 0.1,
+          temperature: 0.0,
           tools,
           toolConfig: {
             functionCallingConfig: {

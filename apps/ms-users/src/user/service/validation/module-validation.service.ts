@@ -31,21 +31,37 @@ export class ModuleValidationService {
       throw new UnauthorizedException(`Configuración de módulo '${moduleName}' no encontrada en Mongo`);
     }
 
-    // 3. Extraer propiedades válidas del esquema
-    const validProperties = moduleConfig.configurationUi.schema
-      .map(comp => comp.property)
-      .filter((prop): prop is string => !!prop && !prop.startsWith('btn')); // Excluir botones si tienen property
+    // 3. Extraer propiedades autorizadas (No visuales y sin flag noSubmit)
+    const schema = moduleConfig.configurationUi.schema || (moduleConfig.configurationUi as any).config?.schema || [];
+    
+    const authorizedProperties = schema
+      .filter((comp: any) => comp.noSubmit === false)
+      .filter((comp: any) => !['separator', 'sep', 'hr', 'title'].includes(comp.type))
+      .map((comp: any) => comp.property)
+      .filter((prop: any): prop is string => !!prop && !prop.startsWith('btn'));
 
-    // 4. Validar que las keys del body correspondan al esquema (Normalización a userName)
-    const normalizedValidProperties = validProperties.map(p =>
-      p.toLowerCase() === 'u' + 'sername' ? 'userName' : p
-    );
+    // 4. Match Directo (El esquema es la ley)
+    const bodyKeys = Object.keys(payload)
+      .filter(key => !key.startsWith('btn'))
+      .filter(key => payload[key] !== undefined);
 
-    const bodyKeys = Object.keys(payload).filter(key => !key.startsWith('btn'));
-    const isBodyValid = bodyKeys.every(key => normalizedValidProperties.includes(key));
+    console.log(`[Validation Debug] Module: ${moduleName}`);
+    console.log(`[Validation Debug] Authorized Properties:`, authorizedProperties);
+    console.log(`[Validation Debug] Incoming Body Keys:`, bodyKeys);
+    console.log(`[Validation Debug] Full Payload:`, JSON.stringify(payload));
 
-    if (!isBodyValid) {
-       throw new UnauthorizedException(`La validación falló: Las propiedades [${bodyKeys.join(', ')}] no coinciden con las permitidas por el esquema del módulo '${moduleName}'.`);
+    // Identificar las llaves sobrantes que no deberían estar en el body
+    const extraKeys = bodyKeys.filter(key => !authorizedProperties.includes(key));
+    
+    if (extraKeys.length > 0) {
+       throw new UnauthorizedException(
+         `La validación falló para el módulo '${moduleName}'. ` +
+         `Propiedades no permitidas: [${extraKeys.join(', ')}]. ` +
+         `Propiedades esperadas: [${authorizedProperties.join(', ')}].`
+       );
     }
+
+    // Opcional: Validar si faltan llaves requeridas (según tu lógica de negocio)
+    const isBodyValid = bodyKeys.every(key => authorizedProperties.includes(key));
   }
 }

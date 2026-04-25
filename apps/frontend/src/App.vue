@@ -61,6 +61,27 @@ onMounted(async () => {
   } finally {
     isValidating.value = false
   }
+
+  // --- Soporte de Inactividad ---
+  const inactivityMinutes = Number(import.meta.env.VITE_INACTIVE_MINUTES || 15)
+  let inactivityTimer: any = null
+
+  function resetInactivityTimer() {
+    if (inactivityTimer) clearTimeout(inactivityTimer)
+    if (!authStore.isAuthenticated || authStore.isReauthenticating) return
+    
+    inactivityTimer = setTimeout(() => {
+      console.log('[App] Inactividad detectada. Solicitando re-autenticación.');
+      authStore.isReauthenticating = true
+    }, inactivityMinutes * 60 * 1000)
+  }
+
+  window.addEventListener('mousemove', resetInactivityTimer)
+  window.addEventListener('keydown', resetInactivityTimer)
+  window.addEventListener('click', resetInactivityTimer)
+  window.addEventListener('scroll', resetInactivityTimer)
+  
+  resetInactivityTimer()
 })
 
 onUnmounted(() => {

@@ -2,6 +2,20 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
+## [1.5.0] - 2026-04-25
+### Added
+- **Unified Orchestration**: Support for Master-Detail (Parent-Child) navigation within the same module view.
+- **Unified Submission**: `submit-master` action that consolidates parent and child form data into a single API request.
+- **Visual Customization**: Support for user-specific brand colors (primary, secondary, error) and logo management.
+- **Local File Storage**: Backend support for local file uploads (Multer) for user logos in `ms-users`.
+- **Mutual Exclusion UI**: Real-time reactive logic to handle Logo URL vs Logo File selection.
+
+### Changed
+- **Schema Stabilization**: Standardized all customization fields to strict **camelCase** (primary, secondary, errorColor) for full database compatibility.
+- Refactored `NestedModuleNative` for robust schema resolution and dynamic field disabling.
+- Updated `UserEntity` and `CreateUserDto` in `ms-users` to include visual metadata.
+- Cleaned up legacy footer toolbar keys in `DynamicRenderer`.
+
 ## [1.4.0] - 2026-04-23
 ### 🚀 Monorepo Stabilization & Startup Orchestration
 - **Metodología**: Implementación de **"Zero-Conflict Startup"** mediante limpieza automatizada de puertos y estandarización de orquestación.

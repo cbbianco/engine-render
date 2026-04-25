@@ -43,6 +43,13 @@ export class ComponentDto {
   @IsBoolean() @IsOptional() readonly?: boolean;
   @IsBoolean() @IsOptional() separator?: boolean;
 
+  /** Nuevas propiedades de validación y renderizado */
+  @IsBoolean() @IsOptional() noSubmit?: boolean;
+  @IsBoolean() @IsOptional() required?: boolean;
+  @IsString() @IsOptional() match?: string;
+  @IsString() @IsOptional() action?: string;
+  @IsString() @IsOptional() class?: string;
+
   @IsOptional()
   @IsObject()
   @ValidateNested()

@@ -1,0 +1,118 @@
+{
+    "configurationUi": {
+        "config": {
+            "metadata": {
+                "orchestrationType": "CONSULT",
+                "title": "Mi Perfil"
+            },
+            "module": "Mi Perfil",
+            "path": "/profile",
+            "method": "GET",
+            "order": 1,
+            "menu": "menu:Perfil",
+            "icon": "svg-user-edit",
+            "breadcrumb": [
+                {
+                    "label": "Dashboard",
+                    "path": "/dashboard"
+                }
+            ]
+        },
+        "schema": [
+            {
+                "label": "Información Personal",
+                "type": "separator",
+                "property": "personalInfoSection",
+                "column": "col-12",
+                "separator": true,
+                "align": "left"
+            },
+            {
+                "label": "Nombre",
+                "type": "text",
+                "property": "firstName",
+                "disabled": true,
+                "noSubmit": false,
+                "column": "col-6",
+                "align": "left"
+            },
+            {
+                "label": "Apellido",
+                "type": "text",
+                "property": "lastName",
+                "disabled": true,
+                "noSubmit": false,
+                "column": "col-6",
+                "align": "left"
+            },
+            {
+                "label": "Información Acceso",
+                "type": "separator",
+                "property": "accessInfoSection",
+                "column": "col-12",
+                "separator": true,
+                "align": "left"
+            },
+            {
+                "label": "Nombre de Usuario",
+                "type": "text",
+                "property": "userName",
+                "disabled": false,
+                "noSubmit": false,
+                "column": "col-12",
+                "validation": {
+                    "rule": "userName"
+                },
+                "align": "left"
+            },
+            {
+                "label": "Contraseña",
+                "type": "password",
+                "property": "password",
+                "disabled": false,
+                "required": true,
+                "noSubmit": false,
+                "column": "col-6",
+                "validation": {
+                    "rule": "password"
+                },
+                "align": "left"
+            },
+            {
+                "label": "Confirmar Contraseña",
+                "type": "password",
+                "match": "password",
+                "property": "confirmPassword",
+                "disabled": false,
+                "required": true,
+                "noSubmit": true,
+                "column": "col-6",
+                "validation": {
+                    "rule": "password"
+                },
+                "align": "left"
+            },
+            {
+                "type": "button",
+                "label": "Actualizar",
+                "noSubmit": true,
+                "column": "col-4",
+                "align": "center",
+                "endpoint": {
+                    "method": "PUT",
+                    "uri": "{backend}/{endpoint}",
+                    "endpoint": "/api/v1/users/profile",
+                    "backend": "http://localhost:4001"
+                }
+            }
+        ]
+    },
+    "orchestrationDetails": {
+        "consult": {
+            "method": "GET",
+            "uri": "{backend}/{endpoint}",
+            "endpoint": "/api/v1/users",
+            "backend": "http://localhost:4001"
+        }
+    }
+}

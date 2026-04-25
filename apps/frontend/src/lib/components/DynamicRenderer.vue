@@ -5,24 +5,23 @@
 -->
 <template>
   <div class="dynamic-renderer-container">
-    <!-- Header con Titulo y Breadcrumbs estilo TailAdmin -->
-    <div v-if="!isDashboardView" class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <!-- Modal de Error Crítico de Configuración (Teleported to Body) -->
+    <ConfigErrorModal :error="criticalConfigError" />
+
+    <!-- Header con Titulo y Breadcrumbs estilo TailAdmin (Solo si no hay submódulo activo) -->
+    <div v-if="!isDashboardView && !activeSubmodule" class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div class="flex flex-col gap-1">
-        <div v-if="activeSubmodule" class="flex items-center gap-4">
-          <button class="back-btn" @click="backToMain">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15.8333 10H4.16666M4.16666 10L10 15.8333M4.16666 10L10 4.16666" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Volver
-          </button>
-          <h1 class="dynamic-renderer-title">
-            {{ activeSubmodule.config?.metadata?.title || 'Configuración' }}
-          </h1>
-        </div>
-        <h1 v-else class="dynamic-renderer-title">
-          {{ props.config?.config?.metadata?.title || props.config?.config?.module || 'Detalle' }}
+        <h1 class="dynamic-renderer-title">
+          {{ moduleConfig.metadata?.title || moduleConfig.module || 'Detalle' }}
         </h1>
         <BreadcrumbsNative :items="processedBreadcrumbs" />
+      </div>
+
+      <!-- Header Toolbars (Top Actions) -->
+      <div v-if="moduleConfig.toolbarTopLeft?.length || moduleConfig.toolbarTopRight?.length" 
+           class="flex items-center gap-4 mt-4">
+        <ToolbarNative v-if="moduleConfig.toolbarTopLeft?.length" :items="moduleConfig.toolbarTopLeft" @action="handleButtonClick" />
+        <ToolbarNative v-if="moduleConfig.toolbarTopRight?.length" :items="moduleConfig.toolbarTopRight" @action="handleButtonClick" />
       </div>
     </div>
 
@@ -41,10 +40,11 @@
           :validation-errors="validationErrors"
           :backend-errors="backendErrors"
           :was-submitted="wasSubmitted"
-          @update:model="({ prop, val }) => updateSubmoduleModel(prop, val)"
-          @action="({ type, payload, context }) => {
-            if (type === 'toolbar-click' || type === 'button-click') handleButtonClick(payload, context)
-            else handleComponentAction(payload, payload.item, context)
+          @update:model="(e: any) => updateSubmoduleModel(e.prop, e.val)"
+          @action="(e: any) => {
+            if (e.type === 'critical-error') criticalConfigError = e.payload
+            else if (e.type === 'toolbar-click' || e.type === 'button-click') handleButtonClick(e.payload, e.context)
+            else handleComponentAction(e.payload, e.payload.item, e.context)
           }"
         />
       </div>
@@ -52,29 +52,14 @@
 
     <!-- MODO MASTER: Visualización principal del módulo -->
     <template v-else>
-      <!-- Contenedor Card Premium (Fondo Blanco) -->
     <div class="dynamic-renderer-card">
       <form class="dynamic-renderer-grid" @submit.prevent>
         
-        <!-- Main Toolbar (Top Right) -->
-        <div v-if="props.config?.config?.toolbar" class="col-12 flex justify-end mb-6">
-          <ToolbarNative 
-            :items="props.config.config.toolbar" 
-            @action="handleButtonClick" 
-          />
-        </div>
 
         <template v-for="(item, index) in schema" :key="DynamicParser.fieldKey(item, Number(index))">
-          <!-- CASO 1: Separador (Sección) -->
-          <div v-if="item.separator === true" class="dynamic-renderer__separator col-12">
-            <h3 class="separator-title">{{ item.label }}</h3>
-            <div class="separator-line"></div>
-          </div>
-
           <!-- CASO 2: Componente normal -->
           <div
-            v-else
-            v-if="!(props.config?.config?.module === 'invoices' && Number(index) > 0) && !((hideFooterActions || hasChildSubmit) && DynamicParser.isButton(item))"
+            v-if="!(moduleConfig.module === 'invoices' && Number(index) > 0) && !((hideFooterActions || hasChildSubmit) && DynamicParser.isButton(item))"
             class="dynamic-renderer__cell"
             :class="item.column || 'col-12'"
             :style="DynamicParser.columnStyle(item)"
@@ -99,34 +84,26 @@
           </div>
         </template>
       </form>
+
+      <!-- Footer Toolbars (Premium Bottom Actions) -->
+      <div v-if="moduleConfig.toolbarBottomLeft?.length || moduleConfig.toolbarBottomRight?.length" 
+           class="mt-8 pt-6 border-t border-stroke dark:border-strokedark flex justify-between items-center">
+        <div class="flex-1 text-left">
+          <ToolbarNative v-if="moduleConfig.toolbarBottomLeft?.length" :items="moduleConfig.toolbarBottomLeft" @action="handleButtonClick" />
+        </div>
+        <div class="flex-1 flex justify-end">
+          <ToolbarNative v-if="moduleConfig.toolbarBottomRight?.length" :items="moduleConfig.toolbarBottomRight" @action="handleButtonClick" />
+        </div>
+      </div>
     </div>
 
       <!-- CASO 3: Modulos Hijos (schemaChild) - Se renderizan fuera del card principal para mayor claridad dinámica -->
-      <template v-if="(props.config?.schemaChild || props.config?.configurationUi?.schemaChild) && props.config?.config?.isModuleInner !== true">
-        <div v-for="(child, cIdx) in (props.config?.schemaChild || props.config?.configurationUi?.schemaChild)" :key="`child-outer-${cIdx}`" class="mt-8">
-          <div class="dynamic-renderer-card">
-            <NestedModuleNative 
-              :child="child"
-              :model="model"
-              :disabled="isSubmitting"
-              :error-color="errorColor"
-              :validation-errors="validationErrors"
-              :backend-errors="backendErrors"
-              :was-submitted="wasSubmitted"
-              @update:model="({ prop, val }) => updateModel(prop, val)"
-              @action="({ type, payload, context }) => {
-                if (type === 'toolbar-click' || type === 'button-click') handleButtonClick(payload, context)
-                else handleComponentAction(payload, payload.item, context)
-              }"
-            />
-          </div>
-        </div>
-      </template>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { resolveOrchestrationTag } from '@/utils/module/orchestration'
 /**
  * Architecture: Solutions Team
@@ -140,11 +117,12 @@ import { useRendererOrchestrator } from '@/composables/renderer/useRendererOrche
 import BreadcrumbsNative from '@/components/atoms/display/BreadcrumbsNative.vue'
 import ToolbarNative from '@/components/molecules/navigation/ToolbarNative.vue'
 import NestedModuleNative from '@/components/molecules/module/NestedModuleNative.vue'
+import ConfigErrorModal from '@/components/atoms/special/ConfigErrorModal.vue'
 import type { SchemaField } from '@/lib/types/module'
 
 const props = defineProps<{
-  config: any
-  orchestrationDetails?: any
+  config: Record<string, unknown>
+  orchestrationDetails?: Record<string, unknown>
   errorColor?: string
   hideFooterActions?: boolean
 }>()
@@ -171,12 +149,26 @@ const {
   submoduleModel,
   backToMain,
   hasChildSubmit,
-  updateSubmoduleModel
+  updateSubmoduleModel,
+  criticalConfigError
 } = useRendererOrchestrator(props, emit)
 
+/** Propiedad computada para acceder de forma segura a la configuración del módulo */
+const moduleConfig = computed(() => {
+  const cfg = props.config as any
+  return (cfg?.config || cfg?.configurationUi?.config || {}) as Record<string, any>
+})
+
+/** Propiedad computada para acceder de forma segura a los submódulos hijos */
+const rawSchemaChildren = computed(() => {
+  const cfg = props.config as any
+  return (cfg?.schemaChild || cfg?.configurationUi?.schemaChild || []) as any[]
+})
+
 function getComponentForSchema(item: SchemaField) {
+  const configData = props.config?.config as Record<string, unknown> | undefined
   const type = resolveOrchestrationTag({
-    metadata: props.config?.config?.metadata,
+    metadata: configData?.metadata as any,
     originalType: item.type
   })
   
@@ -192,7 +184,8 @@ function getComponentForSchema(item: SchemaField) {
 function bindProps(item: SchemaField, index: number, curModel: any, overrideConfig?: any): Record<string, any> {
   const type = item.type || ''
   const component = ServiceLocator.get(type)
-  const moduleName = props.config?.config?.module
+  const configData = props.config?.config as Record<string, unknown> | undefined
+  const moduleName = configData?.module as string | undefined
 
   // Si el componente es el fallback, pasamos detalles del error
   if (!component || type === 'fallback') {
@@ -211,6 +204,7 @@ function bindProps(item: SchemaField, index: number, curModel: any, overrideConf
     placeholder: (item as any).placeholder,
     options: (item as any).options || (item as any).values,
     variant: (item as any).variant,
+    separator: (item as any).separator,
     ...(item as any).config
   }
 

@@ -1,33 +1,37 @@
 <template>
   <div class="nested-module-native">
     <!-- Header: Title (Left) + Toolbar (Right) -->
-    <div v-if="child.config" class="nested-module__header mb-5">
-      <div class="nested-module__title-group">
-        <h4 v-if="child.config.metadata?.title" class="nested-module__title">
-          {{ child.config.metadata.title }}
+    <div v-if="child.config" class="nested-module__header mb-6">
+      <div class="nested-module__header-left">
+        <ToolbarNative 
+          v-if="child.config.toolbarTopLeft" 
+          :items="child.config.toolbarTopLeft"
+          @action="onToolbarAction"
+        />
+        <h4 v-if="child.config.metadata?.title || child.config.title" class="nested-module__title">
+          {{ child.config.metadata?.title || child.config.title }}
         </h4>
-        <div v-else class="h-1"></div>
       </div>
 
-      <ToolbarNative 
-        v-if="child.config.toolbar" 
-        :items="child.config.toolbar"
-        @action="onToolbarAction"
-      />
+      <div class="nested-module__header-right">
+        <ToolbarNative 
+          v-if="child.config.toolbarTopRight" 
+          :items="child.config.toolbarTopRight"
+          @action="onToolbarAction"
+        />
+        <ToolbarNative 
+          v-else-if="child.config.toolbar" 
+          :items="child.config.toolbar"
+          @action="onToolbarAction"
+        />
+      </div>
     </div>
 
     <!-- Dynamic Grid for Child Module -->
     <div class="nested-module__grid">
       <template v-for="(item, index) in (child.module || child.schema || child.configurationUi?.schema || [])" :key="DynamicParser.fieldKey(item, Number(index))">
-        <!-- Separator -->
-        <div v-if="item.separator === true" class="nested-module__separator col-12">
-          <h3 class="separator-title">{{ item.label }}</h3>
-          <div class="separator-line"></div>
-        </div>
-
         <!-- Field Component -->
         <div
-          v-else
           class="nested-module__cell"
           :class="item.column || 'col-12'"
           :style="DynamicParser.columnStyle(item)"
@@ -40,7 +44,7 @@
               :model-value="getFieldValue(item)"
               :invalid="isInvalid(item)"
               :error-message="getErrorMessage(item)"
-              :disabled="disabled || item.disabled"
+              :disabled="disabled || item.disabled || (item.property === 'logoUrl' ? !!model.logoFile : item.property === 'logoFile' ? !!model.logoUrl : false)"
               :readonly="item.readonly"
               :error-color="errorColor"
               @update:model-value="(val: any) => emit('update:model', { prop: DynamicParser.getProp(item), val })"
@@ -78,10 +82,19 @@ function onToolbarAction(btn: any) {
 
 function getComponentForSchema(item: any) {
   const type = resolveOrchestrationTag({
-    metadata: props.child.config?.metadata,
+    metadata: props.child.config?.metadata || props.child.config,
     originalType: item.type
   })
-  return ServiceLocator.get(type) || ServiceLocator.get('fallback')
+  
+  const component = ServiceLocator.get(type)
+  
+  if (!component) {
+    const errorMsg = `[ERROR DE CONFIGURACIÓN]: El componente tipo '${type}' no existe en el ServiceLocator para el submódulo '${props.child.config?.title || 'desconocido'}'.`
+    emit('action', { type: 'critical-error', payload: errorMsg })
+    return ServiceLocator.get('fallback')
+  }
+
+  return component
 }
 
 function bindProps(item: any, index: number): Record<string, any> {
@@ -93,6 +106,7 @@ function bindProps(item: any, index: number): Record<string, any> {
     placeholder: item.placeholder,
     options: item.options || item.values,
     variant: item.variant,
+    separator: item.separator,
     ...item.config
   }
 }
@@ -122,25 +136,45 @@ function getErrorMessage(item: any) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid #E4E7EC;
+  padding-bottom: 1rem;
+}
+
+.nested-module__header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.nested-module__header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .nested-module__title {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #101828;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .nested-module__grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 1.5rem;
   width: 100%;
 }
 
-.col-12 { grid-column: span 12 / span 12; }
-.col-6 { grid-column: span 6 / span 6; }
-.col-4 { grid-column: span 4 / span 4; }
+.nested-module__cell {
+  width: 100%;
+  min-height: 1px;
+}
+
+.col-12 { width: 100%; }
+.col-6 { width: calc(50% - 0.75rem); }
+.col-4 { width: calc(33.33% - 1rem); }
 
 .nested-module__separator {
   margin-top: 1.5rem;

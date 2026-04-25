@@ -32,6 +32,7 @@ import InvoiceListNative from '@/components/atoms/table/InvoiceListNative.vue'
 // --- Display Group ---
 import TitleNative from '@/components/atoms/display/TitleNative.vue'
 import HrNative from '@/components/atoms/display/HrNative.vue'
+import SeparatorNative from '@/components/atoms/display/SeparatorNative.vue'
 import TaskKanbanNative from '@/components/organisms/TaskKanbanNative.vue'
 import EstimatedRevenueNative from '@/components/atoms/display/EstimatedRevenueNative.vue'
 
@@ -61,6 +62,8 @@ function register(tag: TagKey, component: Component): void {
 
 // --- COMPONENTES CORE / ESTRUCTURALES ---
 register('title', TitleNative)
+register('separator', SeparatorNative)
+register('sep', SeparatorNative)
 register('hr', HrNative)
 register('invoice', InvoiceNative)
 register('single-invoice', InvoiceNative)

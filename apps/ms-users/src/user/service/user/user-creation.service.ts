@@ -87,6 +87,7 @@ export class UserCreationService {
     newUser.userName = create.userName!;
     newUser.password = await this.auth.hashPassword(create.password!);
     newUser.isActive = 1;
+
     return await this.authRepository.saveUser(newUser);
   }
 

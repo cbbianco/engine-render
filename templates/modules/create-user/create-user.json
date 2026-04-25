@@ -1,0 +1,190 @@
+{
+    "configurationUi": {
+        "config": {
+            "metadata": {
+                "orchestrationType": "CREATE",
+                "title": "Creación de Usuario"
+            },
+            "breadcrumb": [
+                {
+                    "label": "Dashboard",
+                    "path": "/dashboard"
+                }
+            ],
+            "module": "Creación de Usuario",
+            "path": "/create-user",
+            "method": "GET",
+            "order": 2,
+            "menu": {
+                "parent": "Usuarios",
+                "child": "Crear",
+                "activeClass": "bg-graydark dark:bg-meta-4"
+            },
+            "icon": "svg-user-plus",
+            "actions": {
+                "goToSettings": {
+                    "type": "navigate",
+                    "path": "/settings"
+                }
+            },
+            "toolbarTopRight": [
+                {
+                    "label": "Configuración Adicional",
+                    "action": "goToSettings",
+                    "icon": "settings",
+                    "variant": "secondary"
+                }
+            ],
+            "isReauthenticating": false
+        },
+        "schema": [
+            {
+                "type": "separator",
+                "label": "Información Personal",
+                "property": "personalInfoSection",
+                "column": "col-12",
+                "align": "left",
+                "separator": true
+            },
+            {
+                "type": "text",
+                "label": "Nombre",
+                "property": "firstName",
+                "column": "col-6",
+                "align": "left",
+                "placeholder": "Ingrese el nombre"
+            },
+            {
+                "type": "text",
+                "label": "Apellido",
+                "property": "lastName",
+                "column": "col-6",
+                "align": "left",
+                "placeholder": "Ingrese el apellido"
+            },
+            {
+                "type": "text",
+                "label": "Nombre de Usuario",
+                "property": "userName",
+                "column": "col-6",
+                "align": "left",
+                "placeholder": "jdoe2024"
+            },
+            {
+                "type": "select",
+                "label": "Rol",
+                "property": "role",
+                "column": "col-6",
+                "align": "left",
+                "options": [
+                    { "label": "Administrador", "value": "admin" },
+                    { "label": "Usuario", "value": "user" }
+                ]
+            },
+            {
+                "type": "password",
+                "label": "Contraseña",
+                "property": "password",
+                "column": "col-6",
+                "align": "left"
+            },
+            {
+                "type": "password",
+                "label": "Confirmar Contraseña",
+                "property": "confirmPassword",
+                "column": "col-6",
+                "align": "left",
+                "match": "password",
+                "noSubmit": true
+            }
+        ],
+        "schemaChild": [
+            {
+                "moduleId": "settings-user",
+                "path": "/settings",
+                "config": {
+                    "title": "Configuración Adicional",
+                    "toolbarTopLeft": [
+                        {
+                            "label": "Regresar",
+                            "action": "back",
+                            "icon": "arrow-left",
+                            "variant": "secondary"
+                        }
+                    ]
+                },
+                "schema": [
+                    {
+                        "type": "separator",
+                        "label": "Configuración de Colores",
+                        "property": "colorSection",
+                        "column": "col-12"
+                    },
+                    {
+                        "type": "select",
+                        "label": "Color Primario",
+                        "property": "primary",
+                        "column": "col-4",
+                        "options": [
+                            { "label": "Azul Profundo", "value": "#1C3FB7" },
+                            { "label": "Verde Esmeralda", "value": "#10B981" },
+                            { "label": "Púrpura Royal", "value": "#7C3AED" }
+                        ]
+                    },
+                    {
+                        "type": "select",
+                        "label": "Color Secundario",
+                        "property": "secondary",
+                        "column": "col-4",
+                        "options": [
+                            { "label": "Gris Suave", "value": "#64748B" },
+                            { "label": "Ámbar Cálido", "value": "#F59E0B" },
+                            { "label": "Cian Moderno", "value": "#06B6D4" }
+                        ]
+                    },
+                    {
+                        "type": "select",
+                        "label": "Color de Error",
+                        "property": "errorColor",
+                        "column": "col-4",
+                        "options": [
+                            { "label": "Rojo Alerta", "value": "#EF4444" },
+                            { "label": "Naranja Intenso", "value": "#F97316" },
+                            { "label": "Rosa Neón", "value": "#F43F5E" }
+                        ]
+                    },
+                    {
+                        "type": "separator",
+                        "label": "Configuración de Logo",
+                        "property": "logoSection",
+                        "column": "col-12"
+                    },
+                    {
+                        "type": "url",
+                        "label": "URL del Logo",
+                        "property": "logoUrl",
+                        "column": "col-6",
+                        "placeholder": "https://ejemplo.com/logo.png"
+                    },
+                    {
+                        "type": "file",
+                        "label": "Archivo de Logo (Local)",
+                        "property": "logoFile",
+                        "column": "col-6"
+                    },
+                    {
+                        "type": "button",
+                        "label": "Finalizar y Crear Usuario",
+                        "property": "btnFinalizar",
+                        "column": "col-12",
+                        "variant": "primary",
+                        "action": "submit-master",
+                        "config": {
+                            "useMasterModel": true
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

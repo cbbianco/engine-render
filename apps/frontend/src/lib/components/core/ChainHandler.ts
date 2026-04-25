@@ -6,6 +6,7 @@ import { ServiceLocator } from './ServiceLocator'
 import DefaultFallback from '@/components/atoms/special/DefaultFallback.vue'
 import TitleNative from '@/components/atoms/display/TitleNative.vue'
 import HrNative from '@/components/atoms/display/HrNative.vue'
+import SeparatorNative from '@/components/atoms/display/SeparatorNative.vue'
 import InvoiceNative from '@/components/atoms/special/InvoiceNative.vue'
 import InvoiceListNative from '@/components/atoms/table/InvoiceListNative.vue'
 
@@ -36,9 +37,10 @@ export function getComponentForSchema(item: SchemaField): Component {
     return markRaw(InvoiceListNative)
   }
   if (rawType === 'title') return markRaw(TitleNative)
-  if (rawType === 'hr' || rawType === 'separator') return markRaw(HrNative)
+  if (rawType === 'hr') return markRaw(HrNative)
+  if (rawType === 'separator') return markRaw(SeparatorNative)
   if (rawType === 'invoice' || rawType === 'single-invoice') return markRaw(InvoiceNative)
-  
+
   // 2. Componentes Especiales / Alta Prioridad
   if (rawType === 'owner' || rawType === 'draw') {
     return markRaw(DrawOwner)

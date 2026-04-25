@@ -54,6 +54,28 @@ export class DynamicParser {
   }
 
   /**
+   * Patrones de validación por defecto para reglas comunes.
+   */
+  private static readonly DEFAULT_PATTERNS: Record<string, { pattern: string; message: string }> = {
+    password: { 
+      pattern: "^.{8,255}$", 
+      message: "La contraseña debe tener al menos 8 caracteres" 
+    },
+    userName: { 
+      pattern: "^[a-zA-Z0-9._]{4,20}$", 
+      message: "4-20 caracteres, alfanumérico, punto o guión bajo" 
+    },
+    nombre: { 
+      pattern: "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$", 
+      message: "Nombre no válido (2-50 caracteres)" 
+    },
+    default: {
+      pattern: "^.{1,255}$",
+      message: "Este campo es requerido"
+    }
+  }
+
+  /**
    * Tipos que no representan datos en el modelo.
    */
   private static readonly NON_DATA_TYPES = ['button', 'hr', 'title', 'separator', 'sep']
@@ -124,11 +146,17 @@ export class DynamicParser {
   ): boolean {
     if (!item) return true
     const validation = item.validation
+    const rule = validation?.rule || 'default'
+    const defaultRule = this.DEFAULT_PATTERNS[rule] || this.DEFAULT_PATTERNS.default
+    
+    const pattern = validation?.pattern || defaultRule.pattern
+    let message = validation?.message || defaultRule.message
+
     if (item.visible === false || item.readonly === true) {
       validationErrors[prop] = { invalid: false }
       return true
     }
-    if (!validation?.pattern && prop !== 'confirmarPassword') {
+    if (!validation?.pattern && !(item as any).match) {
       validationErrors[prop] = { invalid: false }
       return true
     }
@@ -137,18 +165,33 @@ export class DynamicParser {
       let invalid = false
       let message = validation?.message ?? 'Valor no válido'
 
-      if (prop === 'confirmarPassword') {
-        const passwordVal = model['password']
-        if (value !== passwordVal) {
+      // 1. Validación de coincidencia (match)
+      const matchProp = (item as any).match
+      if (matchProp) {
+        const hasMatchProp = matchProp in model && model[matchProp] !== undefined
+        if (!hasMatchProp) {
+          // Si no existe en el modelo, lo ignoramos momentáneamente para evitar falsos positivos
+          // durante la hidratación inicial, a menos que ya hayamos intentado enviar el form.
+          invalid = false 
+        } else if (value !== model[matchProp]) {
           invalid = true
-          message = 'Las contraseñas no coinciden'
+          message = (item.validation as any)?.message || 'Las contraseñas no coinciden'
         }
       }
 
-      if (!invalid && validation?.pattern) {
-        const regex = new RegExp(validation.pattern)
-        const str = value != null ? String(value) : ''
-        invalid = !regex.test(str)
+      // 2. Validación de Patrón y Requerido
+      if (pattern && !invalid) {
+        const regex = new RegExp(pattern)
+        const str = (value !== undefined && value !== null) ? String(value) : ''
+        
+        // Si es requerido y está vacío, error inmediato
+        if ((item as any).required && !str) {
+          invalid = true
+          message = 'Este campo es obligatorio'
+        } else if (pattern && str && !(new RegExp(pattern)).test(str)) {
+          // Si tiene contenido pero no cumple el patrón, error de formato
+          invalid = true
+        }
       }
 
       validationErrors[prop] = {

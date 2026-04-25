@@ -22,8 +22,8 @@ export class ConfigDto {
   @IsString() @IsNotEmpty() method: string;
   @IsNumber() @IsNotEmpty() order: number;
 
-  @IsString() @IsOptional() menu?: string;
-  @IsString() @IsOptional() icon?: string;
+  @IsOptional() menu?: any;
+  @IsOptional() icon?: any;
   @IsString() @IsOptional() moduleId?: string;
 
   @IsBoolean()
@@ -37,6 +37,26 @@ export class ConfigDto {
   @IsArray()
   @IsOptional()
   toolbar?: any[];
+
+  @IsArray()
+  @IsOptional()
+  toolbarTopLeft?: any[];
+
+  @IsArray()
+  @IsOptional()
+  toolbarTopRight?: any[];
+
+  @IsArray()
+  @IsOptional()
+  toolbarBottomLeft?: any[];
+
+  @IsArray()
+  @IsOptional()
+  toolbarBottomRight?: any[];
+
+  @IsArray()
+  @IsOptional()
+  footerToolbar?: any[];
 
   @IsObject()
   @IsOptional()

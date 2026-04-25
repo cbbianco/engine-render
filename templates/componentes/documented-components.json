@@ -1,0 +1,99 @@
+{
+  "componentLibrary": {
+    "version": "1.0.0",
+    "description": "Librería de componentes renderizables por el motor paramétrico (ServiceLocator)",
+    "categories": {
+      "inputs": {
+        "description": "Campos de entrada de datos básicos",
+        "components": [
+          {
+            "tag": "input",
+            "aliases": ["text", "input-text"],
+            "description": "Input de texto estándar con label y placeholder",
+            "parameters": {
+              "property": "String (requerido) - Clave en el modelo",
+              "label": "String - Etiqueta visual",
+              "placeholder": "String - Texto de ayuda",
+              "column": "String (default: col-12) - Ancho en grid",
+              "validation": "Object - Reglas de validación (rule, pattern, message)"
+            }
+          },
+          {
+            "tag": "password",
+            "description": "Input de contraseña con enmascaramiento y validación de seguridad",
+            "parameters": {
+              "match": "String - Propiedad con la que debe coincidir (ej: confirmPassword -> password)"
+            }
+          },
+          {
+            "tag": "email",
+            "description": "Input con validación de formato de correo electrónico integrada"
+          },
+          {
+            "tag": "url",
+            "description": "Input para URLs con prefijo visual http://"
+          }
+        ]
+      },
+      "selection": {
+        "description": "Componentes para elegir entre opciones",
+        "components": [
+          {
+            "tag": "select",
+            "description": "Selector simple o premium (si detecta colores)",
+            "parameters": {
+              "options": "Array<{label, value|id}> - Opciones del selector",
+              "placeholder": "String - Texto inicial (Seleccione...)"
+            }
+          },
+          {
+            "tag": "switch",
+            "aliases": ["toggle"],
+            "description": "Interruptor Booleano (on/off)"
+          },
+          {
+            "tag": "checkbox",
+            "description": "Casilla de verificación"
+          },
+          {
+            "tag": "radio",
+            "description": "Grupo de opciones excluyentes"
+          }
+        ]
+      },
+      "tables": {
+        "description": "Visualización de datos tabulares",
+        "components": [
+          {
+            "tag": "table",
+            "aliases": ["data-table", "table-premium"],
+            "description": "Tabla avanzada con paginación, búsqueda y acciones",
+            "parameters": {
+              "config": {
+                "columns": "Array<{label, property, type}>",
+                "actions": "Object - Definición de acciones por fila"
+              }
+            }
+          }
+        ]
+      },
+      "special": {
+        "description": "Componentes de orquestación y visualización compleja",
+        "components": [
+          {
+            "tag": "draw",
+            "description": "Renderizador de tarjetas dinámicas basado en un dataSource"
+          },
+          {
+            "tag": "kanban",
+            "description": "Tablero de gestión de tareas por estados"
+          },
+          {
+            "tag": "invoice",
+            "description": "Visualizador de facturas con detalle de ítems"
+          }
+        ]
+      }
+    }
+  }
+}

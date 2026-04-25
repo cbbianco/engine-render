@@ -28,6 +28,9 @@ export class ModuleEntity {
   @Column({ length: 20 })
   method: string;
 
+  @Column({ name: 'created_by', length: 255, nullable: true })
+  createdBy: string;
+
   @Column({ default: 1 })
   order: number;
 

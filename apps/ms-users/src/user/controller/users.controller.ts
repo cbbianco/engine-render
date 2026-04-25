@@ -1,5 +1,8 @@
-import { Body, Controller, Get, Post, Put, Query, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Request } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { UserService } from '../service/user.service';
 import { LoginDto } from '../dto/login/login.dto';
 import { AuthGuard } from '../commons/guards/auth.guards';
@@ -16,9 +19,6 @@ export class UsersController {
 
   /**
    * @method  auth
-   * @description Handler the authentication of module
-   *
-   * @param {LoginDto} login
    */
   @DecryptPassword()
   @Post('auth')
@@ -28,9 +28,6 @@ export class UsersController {
 
   /**
    * @method  logout
-   * @description Handler the authentication of module when module wants to log out
-   *
-   * @param logOut
    */
   @Put('log-out')
   logout(@Body() logOut: LoginDto): unknown {
@@ -39,10 +36,6 @@ export class UsersController {
 
   /**
    * @method  findAll
-   * @description List all users with pagination
-   * 
-   * @param {string} page
-   * @param {string} limit
    */
   @UseGuards(AuthGuard)
   @Get('/')
@@ -60,9 +53,6 @@ export class UsersController {
 
   /**
    * @method  getProfile
-   * @description Handler the data of the current authenticated user 
-   * 
-   * @param {Request} request
    */
   @UseGuards(AuthGuard)
   @Get('profile')
@@ -72,10 +62,6 @@ export class UsersController {
 
   /**
    * @method  updateProfile
-   * @description Handler the update of the data user (password)
-   *
-   * @param {UserProfileDto} user
-   * @param {Request} request
    */
   @UseGuards(AuthGuard)
   @DecryptPassword()
@@ -86,15 +72,28 @@ export class UsersController {
 
   /**
    * @method  create
-   * @description Handler the creation of a new user
-   *
-   * @param {UserCreateDto} user
-   * @param {Request} request
+   * @description Handler the creation of a new user with optional logo file
    */
   @UseGuards(AuthGuard)
   @DecryptPassword()
   @Post('/')
-  create(@Body() user: UserCreateDto, @Req() request: Request): unknown {
+  @UseInterceptors(FileInterceptor('logoFile', {
+    storage: diskStorage({
+      destination: './uploads/logos',
+      filename: (req, file, cb) => {
+        const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
+        cb(null, `${randomName}${extname(file.originalname)}`);
+      },
+    }),
+  }))
+  create(
+    @Body() user: UserCreateDto, 
+    @Req() request: Request,
+    @UploadedFile() file?: Express.Multer.File
+  ): unknown {
+    if (file) {
+      user['logoPath'] = file.path;
+    }
     return this.userService.createUser(user, request['user'] as ExtractTokenDto);
   }
 }

@@ -1,14 +1,34 @@
 {
   "configurationUi": {
     "config": {
-      "metadata": { "orchestrationType": "NONE", "title": "Encabezados" },
-      "module": "Titulos", "path": "/titles", "method": "GET", "order": 1
+      "metadata": {
+        "orchestrationType": "NONE",
+        "title": "Encabezados"
+      },
+      "module": "Titulos",
+      "path": "/titles",
+      "method": "GET",
+      "order": 1
     },
     "schema": [
-      { "type": "title", "label": "Título Principal", "column": "col-12" },
-      { "type": "hr", "label": "Línea Divisoria", "column": "col-12" }
+      {
+        "type": "separator",
+        "label": "Título con Separador",
+        "column": "col-12",
+        "separator": true
+      },
+      {
+        "type": "hr",
+        "label": "Línea Divisoria",
+        "column": "col-12"
+      }
     ],
     "schemaChild": []
   },
-  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4000/api/v1/meta" } }
+  "orchestrationDetails": {
+    "consult": {
+      "method": "GET",
+      "uri": "http://localhost:4000/api/v1/meta"
+    }
+  }
 }

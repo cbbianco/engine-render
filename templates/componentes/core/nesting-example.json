@@ -1,23 +1,48 @@
 {
   "configurationUi": {
     "config": {
-      "metadata": { "orchestrationType": "CONSULT", "title": "Maestro-Detalle (Nesting)" },
-      "module": "Nesting", "path": "/nesting", "method": "GET", "order": 10
+      "metadata": {
+        "orchestrationType": "CONSULT",
+        "title": "Maestro-Detalle (Nesting)"
+      },
+      "module": "Nesting",
+      "path": "/nesting",
+      "method": "GET",
+      "order": 10
     },
     "schema": [
-      { "type": "table-premium", "label": "Maestro", "property": "master", "column": "col-12" }
+      {
+        "type": "table-premium",
+        "label": "Maestro",
+        "property": "master",
+        "column": "col-12"
+      }
     ],
     "schemaChild": [
       {
         "moduleId": "child-module",
         "path": "/child",
-        "config": { "title": "Detalle del Hijo" },
+        "config": {
+          "title": "Detalle del Hijo"
+        },
         "module": [
-          { "type": "title", "label": "Información Detallada" },
-          { "type": "text", "label": "Dato Hijo", "property": "child_data" }
+          {
+            "type": "title",
+            "label": "Información Detallada"
+          },
+          {
+            "type": "text",
+            "label": "Dato Hijo",
+            "property": "child_data"
+          }
         ]
       }
     ]
   },
-  "orchestrationDetails": { "consult": { "method": "GET", "uri": "http://localhost:4002/api/v1/master" } }
+  "orchestrationDetails": {
+    "consult": {
+      "method": "GET",
+      "uri": "http://localhost:4002/api/v1/master"
+    }
+  }
 }

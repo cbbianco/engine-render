@@ -3,6 +3,7 @@
  */
 
 export interface SchemaFieldValidation {
+  rule?: string
   pattern?: string
   message?: string
 }
@@ -55,6 +56,8 @@ export interface SchemaFieldNativo extends SchemaFieldBase {
   placeholder?: string
   /** Opciones para select: array de strings o patrón <<TEMA>>. */
   options?: string[]
+  /** Campo del model con el que debe coincidir el valor (ej: confirmar password). */
+  match?: string
   /** Acción para botones: endpoint (URI con tokens {input_uri}, etc.), method, body/bodySource. */
   endpoint?: string | { uri?: string; method?: string; backend?: string; endpoint?: string; tag?: string }
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'

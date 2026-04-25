@@ -14,7 +14,6 @@ import { RoleEntity } from './module/entities/role/role.entity';
 import { UserEntity } from './module/entities/user/user.entity';
 import { UserRoleEntity } from './module/entities/role/user-role.entity';
 import { ModuleConfigEntity } from './module/entities/module/module-json.entity';
-import { RolesGuard } from './module/commons/guards/role/role.guards';
 import { AssignationModuleEntity } from './module/entities/module/assing-module.entity';
 
 /** Conexión MySQL (datos del antiguo connection.datasource.ts) */
@@ -68,4 +67,4 @@ const mysqlConnection = {
     ExtractTokenUtils,
   ],
 })
-export class AppModule {}
+export class AppModule { }

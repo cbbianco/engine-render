@@ -1,6 +1,8 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth/index'
+import { FormUtils } from '@/lib/components/core/form/FormUtils'
+import { RouteUtils } from '@/lib/components/core/route/RouteUtils'
 import { DynamicParser } from '@/lib/components/core/DynamicRenderer.utils'
 import { rendererService } from '@/services/renderer/RendererService'
 
@@ -26,6 +28,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
   const validationErrors = reactive<Record<string, { invalid: boolean; message?: string }>>({}) // Errores de validación frontend
   const backendErrors = reactive<Record<string, string>>({}) // Errores retornados por la API
   const model = reactive({}) as any                    // Modelo de datos que se sincroniza con los inputs
+  const criticalConfigError = ref<string | null>(null) // Almacena errores fatales de configuración (JSON/Schema)
 
 
   // --- Estados de Navegación Interna (Submódulos) ---
@@ -40,7 +43,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
    */
   const schema = computed(() => {
     let rawSchema = props.config?.schema ?? []
-    
+
     // DEFENSA: Si por algún error de merge el schema llega como objeto, intentamos convertirlo a array
     if (rawSchema && typeof rawSchema === 'object' && !Array.isArray(rawSchema)) {
       console.warn('[Orchestrator] Schema detected as Object, attempting conversion to Array', rawSchema)
@@ -74,7 +77,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
     const items = [{ ...(base[0] || { label: 'Dashboard', path: '/dashboard' }) }]
     const fLabel = route.query.fromLabel as string
     const fPath = route.query.fromPath as string
-    
+
     if (fLabel && fPath && fLabel.toLowerCase() !== items[0].label?.toLowerCase()) {
       items.push({ label: fLabel, path: fPath })
     }
@@ -91,15 +94,34 @@ export function useRendererOrchestrator(props: any, emit: any) {
     const baseData = DynamicParser.normalizedModelFromConfig(props.config)
     // Limpieza reactiva del modelo
     Object.keys(model).forEach(key => delete model[key])
-    
+
     // 1. Campos del schema principal
     schema.value.forEach((f: any) => {
-      if (!DynamicParser.isDataField(f)) return 
+      if (!DynamicParser.isDataField(f)) return
       const propKey = DynamicParser.getProp(f)
       if (!propKey) return
-      
+
       const isTable = f.type?.includes('table')
       model[propKey] = baseData[propKey] === '{res}' ? (isTable ? [] : '') : (baseData[propKey] ?? f.value ?? (isTable ? [] : ''))
+    })
+
+    // 1.5 Validar errores críticos inmediatamente tras init (Escaneo Profundo sobre Props Crudas)
+    criticalConfigError.value = null
+    const rawSchema = props.config?.schema || props.config?.configurationUi?.schema || []
+    const rawChildren = props.config?.schemaChild || props.config?.configurationUi?.schemaChild || []
+    const allFields = [...rawSchema, ...rawChildren.flatMap((c: any) => c.module || [])]
+
+    allFields.forEach((f: any) => {
+      const prop = DynamicParser.getProp(f)
+      if (prop && DynamicParser.isDataField(f)) {
+        // Ejecutamos validación sin afectar el estado reactivo principal aún si es necesario
+        const tempErrors: any = {}
+        DynamicParser.runValidation(tempErrors, model, prop, model[prop], f)
+        if (tempErrors[prop]?.message?.includes('CONFIGURACIÓN')) {
+          console.error('[CRITICAL] Configuration error detected:', tempErrors[prop].message)
+          criticalConfigError.value = tempErrors[prop].message
+        }
+      }
     })
 
     // 2. Campos de schemaChild (si existen) - Búsqueda Defensiva
@@ -116,30 +138,9 @@ export function useRendererOrchestrator(props: any, emit: any) {
   }
 
   /**
-   * Limpia el formulario basándose en el estado de 'disabled'.
-   * Si f.disabled === true, NO se limpia. Los demás sí.
+   * Limpia el formulario delegando la lógica a FormUtils.
    */
-  function resetForm() {
-    wasSubmitted.value = false
-    Object.keys(validationErrors).forEach(k => delete validationErrors[k])
-    Object.keys(backendErrors).forEach(k => delete backendErrors[k])
-
-    schema.value.forEach((f: any) => {
-      if (!DynamicParser.isDataField(f)) return 
-      
-      // REGLA: Si está disabled o readonly, NO se limpia el valor.
-      const isDisabled = f.disabled === true || f.disabled === 'true'
-      const isReadonly = f.readonly === true || f.readonly === 'true'
-      
-      if (isDisabled || isReadonly) return 
-      
-      const propKey = DynamicParser.getProp(f)
-      if (propKey) {
-        // Limpieza según tipo de dato
-        model[propKey] = (f.type?.includes('table') || f.type?.includes('invoice')) ? [] : ''
-      }
-    })
-  }
+  const resetForm = () => FormUtils.resetForm(model, schema.value, validationErrors, backendErrors, wasSubmitted)
 
   /**
    * Actualiza el modelo del submódulo y sincroniza con el modelo maestro si la propiedad existe.
@@ -150,9 +151,21 @@ export function useRendererOrchestrator(props: any, emit: any) {
     if (model[prop] !== undefined) {
       model[prop] = val
     }
+
+    // EXCLUSIÓN MUTUA: Logo URL vs Logo File
+    if (prop === 'logoUrl' && val) {
+      // Si hay URL, bloqueamos el archivo (podemos hacerlo mediante una prop reactiva o limpiando)
+      submoduleModel.logoFile = null
+    } else if (prop === 'logoFile' && val) {
+      submoduleModel.logoUrl = ''
+    }
+
     // Validaciones locales
-    const item = (activeSubmodule.value?.module || []).find((f: any) => DynamicParser.getProp(f) === prop)
-    if (item) DynamicParser.runValidation(validationErrors, model, prop, val, item)
+    const items = activeSubmodule.value?.schema || activeSubmodule.value?.module || []
+    const item = items.find((f: any) => DynamicParser.getProp(f) === prop)
+    if (item) {
+      DynamicParser.runValidation(validationErrors, submoduleModel, prop, val, item)
+    }
   }
 
   /**
@@ -162,7 +175,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
   function activateSubmodule(child: any) {
     if (!child) return
     activeSubmodule.value = child
-    
+
     // Inicializar modelo aislado del submódulo
     Object.keys(submoduleModel).forEach(k => delete submoduleModel[k])
     const childSchema = child.module || []
@@ -177,12 +190,9 @@ export function useRendererOrchestrator(props: any, emit: any) {
   }
 
   /**
-   * Regresa a la vista del módulo maestro.
+   * Regresa a la vista del módulo maestro delegando a RouteUtils.
    */
-  function backToMain() {
-    activeSubmodule.value = null
-    // NO limpiamos el submoduleModel aquí para evitar pérdida de datos reactivos durante transiciones
-  }
+  const backToMain = () => RouteUtils.backToMain(activeSubmodule)
 
   /**
    * Realiza la consulta de datos inicial o de refresco (para tablas, etc).
@@ -202,8 +212,12 @@ export function useRendererOrchestrator(props: any, emit: any) {
       const prop = DynamicParser.getProp(fld)
       if (!prop) return
 
-      // Buscamos el valor en la respuesta (soporte para respuesta plana o envuelta en user/data)
-      const getVal = (key: string) => consultData[key] ?? consultData.user?.[key] ?? consultData.data?.[key]
+      // Buscamos el valor en la respuesta (soporte para respuesta plana, envuelta en user o en array data)
+      const getVal = (key: string) => {
+        const d = consultData.data
+        const dVal = Array.isArray(d) ? d[0]?.[key] : d?.[key]
+        return consultData[key] ?? consultData.user?.[key] ?? dVal
+      }
 
       // PRIORIDAD 1: Mapeo por Token {placeholder}
       if (fld.value) {
@@ -212,8 +226,8 @@ export function useRendererOrchestrator(props: any, emit: any) {
           const dKey = match[1] || ''
           const finalVal = (dKey === 'res' || dKey === 'root' || dKey === '') ? consultData : getVal(dKey)
           if (finalVal !== undefined) {
-             updateModel(prop, finalVal)
-             return // Mapeado con éxito
+            updateModel(prop, finalVal)
+            return // Mapeado con éxito
           }
         }
       }
@@ -233,7 +247,13 @@ export function useRendererOrchestrator(props: any, emit: any) {
     model[prop] = val
     if (backendErrors[prop]) delete backendErrors[prop]
     const item = schema.value.find((f: any) => DynamicParser.getProp(f) === prop)
-    if (item) DynamicParser.runValidation(validationErrors, model, prop, val, item)
+    if (item) {
+      DynamicParser.runValidation(validationErrors, model, prop, val, item)
+      // Detección inmediata de error crítico
+      if (validationErrors[prop]?.message?.includes('[ERROR DE CONFIGURACIÓN]')) {
+        criticalConfigError.value = validationErrors[prop].message
+      }
+    }
   }
 
   /**
@@ -243,26 +263,46 @@ export function useRendererOrchestrator(props: any, emit: any) {
   async function handleButtonClick(item: any, childContext?: any) {
     // SOPORTE: Acción especial para delegar el submit al padre desde un hijo
     if (item.action === 'submit-master') {
-      // 1. Validaciones globales primero
       wasSubmitted.value = true
       let isFormValid = true
-      const targetSchema = (activeSubmodule.value?.module || activeSubmodule.value?.schema || activeSubmodule.value?.configurationUi?.schema || schema.value)
-      targetSchema.forEach((itm: any) => {
+      let hasParentErrors = false
+
+      // 1. Validación del Padre (Global)
+      schema.value.forEach((itm: any) => {
         const prop = DynamicParser.getProp(itm)
         if (prop && !DynamicParser.runValidation(validationErrors, model, prop, model[prop], itm)) {
           isFormValid = false
+          hasParentErrors = true
         }
-      });
+      })
+
+      // 2. Validación del Hijo (si existe)
+      if (activeSubmodule.value) {
+        const childSchema = (activeSubmodule.value.module || activeSubmodule.value.schema || [])
+        childSchema.forEach((itm: any) => {
+          const prop = DynamicParser.getProp(itm)
+          if (prop && !DynamicParser.runValidation(validationErrors, submoduleModel, prop, submoduleModel[prop], itm)) {
+            isFormValid = false
+          }
+        })
+      }
+
       if (!isFormValid) {
         feedback.value = { type: 'error', message: 'Por favor, corrija los errores en el formulario' }
+        // REGLA: Si hay errores en el padre, regresamos a la vista principal para mostrarlos
+        if (hasParentErrors && activeSubmodule.value) {
+          console.warn('[Orchestrator] Parent validation failed during child submit. Returning to main.');
+          backToMain()
+        }
         return
       }
 
+      // 3. Localización del Endpoint del Padre
       const masterSubmit = schema.value.find(it => DynamicParser.isButton(it) && it.endpoint)
       if (masterSubmit) {
-        const isUnified = item.config?.useMasterModel === true || item.useMasterModel === true
-        const currentModel = (activeSubmodule.value && !isUnified) ? submoduleModel : model
-        
+        const isUnified = item.config?.useMasterModel !== false // Por defecto unificado en submit-master
+        const currentModel = isUnified ? { ...model, ...submoduleModel } : (activeSubmodule.value ? submoduleModel : model)
+
         isSubmitting.value = true
         const result = await rendererService.executeApiCall(masterSubmit, currentModel)
         handleApiResult(result, masterSubmit)
@@ -279,12 +319,19 @@ export function useRendererOrchestrator(props: any, emit: any) {
 
     wasSubmitted.value = true
     let isFormValid = true
-    
-    // Validación manual de todos los campos marcados en el esquema
-    schema.value.forEach((itm: any) => {
+
+    // REGLA: Validar el esquema correcto (principal o submódulo activo)
+    const targetSchema = (activeSubmodule.value?.module || schema.value)
+
+    targetSchema.forEach((itm: any) => {
       const prop = DynamicParser.getProp(itm)
-      if (prop && !DynamicParser.runValidation(validationErrors, model, prop, model[prop], itm)) {
+      const currentModel = (activeSubmodule.value && !(itm.config?.useMasterModel || itm.useMasterModel)) ? submoduleModel : model
+
+      if (prop && !DynamicParser.runValidation(validationErrors, currentModel, prop, currentModel[prop], itm)) {
         isFormValid = false
+        if (validationErrors[prop]?.message?.includes('[ERROR DE CONFIGURACIÓN]')) {
+          criticalConfigError.value = validationErrors[prop].message
+        }
       }
     })
 
@@ -296,13 +343,19 @@ export function useRendererOrchestrator(props: any, emit: any) {
     isSubmitting.value = true
     feedback.value = null
 
-    // REGLA: Si hay un submódulo activo, usamos su modelo aislado. De lo contrario, el global.
-    // EXCEPCIÓN: Si el botón tiene la bandera 'useMasterModel' en su config, usamos el modelo global (Unificación).
     const isUnified = item.config?.useMasterModel === true || item.useMasterModel === true
-    const currentModel = (activeSubmodule.value && !isUnified) ? submoduleModel : model
+    const rawModel = (activeSubmodule.value && !isUnified) ? submoduleModel : model
 
-    // Ejecución de la llamada a la API definida en el botón
-    const result = await rendererService.executeApiCall(item, currentModel)
+    // SOPORTE: Filtrado estricto (solo lo que tiene noSubmit: false)
+    const payload = Object.keys(rawModel).reduce((acc: any, key) => {
+      const field = targetSchema.find((f: any) => DynamicParser.getProp(f) === key)
+      if (field && field.noSubmit === false) {
+        acc[key] = rawModel[key]
+      }
+      return acc
+    }, {})
+
+    const result = await rendererService.executeApiCall(item, payload)
     handleApiResult(result, item)
     isSubmitting.value = false
   }
@@ -318,9 +371,9 @@ export function useRendererOrchestrator(props: any, emit: any) {
       const paths = response.path || payload.path || []
 
       const { user, access_token, message } = payload
-      
+
       feedback.value = { type: 'success', message: message || 'Operación completada con éxito' }
-      
+
       // 2. Hidratación Dinámica: Actualizamos el modelo con los datos del usuario o el payload directo
       const dataToMap = user || payload
       if (dataToMap && typeof dataToMap === 'object') {
@@ -346,7 +399,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
         }))
         authStore.updateSession(access_token, normalizedPaths, (user?.userName || payload.userName))
       }
-      
+
       // Lógica especial de re-autenticación si la API lo requiere
       if (props.config?.config?.isReauthenticating === true || result.data?.isReauthenticating === true) {
         authStore.isReauthenticating = true
@@ -371,7 +424,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
     if (e.type === 'edit' && dynamicComponentMetadata.value) {
       console.log('[Orchestrator] Launching virtual submodule from dynamic metadata')
       activeSubmodule.value = {
-        config: { 
+        config: {
           module: 'Editar Registro',
           metadata: { title: 'Editar Registro' }
         },
@@ -379,13 +432,13 @@ export function useRendererOrchestrator(props: any, emit: any) {
       }
       // Limpiar y cargar data
       Object.keys(submoduleModel).forEach(k => delete submoduleModel[k])
-      
+
       const rowData = { ...(e.payload || {}) }
       // Normalización para Selects (ej: de array de roles a string de role)
       if (Array.isArray(rowData.roles) && rowData.roles.length > 0) {
         rowData.role = rowData.role || rowData.roles[0]
       }
-      
+
       Object.assign(submoduleModel, rowData)
       return
     }
@@ -405,12 +458,12 @@ export function useRendererOrchestrator(props: any, emit: any) {
     // 1. Item local (botón) 
     // 2. Contexto de hijo (si existe) 
     // 3. Configuración global del módulo
-    const actionsConfig = item.config?.actions || 
-                        item.actions || 
-                        childContext?.config?.actions || 
-                        props.config?.config?.actions || 
-                        props.config?.configurationUi?.actions
-    
+    const actionsConfig = item.config?.actions ||
+      item.actions ||
+      childContext?.config?.actions ||
+      props.config?.config?.actions ||
+      props.config?.configurationUi?.actions
+
     if (!actionsConfig || !actionsConfig[e.type]) return
 
     const actionDef = rendererService.prepareAction(actionsConfig[e.type], e.payload || {})
@@ -419,7 +472,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
     if (actionDef.type === 'navigate' && actionDef.path) {
       const queryParams: any = { ...actionDef.params }
       if (actionDef.params?.mode === 'edit' && e.payload) {
-        try { queryParams._rd = btoa(encodeURIComponent(JSON.stringify(e.payload))) } catch {}
+        try { queryParams._rd = btoa(encodeURIComponent(JSON.stringify(e.payload))) } catch { }
       }
 
       // INTERCEPTOR: Si la acción corresponde a un submódulo local, swapeamos la vista en lugar de navegar
@@ -432,7 +485,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
         // PRIORIDAD 2: El path o moduleId coinciden directamente
         const childPath = child.config?.path || child.path
         const childModuleId = child.config?.moduleId || child.moduleId
-        
+
         // REGLA: Si es una acción de editar de TablaPremium (típicamente tiene ID y va a /edit), no interceptamos
         if (actionDef.path?.includes('/edit') && e.payload?.id) return false
 
@@ -444,23 +497,23 @@ export function useRendererOrchestrator(props: any, emit: any) {
       } else {
         router.push({
           path: actionDef.path,
-          query: { 
-            ...queryParams, 
-            fromPath: route.path, 
-            fromLabel: props.config?.config?.metadata?.title || props.config?.config?.module 
+          query: {
+            ...queryParams,
+            fromPath: route.path,
+            fromLabel: props.config?.config?.metadata?.title || props.config?.config?.module
           }
         })
       }
     } else if (actionDef.type === 'api-call' && actionDef.endpoint) {
       isSubmitting.value = true
-      
+
       const isUnified = actionDef.useMasterModel === true || actionDef.config?.useMasterModel === true
       const currentModel = (activeSubmodule.value && !isUnified) ? submoduleModel : model
-      
+
       const result = await rendererService.executeApiCall(actionDef, currentModel)
       if (result.success) {
         feedback.value = { type: 'success', message: 'Acción realizada con éxito' }
-        
+
         // Limpieza del formulario tras éxito (según requerimiento de usuario)
         resetForm()
 
@@ -479,7 +532,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
     const prop = DynamicParser.getProp(item)
     const val = model[prop]
     const isEmpty = val === undefined || val === null || (Array.isArray(val) ? val.length === 0 : (typeof val === 'string' && val === ''))
-    
+
     if (isEmpty && DynamicParser.isComplex(item.type || '')) {
       return model
     }
@@ -491,7 +544,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
    */
   const hasChildSubmit = computed(() => {
     const children = props.config?.schemaChild || props.config?.configurationUi?.schemaChild || []
-    return children.some((child: any) => 
+    return children.some((child: any) =>
       (child.module || []).some((fld: any) => fld.action === 'submit-master')
     )
   })
@@ -501,8 +554,8 @@ export function useRendererOrchestrator(props: any, emit: any) {
   // Re-inicializa el modelo cuando el esquema de configuración cambia
   watch(() => props.config, () => {
     // FIX: Al cambiar la configuración (navegación entre módulos), reseteamos el estado de submódulos
-    backToMain() 
-    
+    backToMain()
+
     initModel()
     wasSubmitted.value = false
     feedback.value = null
@@ -544,6 +597,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
     backToMain,
     hasChildSubmit,
     updateSubmoduleModel,
+    criticalConfigError,
     initModel // Exportamos para re-uso si es necesario
   }
 }

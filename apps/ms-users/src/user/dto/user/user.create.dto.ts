@@ -26,17 +26,14 @@ export class UserCreateDto {
     @Expose()
     @IsString()
     @IsOptional()
-    confirmarPassword?: string;
+    confirmPassword?: string;
 
     @Expose()
     @IsString()
     @IsOptional()
     role?: string;
 
-    @Expose()
-    @IsOptional()
-    btnActualizarPerfil?: any;
-
+    // --- Visual Customization (CamelCase y Nombres Originales) ---
     @Expose()
     @IsString()
     @IsOptional()
@@ -51,4 +48,11 @@ export class UserCreateDto {
     @IsString()
     @IsOptional()
     errorColor?: string;
+
+    @Expose()
+    @IsString()
+    @IsOptional()
+    logoUrl?: string;
+
+    // logoFile se maneja en el controlador
 }

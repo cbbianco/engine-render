@@ -1,7 +1,8 @@
 <template>
-  <div class="title-container">
+  <div :class="['title-container', { 'has-separator': separator }]">
     <h4 class="title-text">{{ label }}</h4>
     <p v-if="description" class="description-text">{{ description }}</p>
+    <div v-if="separator" class="separator-line"></div>
   </div>
 </template>
 
@@ -9,14 +10,19 @@
 defineProps<{
   label: string
   description?: string
+  separator?: boolean
 }>()
 </script>
 
 <style scoped>
 .title-container {
-  padding: 16px 0;
-  margin-bottom: 24px;
-  border-bottom: 1px solid #E4E7EC;
+  padding: 8px 0;
+  width: 100%;
+}
+
+.title-container.has-separator {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .title-text {
@@ -32,5 +38,12 @@ defineProps<{
   color: #667085;
   margin: 8px 0 0 0;
   font-weight: 400;
+}
+
+.separator-line {
+  height: 1px;
+  background-color: #E4E7EC;
+  width: 100%;
+  margin-top: 0.5rem;
 }
 </style>
