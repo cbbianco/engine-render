@@ -2,6 +2,20 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
+## [1.7.0] - 2026-04-25
+### Added
+- **Session Protection Guard**: Enhanced `useRendererOrchestrator` to prevent unintentional session overwrites during resource creation (ensuring Admin session remains intact after creating new users).
+- **Form Lifecycle Management**: Added automatic form reset logic after successful creation, ensuring a clean state for subsequent operations.
+
+### Changed
+- **Dynamic Orchestration Engine**: Transitioned to a 100% metadata-driven approach by removing static DTOs (`UserCreateDto`, `UserProfileDto`) in favor of dynamic `Record<string, unknown>` payloads.
+- **Flexible Branding Service**: Updated `UserConfigService` to handle dynamic branding properties (colors, logos) with intelligent fallback logic for missing values in schemas.
+- **Validation Source of Truth**: Backend validation now relies exclusively on the JSON schema defined in MongoDB via `ModuleValidationService`.
+
+### Fixed
+- **File Upload Preservation**: Fixed a critical bug in the orchestrator's filtering logic that was discarding `File` and `Blob` instances, enabling robust `multipart/form-data` support for logos.
+- **Orchestrator Type Safety**: Resolved multiple TypeScript "unknown" type errors in `UserProfileService` and `UsersController` by implementing safe dynamic accessors.
+
 ## [1.6.0] - 2026-04-25
 ### Added
 - **Domain Utility Layer**: New architecture for frontend utilities (`FormUtils`, `RouteUtils`) to handle domain logic outside the orchestrator.
