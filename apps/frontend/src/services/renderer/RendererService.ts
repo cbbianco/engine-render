@@ -69,7 +69,7 @@ export class RendererService {
       }
 
       // 2. Determinación del método (Prioridad: endpoint.method > actionDef.method > POST)
-      const method = (typeof actionDef.endpoint === 'object' ? actionDef.endpoint.method : actionDef.method) || 'POST'
+      const method = (typeof actionDef.endpoint === 'object' ? (actionDef.endpoint.method || actionDef.method) : actionDef.method) || 'POST'
 
       // 3. Selección del Cuerpo (bodySource / bodyField)
       const bodySource = actionDef.bodySource || actionDef.body || (typeof actionDef.endpoint === 'object' ? actionDef.endpoint.bodySource : undefined)

@@ -1,0 +1,44 @@
+{
+    "configurationUi": {
+        "config": {
+            "metadata": {
+                "orchestrationType": "CREATE",
+                "title": "Creación de Inventario"
+            },
+            "module": "Creación de Inventario",
+            "path": "/create-inventory",
+            "method": "GET",
+            "order": 3,
+            "menu": "menu-item:Inventario:Crear",
+            "icon": "svg-user-plus",
+            "breadcrumb": [
+                {
+                    "label": "Dashboard",
+                    "path": "/dashboard"
+                }
+            ],
+            "raw": true
+        },
+        "schema": [
+            {
+                "type": "separator",
+                "label": "Información de Inventario",
+                "property": "infoInventory",
+                "column": "col-12",
+                "align": "left",
+                "separator": true
+            },
+            {
+                "type": "text",
+                "label": "Nombre de Inventario",
+                "property": "name",
+                "required": true,
+                "column": "col-6",
+                "align": "left",
+                "noSubmit": false,
+                "placeholder": "Ingrese el nombre del inventario"
+            }
+        ]
+    },
+    "orchestrationDetails": {}
+}

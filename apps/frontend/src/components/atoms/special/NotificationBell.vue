@@ -57,10 +57,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useNotificationStore } from '@/stores/notifications'
 
 const notificationStore = useNotificationStore()
+
+onMounted(() => {
+  notificationStore.loadHistory()
+})
 const isOpen = ref(false)
 
 const unreadCount = computed(() => 
@@ -69,6 +73,9 @@ const unreadCount = computed(() =>
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    notificationStore.loadHistory()
+  }
 }
 
 const closeDropdown = () => {

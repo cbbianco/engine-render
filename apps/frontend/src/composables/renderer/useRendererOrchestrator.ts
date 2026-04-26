@@ -1,24 +1,14 @@
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth/index'
 import { useNotificationStore } from '@/stores/notifications'
-import { FormUtils } from '@/utils/renderer/FormUtils'
 import { RouteUtils } from '@/utils/renderer/RouteUtils'
-import { ModuleUtils } from '@/utils/renderer/ModuleUtils'
 import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 import { rendererService } from '@/services/renderer/RendererService'
-import { ModelUtils } from '@/utils/renderer/ModelUtils'
-import { ValidationUtils } from '@/utils/renderer/ValidationUtils'
 import { ClickUtils, type ClickContext } from '@/utils/renderer/ClickUtils'
 
 /**
  * useRendererOrchestrator - Orquestador lógico del DynamicRenderer.
- * 
- * Este composable centraliza la lógica de negocio, el estado reactivo y la
- * orquestación de datos para el motor de renderizado dinámico.
- * 
- * @param props - Propiedades pasadas desde el componente DynamicRenderer
- * @param emit - Emisor de eventos para comunicación con el padre
  */
 export function useRendererOrchestrator(props: any, emit: any) {
   const route = useRoute()
@@ -27,367 +17,184 @@ export function useRendererOrchestrator(props: any, emit: any) {
   const notificationStore = useNotificationStore()
 
   // --- Estado Reactivo ---
-  const isSubmitting = ref(false)                      // Indica si hay un proceso de envío en curso
-  const wasSubmitted = ref(false)                      // Bandera para mostrar errores de validación tras el primer intento
-  const feedback = ref<{ type: 'success' | 'error'; message: string } | null>(null) // Mensajes de éxito o error
-  const fieldRefs = new Map<string, unknown>()         // Referencias a los componentes de campo hijos
-  const validationErrors = reactive<Record<string, { invalid: boolean; message?: string }>>({}) // Errores de validación frontend
-  const backendErrors = reactive<Record<string, string>>({}) // Errores retornados por la API
-  const model = reactive({}) as any                    // Modelo de datos que se sincroniza con los inputs
-  const criticalConfigError = ref<string | null>(null) // Almacena errores fatales de configuración (JSON/Schema)
-
-
-  // --- Estados de Navegación Interna (Submódulos) ---
-  const activeSubmodule = ref<any>(null)               // Módulo hijo actualmente en "foco"
-  const submoduleModel = reactive({}) as any           // Modelo de datos aislado para el submódulo
-  const dynamicComponentMetadata = ref<any[] | null>(null) // Metadatos dinámicos para edición (Service Locator)
-
-  // --- Propiedades Computadas ---
-
-  /**
-   * Procesa el esquema crudo eliminando duplicados y elementos inválidos.
-   */
-  const schema = computed(() => {
-    let rawSchema = (props.config?.schema || (props.config as any)?.configurationUi?.schema) ?? []
-
-    // DEFENSA: Si por algún error de merge el schema llega como objeto, intentamos convertirlo a array
-    if (rawSchema && typeof rawSchema === 'object' && !Array.isArray(rawSchema)) {
-      console.warn('[Orchestrator] Schema detected as Object, attempting conversion to Array', rawSchema)
-      rawSchema = Object.values(rawSchema)
-    }
-
-    if (!Array.isArray(rawSchema)) return []
-
-    const seen = new Set<string>()
-    return rawSchema.filter((item: any) => {
-      if (!item) return false
-      const key = `${item.type}-${DynamicParser.getProp(item)}-${item.label}`
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
+  const isSubmitting = ref(false)
+  const wasSubmitted = ref(false)
+  const feedback = ref<{ type: 'success' | 'error'; message: string } | null>(null)
+  const fieldRefs = new Map<string, unknown>()
+  const validationErrors = reactive<Record<string, { invalid: boolean; message?: string }>>({})
+  const backendErrors = reactive<Record<string, string>>({})
+  const model = reactive({}) as any
+  const criticalConfigError = ref<string | null>(null)
+  
+  // --- Sistema de Confirmación ---
+  const confirmState = reactive({
+    show: false,
+    title: '¿Está seguro?',
+    message: 'Esta acción no se puede deshacer.',
+    confirmLabel: 'Confirmar',
+    cancelLabel: 'Cancelar',
+    onConfirm: () => {}
   })
 
-  /**
-   * Determina si la vista actual debe tratarse como un tablero (dashboard).
-   */
-  const isDashboardView = computed(() => DynamicParser.isDashboard(schema.value as any))
+  // --- Estados de Navegación Interna (Submódulos) ---
+  const activeSubmodule = ref<any>(null)
+  const submoduleModel = reactive({}) as any
 
-  /**
-   * Genera la lista de breadcrumbs procesada para la navegación actual.
-   * Maneja el historial de navegación 'desde' (fromPath/fromLabel).
-   */
-  const processedBreadcrumbs = computed(() => ModuleUtils.getProcessedBreadcrumbs(props.config, route, activeSubmodule.value))
+  // --- Computados ---
+  const schema = computed(() => props.config?.schema || props.config?.configurationUi?.schema || [])
+  const isDashboardView = computed(() => !route.params.moduleId && route.path === '/dashboard')
+  const processedBreadcrumbs = computed(() => RouteUtils.getBreadcrumbs(route, props.config, activeSubmodule.value))
+  const hasChildSubmit = computed(() => {
+    const children = props.config?.schemaChild || props.config?.configurationUi?.schemaChild || []
+    return children.some((c: any) => c.config?.trigger === 'submit-master')
+  })
 
-  /**
-   * Inicializa o resetea el modelo de datos basado en la configuración del esquema.
-   */
-  function initModel() {
-    const baseData = DynamicParser.normalizedModelFromConfig(props.config)
-    // Limpieza reactiva del modelo
-    Object.keys(model).forEach(key => delete model[key])
+  // --- Ciclo de Vida ---
+  onMounted(() => {
+    initModel()
+  })
 
-    // 1. Campos del schema principal
-    schema.value.forEach((f: any) => {
-      if (!DynamicParser.isDataField(f)) return
-      const propKey = DynamicParser.getProp(f)
-      if (!propKey) return
+  // --- Watchers ---
+  watch(() => props.config, () => {
+    initModel()
+  }, { deep: true })
 
-      const isTable = f.type?.toLowerCase().includes('table')
-      // FIX: Si el valor es {res}, inicializar como array/objeto vacío para evitar warnings de tipos antes del fetch
-      const rawVal = baseData[propKey] ?? f.value
-      const isToken = typeof rawVal === 'string' && rawVal.startsWith('{') && rawVal.endsWith('}')
+  watch(() => route.path, () => {
+    activeSubmodule.value = null
+    feedback.value = null
+  })
+
+  // --- Métodos de Acción ---
+
+  async function initModel() {
+    try {
+      Object.keys(model).forEach(key => delete model[key])
+      const queryData = RouteUtils.getDataFromQuery(route.query)
+      if (queryData) {
+        Object.assign(model, queryData)
+        return
+      }
+      const consultConfig = (props.orchestrationDetails?.consult as any) || (props.config?.orchestrationDetails?.consult as any)
       
-      model[propKey] = isToken ? (isTable ? [] : {}) : (rawVal ?? (isTable ? [] : ''))
-    })
-
-    // 1.2 Inyectar moduleId de la configuración si existe para resolución de endpoints
-    const configData = props.config?.config || props.config?.configurationUi?.config
-    if (configData?.moduleId) {
-      model['moduleId'] = configData.moduleId
-    }
-
-    // 1.5 Validar errores críticos inmediatamente tras init (Escaneo Profundo sobre Props Crudas)
-    criticalConfigError.value = null
-    const rawSchema = props.config?.schema || props.config?.configurationUi?.schema || []
-    const rawChildren = props.config?.schemaChild || props.config?.configurationUi?.schemaChild || []
-    const allFields = [...rawSchema, ...rawChildren.flatMap((c: any) => c.module || c.schema || [])]
-
-    allFields.forEach((f: any) => {
-      const prop = DynamicParser.getProp(f)
-      if (prop && DynamicParser.isDataField(f)) {
-        // Ejecutamos validación sin afectar el estado reactivo principal aún si es necesario
-        const tempErrors: any = {}
-        ValidationUtils.runValidation(tempErrors, model, prop, model[prop], f)
-        if (tempErrors[prop]?.message?.includes('CONFIGURACIÓN')) {
-          console.error('[CRITICAL] Configuration error detected:', tempErrors[prop].message)
-          criticalConfigError.value = tempErrors[prop].message
+      if (consultConfig) {
+        const id = (route.query.id as string) || (props.config as any)?.config?.moduleId
+        // Si hay configuración de consulta, la ejecutamos. 
+        // No bloqueamos por ID ya que algunos endpoints (como /profile) usan el token.
+        const response = await rendererService.fetchConsultData(consultConfig, { 
+          id, 
+          moduleId: id, // Soporte para placeholders {moduleId}
+          ...model 
+        })
+        if (response && !response.error) {
+          // Lógica de seteo: Extraer 'data' si el backend envuelve la respuesta
+          const payload = response.data || response
+          Object.assign(model, payload)
         }
       }
-    })
-
-    // 2. Campos de schemaChild (si existen) - Búsqueda Defensiva
-    const schemaChildren = props.config?.schemaChild || props.config?.configurationUi?.schemaChild || []
-    schemaChildren.forEach((child: any) => {
-      const childSchema = child.module || child.schema || []
-      childSchema.forEach((f: any) => {
-        if (!DynamicParser.isDataField(f)) return
-        const propKey = DynamicParser.getProp(f)
-        if (!propKey || model[propKey] !== undefined) return
-        model[propKey] = f.value ?? (f.type?.includes('table') ? [] : '')
-      })
-    })
-  }
-
-  /**
-   * Limpia el formulario delegando la lógica a FormUtils.
-   */
-  const resetForm = () => FormUtils.resetForm(model, schema.value, validationErrors, backendErrors, wasSubmitted, submoduleModel)
-
-  /**
-   * Actualiza el modelo del submódulo y sincroniza con el modelo maestro si la propiedad existe.
-   */
-  function updateSubmoduleModel(prop: string, val: any): void {
-    ModuleUtils.updateSubmoduleModel(prop, val, submoduleModel, model, activeSubmodule.value, validationErrors)
-  }
-
-  /**
-   * Cambia el contexto de visualización a un submódulo específico.
-   * Carga el modelo inicial del submódulo sincronizando con el maestro.
-   */
-  function activateSubmodule(child: any) {
-    if (!child) return
-    activeSubmodule.value = child
-
-    // Inicializar modelo aislado del submódulo
-    Object.keys(submoduleModel).forEach(k => delete submoduleModel[k])
-    const childSchema = child.module || child.schema || []
-    childSchema.forEach((f: any) => {
-      if (!DynamicParser.isDataField(f)) return
-      const propKey = DynamicParser.getProp(f)
-      if (propKey) {
-        // PRIORIDAD: 1. Valor actual en el modelo maestro | 2. Valor por defecto del esquema
-        submoduleModel[propKey] = model[propKey] ?? f.value ?? (f.type?.includes('table') ? [] : '')
-      }
-    })
-  }
-
-  /**
-   * Regresa a la vista del módulo maestro delegando a RouteUtils.
-   */
-  const backToMain = () => RouteUtils.backToMain(activeSubmodule)
-
-  /**
-   * Realiza la consulta de datos inicial o de refresco (para tablas, etc).
-   */
-  async function fetchConsultData(params?: { page?: number; limit?: number }) {
-    const consultData = await rendererService.fetchConsultData(props.orchestrationDetails?.consult, model, params)
-    
-    if (!consultData || consultData.error) {
-      if (consultData?.error && (consultData.status === 422 || consultData.message?.includes('[ERROR DE CONFIGURACIÓN]'))) {
-        criticalConfigError.value = consultData.message
-        notificationStore.addNotification('error', 'Error de Configuración', consultData.message)
-      } else if (consultData?.error) {
-        notificationStore.addNotification('error', 'Error de Consulta', consultData.message)
-      }
-      return
+    } catch (error: any) {
+      criticalConfigError.value = `Error al cargar datos iniciales: ${error.message}`
     }
+  }
 
-    // SERVICE LOCATOR: Captura de metadatos dinámicos para edición/vistas posteriores
-    if (consultData.component?.properties) {
-      console.log('[Orchestrator] Dynamic component metadata received from API')
-      dynamicComponentMetadata.value = consultData.component.properties
-    }
+  function updateModel(key: string, value: any) {
+    model[key] = value
+    if (validationErrors[key]) delete validationErrors[key]
+    if (backendErrors[key]) delete backendErrors[key]
+  }
 
-    // Mapeo selectivo de datos retornados al modelo
-    schema.value.forEach((fld: any) => {
-      const prop = DynamicParser.getProp(fld)
-      if (!prop) return
-
-      // Buscamos el valor en la respuesta (soporte para respuesta plana, envuelta en user o en array data)
-      const getVal = (key: string) => {
-        const d = consultData.data
-        const dVal = Array.isArray(d) ? d[0]?.[key] : d?.[key]
-        return consultData[key] ?? consultData.user?.[key] ?? dVal
-      }
-
-      // PRIORIDAD 1: Mapeo por Token {placeholder}
-      if (fld.value) {
-        const match = fld.value.match(/^\{([^}]*)\}$/)
-        if (match) {
-          const dKey = match[1] || ''
-          const finalVal = (dKey === 'res' || dKey === 'root' || dKey === '') ? consultData : getVal(dKey)
-          if (finalVal !== undefined) {
-            updateModel(prop, finalVal)
-            return // Mapeado con éxito
-          }
-        }
-      }
-
-      // PRIORIDAD 2: Mapeo Directo por Propiedad (Fallback)
-      const directVal = getVal(prop)
-      if (directVal !== undefined) {
-        updateModel(prop, directVal)
-      }
-    })
+  function updateSubmoduleModel(key: string, value: any) {
+    submoduleModel[key] = value
   }
 
   /**
-   * Actualiza un valor en el modelo binario y ejecuta validaciones inmediatas.
+   * Delegación total a ClickUtils para el manejo de botones.
    */
-  function updateModel(prop: string, val: any): void {
-    ModelUtils.updateModel(
-      prop, 
-      val, 
-      model, 
-      schema.value, 
-      validationErrors, 
-      backendErrors, 
-      criticalConfigError
-    )
+  async function handleButtonClick(btn: any, childContext?: any) {
+    await ClickUtils.handleButtonClick(btn, getClickContext(), childContext)
+  }
+
+  function confirmAction(source: any, callback: () => void) {
+    const config = source.config || source
+    confirmState.title = config.confirmTitle || '¿Está seguro?'
+    confirmState.message = config.confirmMessage || 'Esta acción no se puede deshacer.'
+    confirmState.confirmLabel = config.confirmLabel || 'Confirmar'
+    confirmState.cancelLabel = config.cancelLabel || 'Cancelar'
+    confirmState.onConfirm = callback
+    confirmState.show = true
   }
 
   /**
-   * Manejador principal para los clics en botones del renderizador.
-   * Realiza validaciones globales antes de ejecutar llamadas a API.
-   */
-  /**
-   * Obtiene el contexto necesario para delegar acciones a utilidades.
+   * Proporciona el contexto necesario para las utilidades de clic.
    */
   function getClickContext(): ClickContext {
     return {
-      model, submoduleModel, schema, activeSubmodule, validationErrors,
-      isSubmitting, wasSubmitted, feedback, route, props,
-      notificationStore,
+      model,
+      submoduleModel,
+      schema,
+      activeSubmodule,
+      validationErrors,
+      isSubmitting,
+      wasSubmitted,
+      feedback,
+      route,
+      props,
       backToMain,
       fetchConsultData,
-      handleApiResult,
-      handleComponentAction,
-      executeApiCall: (item, payload) => rendererService.executeApiCall(item, payload, { moduleId: props.config?._id })
+      executeApiCall: (item, payload) => rendererService.executeApiCall(item, payload),
+      handleApiResult: (result, item) => handleApiResult(result, item),
+      handleComponentAction: (e, item, childContext) => handleComponentAction(e, item, childContext),
+      notificationStore,
+      confirmAction: (source, cb) => confirmAction(source, cb)
     }
   }
 
-  /**
-   * Maneja el clic en botones (Toolbar o Componentes).
-   */
-  async function handleButtonClick(item: any, childContext?: any) {
-    await ClickUtils.handleButtonClick(item, getClickContext(), childContext)
-  }
-
-  /**
-   * Procesa el resultado de una llamada a la API y actualiza el estado.
-   */
-  function handleApiResult(result: any, item: any) {
+  function handleApiResult(result: any, actionDef: any) {
     if (result.success) {
-      // SOPORTE: Nueva estructura unificada { data: { ... }, path: [ ... ] }
-      const response = result.data || {}
-      const payload = response.data || response
-      const paths = response.path || payload.path || []
-
-      const { user, access_token, message } = payload
-
-      feedback.value = { type: 'success', message: message || 'Operación completada con éxito' };
-      notificationStore.addNotification('success', 'Éxito', message || 'Operación completada con éxito')
+      notificationStore.addNotification('success', 'Éxito', result.data?.message || 'Operación completada')
+      feedback.value = { type: 'success', message: result.data?.message || 'Operación exitosa' }
       
-      // 2. Hidratación Dinámica y 3. Sincronización de Sesión
-      // Determinamos si es el perfil propio para proteger la sesión y los datos del creador
-      const isProfileAction = props.config?.path === '/profile' || props.config?.module === 'Mi Perfil';
-      const dataToMap = user || payload;
-
-      // --- A. Hidratación: Solo si es el perfil propio ---
-      if (dataToMap && typeof dataToMap === 'object' && isProfileAction) {
-        Object.keys(dataToMap).forEach(key => {
-          if (key === 'password') return;
-          if (model[key] !== undefined || schema.value.some((f: any) => DynamicParser.getProp(f) === key)) {
-            updateModel(key, dataToMap[key]);
-          }
-        });
-      } else {
-        // Para creación y otras acciones (Padre-Hijo), limpiamos todo y regresamos al componente principal
-        resetForm();
-        if (activeSubmodule.value) {
-          console.log('[Orchestrator] Parent-Child operation successful. Returning to main component.');
-          backToMain();
-        }
-      }
- 
-      // --- B. Sincronización de Sesión: SOLO si es una actualización de perfil ---
-      // REGLA: No actualizar sesión si estamos creando otros recursos (evita suplantación involuntaria)
-      const hasValidPaths = paths && Array.isArray(paths) && paths.length > 0;
-
-      if (access_token && hasValidPaths && isProfileAction) {
-        // Mapeo de snake_case (backend) a camelCase (frontend) para pathActive
-        const normalizedPaths = paths.map((p: any) => ({
-          path: p.path,
-          method: p.method,
-          pathActive: p.path_active ?? p.pathActive ?? 1
-        }));
-        authStore.updateSession(access_token, normalizedPaths, (user?.userName || payload.userName));
+      // Auto-navegación si el submit fue exitoso
+      if (actionDef.action === 'submit' || actionDef.action === 'submit-master') {
+        setTimeout(() => {
+          const fromPath = route.query.fromPath as string
+          fromPath ? router.push(fromPath) : router.back()
+        }, 1500)
       }
 
-      // Lógica especial de re-autenticación si la API lo requiere
-      if (props.config?.config?.isReauthenticating === true || result.data?.isReauthenticating === true) {
-        authStore.isReauthenticating = true
+      if (actionDef.refresh !== false) {
+        fetchConsultData()
       }
     } else {
       feedback.value = { type: 'error', message: result.message }
-      notificationStore.addNotification('error', 'Error en la Operación', result.message)
+      notificationStore.addNotification('error', 'Error', result.message)
     }
   }
 
-  /**
-   * Maneja acciones disparadas por componentes complejos (ej. navegación, llamadas API especiales).
-   */
-  async function handleComponentAction(e: any, item: any, childContext?: any) {
-    if (e.type === 'pagination-change') {
-      const { page, limit } = e.payload
-      fetchConsultData({ page, limit })
-      return
-    }
+  function activateSubmodule(config: any) {
+    activeSubmodule.value = config
+    Object.keys(submoduleModel).forEach(k => delete submoduleModel[k])
+  }
 
-    // SERVICE LOCATOR INTERCEPTOR: Si recibimos una acción de 'edit' y tenemos metadatos dinámicos,
-    // abrimos un submódulo virtual con ese esquema inmediatamente.
-    if (e.type === 'edit' && dynamicComponentMetadata.value && props.config?.config?.moduleId !== '69ed7c91bef92b550f1d54a7') {
-      console.log('[Orchestrator] Launching virtual submodule from dynamic metadata')
-      
-      // Transformar el esquema para modo edición
-      const editSchema = JSON.parse(JSON.stringify(dynamicComponentMetadata.value)).map((item: any) => {
-        // 1. Cambiar el botón de submit
-        if (item.type === 'button' && item.action === 'submit-master') {
-          return {
-            ...item,
-            label: 'Editar Registro',
-            endpoint: {
-              ...item.endpoint,
-              method: 'PUT' // Cambiar a PUT para edición
-            }
-          }
-        }
-        return item
-      })
+  function backToMain() {
+    activeSubmodule.value = null
+  }
 
-      activeSubmodule.value = {
-        config: {
-          module: 'Editar Registro',
-          metadata: { title: 'Editar Registro' }
-        },
-        schema: editSchema
-      }
-      // Limpiar y cargar data
-      Object.keys(submoduleModel).forEach(k => delete submoduleModel[k])
+  function getFieldValue(keyOrItem: string | any) {
+    const key = typeof keyOrItem === 'string' ? keyOrItem : DynamicParser.getProp(keyOrItem)
+    return model[key]
+  }
 
-      const rowData = { ...(e.payload || {}) }
-      // Normalización para Selects (ej: de array de roles a string de role)
-      if (Array.isArray(rowData.roles) && rowData.roles.length > 0) {
+  async function handleComponentAction(e: { type: string; payload: any }, item: any, childContext?: any) {
+    if (e.type === 'edit' && e.payload) {
+      const rowData = { ...e.payload }
+      if (rowData.roles && Array.isArray(rowData.roles)) {
         rowData.role = rowData.role || rowData.roles[0]
       }
-
       Object.assign(submoduleModel, rowData)
       return
     }
 
     if (e.type === 'back') {
-      // Si hay un submódulo activo, el botón 'volver' debe simplemente cerrarlo
       if (activeSubmodule.value) {
         backToMain()
         return
@@ -397,10 +204,6 @@ export function useRendererOrchestrator(props: any, emit: any) {
       return
     }
 
-    // Prioridad de configuración de acciones: 
-    // 1. Item local (botón) 
-    // 2. Contexto de hijo (si existe) 
-    // 3. Configuración global del módulo
     const actionsConfig = item.config?.actions ||
       item.actions ||
       childContext?.config?.actions ||
@@ -411,14 +214,12 @@ export function useRendererOrchestrator(props: any, emit: any) {
 
     const actionDef = rendererService.prepareAction(actionsConfig[e.type], e.payload || {})
 
-    // Navegación con persistencia de parámetros
     if (actionDef.type === 'navigate' && (actionDef.path || actionDef.moduleId)) {
       const queryParams: any = { ...actionDef.params }
       if (actionDef.params?.mode === 'edit' && e.payload) {
         try { queryParams._rd = btoa(encodeURIComponent(JSON.stringify(e.payload))) } catch { }
       }
 
-      // BUSCAR E IR HACIA ALLÁ: Si tenemos moduleId, buscamos la ruta real en el catálogo de módulos configurados
       let targetPath = actionDef.path
       if (actionDef.moduleId) {
         const targetModule = authStore.modulesConfig.find((m: any) => {
@@ -429,31 +230,19 @@ export function useRendererOrchestrator(props: any, emit: any) {
         if (targetModule) {
           const cfg = targetModule.configurationUi?.config || (targetModule as any).configuration_ui?.config
           const resolvedPath = cfg?.path || (targetModule as any).path
-          
-          // REGLA: Si el ID resuelto apunta al mismo módulo actual pero la acción define un path diferente,
-          // priorizamos el path de la acción (caso Listar Usuarios -> Editar -> Crear Usuario)
           if (resolvedPath && resolvedPath !== route.path) {
             targetPath = resolvedPath
           }
-          
-          console.log(`[Orchestrator] Dynamic navigation resolved for ${actionDef.moduleId} -> ${targetPath}`)
         }
       }
 
-      // INTERCEPTOR: Si la acción corresponde a un submódulo local, swapeamos la vista en lugar de navegar
       const schemaChildren = props.config?.schemaChild || props.config?.configurationUi?.schemaChild || []
       const localSubmodule = schemaChildren.find((child: any) => {
-        // PRIORIDAD 1: El nombre de la acción (e.type) está registrado como una acción del hijo
         const hasActionTrigger = (child.config?.actions && child.config.actions[e.type]) || (child.actions && child.actions[e.type])
         if (hasActionTrigger) return true
-
-        // PRIORIDAD 2: El path o moduleId coinciden directamente
         const childPath = child.config?.path || child.path || (child.configurationUi?.config?.path)
         const childModuleId = child.config?.moduleId || child.moduleId || (child.configurationUi?.config?.moduleId)
-
-        // REGLA: Si es una acción de editar de TablaPremium (típicamente tiene ID y va a /edit), no interceptamos
         if (actionDef.path?.includes('/edit') && e.payload?.id) return false
-
         return (childPath && childPath === actionDef.path) || (childModuleId && childModuleId === actionDef.moduleId)
       })
 
@@ -470,81 +259,35 @@ export function useRendererOrchestrator(props: any, emit: any) {
         })
       }
     } else if (actionDef.type === 'api-call' && actionDef.endpoint) {
-      isSubmitting.value = true
-
-      const isUnified = actionDef.useMasterModel === true || actionDef.config?.useMasterModel === true
-      const currentModel = (activeSubmodule.value && !isUnified) ? submoduleModel : model
-
-      const result = await rendererService.executeApiCall(actionDef, currentModel)
-      if (result.success) {
-        const message = result.data?.message || result.data?.data?.message || 'Acción realizada con éxito'
-        feedback.value = { type: 'success', message }
-        notificationStore.addNotification('success', 'Éxito', message)
-
-        // Limpieza del formulario tras éxito (según requerimiento de usuario)
-        resetForm()
-
-        if (activeSubmodule.value) {
-          backToMain()
-        }
-
-        actionDef.onSuccess === 'back' ? router.back() : fetchConsultData()
-      } else {
-        feedback.value = { type: 'error', message: result.message }
-        notificationStore.addNotification('error', 'Error en la Acción', result.message)
+      const needsConfirm = actionDef.confirm === true || (typeof actionDef.endpoint === 'object' && actionDef.endpoint.confirm === true)
+      
+      if (needsConfirm) {
+        const confirmSource = typeof actionDef.endpoint === 'object' && actionDef.endpoint.confirm === true ? actionDef.endpoint : actionDef
+        confirmAction(confirmSource, () => ClickUtils.handleButtonClick(actionDef, getClickContext()))
+        return
       }
-      isSubmitting.value = false
+
+      await ClickUtils.handleButtonClick(actionDef, getClickContext())
     }
   }
 
-  /**
-   * Obtiene el valor real de un campo, manejando casos de datos complejos y arrays vacíos.
-   */
-  function getFieldValue(item: any) {
-    return ModelUtils.getFieldValue(item, model)
+  async function fetchConsultData() {
+    const consultConfig = props.config?.orchestrationDetails?.consult
+    const id = route.query.id as string || (props.config?.config?.moduleId)
+    if (consultConfig) {
+      try {
+        const response = await rendererService.fetchConsultData(consultConfig, { moduleId: id })
+        Object.assign(model, response)
+      } catch (error) {
+        console.error('[Orchestrator] Error al refrescar datos:', error)
+      }
+    }
   }
 
-  /**
-   * Determina si alguno de los hijos tiene un botón de submit maestro.
-   */
-  const hasChildSubmit = computed(() => {
-    const children = props.config?.schemaChild || props.config?.configurationUi?.schemaChild || []
-    return children.some((child: any) =>
-      (child.module || []).some((fld: any) => fld.action === 'submit-master')
-    )
+  watch(() => route.query.id, (newId) => {
+    if (newId) initModel()
   })
 
-  // --- Observadores (Watchers) ---
-
-  // Re-inicializa el modelo cuando el esquema de configuración cambia
-  watch(() => props.config, () => {
-    // FIX: Al cambiar la configuración (navegación entre módulos), reseteamos el estado de submódulos
-    backToMain()
-
-    initModel()
-    wasSubmitted.value = false
-    feedback.value = null
-    fetchConsultData()
-  }, { immediate: true, deep: true })
-
-  // Carga datos de consulta adicionales si los detalles de orquestación cambian
-  watch(() => props.orchestrationDetails, (newVal) => {
-    if (newVal) fetchConsultData()
-  }, { immediate: true, deep: true })
-
-  // FIX: Si el usuario recupera la sesión (tras una re-autenticación), 
-  // volvemos a pedir los datos automáticamente para refrescar la UI.
-  // Usamos el token como disparador ya que siempre cambia tras un login exitoso.
-  watch(() => authStore.sessionToken, (newToken) => {
-    if (newToken) {
-      console.log('[Orchestrator] Session token updated, re-fetching data...')
-      fetchConsultData()
-    }
-  })
-
-  /**
-   * Maneja el clic en un breadcrumb.
-   */
   function handleBreadcrumbClick(item: any) {
     ClickUtils.handleBreadcrumbClick(item, getClickContext())
   }
@@ -570,7 +313,8 @@ export function useRendererOrchestrator(props: any, emit: any) {
     hasChildSubmit,
     updateSubmoduleModel,
     criticalConfigError,
-    initModel, // Exportamos para re-uso si es necesario
-    handleBreadcrumbClick
+    initModel,
+    handleBreadcrumbClick,
+    confirmState
   }
 }

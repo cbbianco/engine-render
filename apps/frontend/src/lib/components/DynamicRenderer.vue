@@ -8,6 +8,18 @@
     <!-- Modal de Error Crítico de Configuración (Teleported to Body) -->
     <ConfigErrorModal :error="criticalConfigError" />
 
+    <!-- Modal de Confirmación de Acción (Teleported to Body) -->
+    <AppConfirmModal 
+      :show="confirmState.show"
+      :title="confirmState.title"
+      :message="confirmState.message"
+      :confirm-label="confirmState.confirmLabel"
+      :cancel-label="confirmState.cancelLabel"
+      :loading="isSubmitting"
+      @confirm="confirmState.onConfirm"
+      @cancel="confirmState.show = false"
+    />
+
     <!-- Header estilo TailAdmin: Titulo a la Izquierda, Breadcrumbs a la Derecha -->
     <div v-if="!isDashboardView" class="mb-6 flex items-center justify-between">
       <h1 class="dynamic-renderer-title">
@@ -134,6 +146,7 @@ import { StyleUtils } from '@/utils/renderer/StyleUtils'
 import { ModelUtils } from '@/utils/renderer/ModelUtils'
 import NestedModuleNative from '@/components/molecules/module/NestedModuleNative.vue'
 import ConfigErrorModal from '@/components/atoms/special/ConfigErrorModal.vue'
+import AppConfirmModal from '@/components/atoms/special/AppConfirmModal.vue'
 import type { SchemaField } from '@/lib/types/module'
 
 const props = defineProps<{
@@ -166,7 +179,8 @@ const {
   hasChildSubmit,
   updateSubmoduleModel,
   criticalConfigError,
-  handleBreadcrumbClick
+  handleBreadcrumbClick,
+  confirmState
 } = useRendererOrchestrator(props, emit)
 
 /** Propiedad computada para acceder de forma segura a la configuración del módulo */

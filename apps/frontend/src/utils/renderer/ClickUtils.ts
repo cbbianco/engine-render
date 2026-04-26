@@ -22,6 +22,8 @@ export interface ClickContext {
   handleApiResult: (result: any, item: any) => void
   handleComponentAction: (e: any, item: any, childContext?: any) => void
   notificationStore: any
+  // Sistema de Confirmación
+  confirmAction: (item: any, onConfirm: () => void) => void
 }
 
 /**
@@ -42,15 +44,28 @@ export class ClickUtils {
    * Maneja el clic en botones (Toolbar o Componentes).
    */
   static async handleButtonClick(item: any, context: ClickContext, childContext?: any) {
+    // 0. Verificación de Confirmación
+    if (item.confirm === true || item.config?.confirm === true) {
+      context.confirmAction(item, () => this.executeValidatedAction(item, context, childContext))
+      return
+    }
+
+    await this.executeValidatedAction(item, context, childContext)
+  }
+
+  /**
+   * Ejecuta la acción después de pasar (o no requerir) confirmación.
+   */
+  private static async executeValidatedAction(item: any, context: ClickContext, childContext?: any) {
     // 1. Caso Especial: submit-master
     if (item.action === 'submit-master') {
       await this.handleSubmitMaster(item, context)
       return
     }
 
-    // 2. Caso Especial: Acciones personalizadas
+    // 2. Caso Especial: Acciones personalizadas (que NO sean submit estándar)
     const customAction = item.action
-    if (customAction && customAction !== 'submit-master') {
+    if (customAction && customAction !== 'submit-master' && customAction !== 'submit') {
       context.handleComponentAction({ type: customAction, payload: context.model }, item, childContext)
       return
     }

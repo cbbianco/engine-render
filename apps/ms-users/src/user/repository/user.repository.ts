@@ -238,4 +238,35 @@ export class UserRepository {
   async deleteUser(id: number): Promise<void> {
     await this.repository.delete(id);
   }
+
+  /**
+   * @method findModuleAssignationsByUserId
+   * @description Retrieves all module assignments for a user, including module details.
+   */
+  async findModuleAssignationsByUserId(userId: number): Promise<AssignationModuleEntity[]> {
+    return this.assignationRepository.find({
+      where: { userId },
+      relations: ['module']
+    });
+  }
+
+  /**
+   * @method deleteModuleConfigByUuid
+   * @description Deletes a module configuration from MongoDB using its UUID.
+   */
+  async deleteModuleConfigByUuid(uuid: string): Promise<void> {
+    try {
+      await this.moduleMongoRepository.delete({ _id: new ObjectId(uuid) } as any);
+    } catch (e) {
+      console.error('[UserRepository.deleteModuleConfigByUuid] Error deleting from Mongo:', uuid, e.message);
+    }
+  }
+
+  /**
+   * @method deleteModuleById
+   * @description Deletes a module from MySQL.
+   */
+  async deleteModuleById(id: number): Promise<void> {
+    await this.moduleRepository.delete(id);
+  }
 }

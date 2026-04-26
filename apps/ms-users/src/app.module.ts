@@ -12,6 +12,7 @@ import { RoleEntity } from './user/entities/role/role.entity';
 import { ModuleEntity } from './user/entities/module/module.entity';
 import { UserRoleEntity } from './user/entities/role/user-role.entity';
 import { ModuleConfigEntity } from './user/entities/module/module-json.entity';
+import { AssignationModuleEntity } from './user/entities/module/assignation-module.entity';
 
 /** Conexión MySQL (datos del antiguo connection.datasource.ts) */
 const mysqlConnection = {
@@ -22,7 +23,7 @@ const mysqlConnection = {
   username: process.env.MYSQL_USERNAME ?? 'root',
   password: process.env.MYSQL_PASSWORD ?? 'ce54rb14nc01986$',
   database: process.env.MYSQL_DATABASE ?? 'db_cmr_solutions',
-  entities: [UserEntity, ModuleEntity, UserRoleEntity, RoleEntity],
+  entities: [UserEntity, ModuleEntity, UserRoleEntity, RoleEntity, AssignationModuleEntity],
   synchronize: false,
   logging: process.env.NODE_ENV !== 'production',
 };

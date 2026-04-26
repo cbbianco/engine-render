@@ -87,8 +87,17 @@
                         },
                         "delete": {
                             "type": "api-call",
-                            "endpoint": "/api/v1/users/{id}",
-                            "method": "DELETE"
+                            "endpoint": {
+                                "uri": "{backend}/{endpoint}",
+                                "endpoint": "/api/v1/users/{id}",
+                                "backend": "http://localhost:4001",
+                                "method": "DELETE",
+                                "confirm": true,
+                                "confirmTitle": "Eliminar Usuario",
+                                "confirmMessage": "¿Está seguro de que desea eliminar este usuario y todos sus datos asociados? Esta acción es irreversible.",
+                                "confirmLabel": "Eliminar Permanentemente",
+                                "cancelLabel": "Cancelar"
+                            }
                         }
                     }
                 }
