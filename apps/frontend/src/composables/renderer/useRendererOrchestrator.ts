@@ -185,8 +185,8 @@ export function useRendererOrchestrator(props: any, emit: any) {
   }
 
   function getFieldValue(keyOrItem: string | any) {
-    const key = typeof keyOrItem === 'string' ? keyOrItem : DynamicParser.getProp(keyOrItem)
-    return model[key]
+    const item = typeof keyOrItem === 'string' ? { property: keyOrItem } : keyOrItem
+    return ModelUtils.getFieldValue(item, model)
   }
 
   async function handleComponentAction(e: { type: string; payload: any }, item: any, childContext?: any) {
