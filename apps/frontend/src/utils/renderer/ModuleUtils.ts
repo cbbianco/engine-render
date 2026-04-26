@@ -1,4 +1,5 @@
 import { DynamicParser } from "./DynamicRenderer.utils"
+import { ValidationUtils } from "./ValidationUtils"
 
 /**
  * Clase utilitaria para la lógica específica de orquestación de módulos y navegación.
@@ -58,7 +59,7 @@ export class ModuleUtils {
     const items = activeSubmodule?.schema || activeSubmodule?.module || []
     const item = items.find((f: any) => DynamicParser.getProp(f) === prop)
     if (item) {
-      DynamicParser.runValidation(validationErrors, submoduleModel, prop, val, item)
+      ValidationUtils.runValidation(validationErrors, submoduleModel, prop, val, item)
     }
   }
 }

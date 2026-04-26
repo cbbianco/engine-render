@@ -2,6 +2,15 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
+## [1.10.1] - 2026-04-26
+### Fixed
+- **Broken Utility References**: Resolved critical "Property does not exist" errors in `DynamicRenderer.vue` and `NestedModuleNative.vue` caused by the migration of `fieldKey` and `runValidation` to specialized utils.
+- **Validation Engine Sync**: Fixed missing imports in `ModelUtils.ts` and `ModuleUtils.ts` to correctly connect with the new `ValidationUtils` chain.
+
+### Changed
+- **Metadata Synchronization**: Updated `create-user.json` with premium iconography and a primary action button for a more intuitive creation flow.
+- **Architectural Stabilization**: Finalized the separation of "Values Realm" (`ModelUtils`) and "Visual Realm" (`StyleUtils`).
+
 ## [1.10.0] - 2026-04-26
 ### Added
 - **Validation Chain of Responsibility**: Refactored the validation engine into a chain pattern (`ValidationUtils.ts`), allowing for modular and encadenable rules (`Match`, `Required`, `Pattern`).

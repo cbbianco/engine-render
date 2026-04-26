@@ -57,7 +57,7 @@
       <form class="dynamic-renderer-grid" @submit.prevent>
         
 
-        <template v-for="(item, index) in schema" :key="DynamicParser.fieldKey(item, Number(index))">
+        <template v-for="(item, index) in schema" :key="ModelUtils.fieldKey(item, Number(index))">
           <!-- CASO 2: Componente normal -->
           <div
             v-if="!(moduleConfig.module === 'invoices' && Number(index) > 0) && !((hideFooterActions || hasChildSubmit) && DynamicParser.isButton(item))"
@@ -115,9 +115,9 @@ import { resolveOrchestrationTag } from '@/utils/module/orchestration'
 import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 import { ServiceLocator } from './core/ServiceLocator'
 import { useRendererOrchestrator } from '@/composables/renderer/useRendererOrchestrator'
-import BreadcrumbsNative from '@/components/atoms/display/BreadcrumbsNative.vue'
 import ToolbarNative from '@/components/molecules/navigation/ToolbarNative.vue'
 import { StyleUtils } from '@/utils/renderer/StyleUtils'
+import { ModelUtils } from '@/utils/renderer/ModelUtils'
 import NestedModuleNative from '@/components/molecules/module/NestedModuleNative.vue'
 import ConfigErrorModal from '@/components/atoms/special/ConfigErrorModal.vue'
 import type { SchemaField } from '@/lib/types/module'

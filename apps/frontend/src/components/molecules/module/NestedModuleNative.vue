@@ -26,7 +26,7 @@
 
     <!-- Dynamic Grid for Child Module -->
     <div class="nested-module__grid">
-      <template v-for="(item, index) in (child.module || child.schema || child.configurationUi?.schema || [])" :key="DynamicParser.fieldKey(item, Number(index))">
+      <template v-for="(item, index) in (child.module || child.schema || child.configurationUi?.schema || [])" :key="ModelUtils.fieldKey(item, Number(index))">
         <!-- Field Component -->
         <div
           class="nested-module__cell"
@@ -56,9 +56,9 @@
 </template>
 
 <script setup lang="ts">
-import ToolbarNative from '../navigation/ToolbarNative.vue'
 import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 import { StyleUtils } from '@/utils/renderer/StyleUtils'
+import { ModelUtils } from '@/utils/renderer/ModelUtils'
 import { ServiceLocator } from '@/lib/components/core/ServiceLocator'
 import { resolveOrchestrationTag } from '@/utils/module/orchestration'
 

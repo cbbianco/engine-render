@@ -8,6 +8,7 @@ import { ModuleUtils } from '@/utils/renderer/ModuleUtils'
 import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 import { rendererService } from '@/services/renderer/RendererService'
 import { ModelUtils } from '@/utils/renderer/ModelUtils'
+import { ValidationUtils } from '@/utils/renderer/ValidationUtils'
 
 /**
  * useRendererOrchestrator - Orquestador lógico del DynamicRenderer.
@@ -116,7 +117,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
       if (prop && DynamicParser.isDataField(f)) {
         // Ejecutamos validación sin afectar el estado reactivo principal aún si es necesario
         const tempErrors: any = {}
-        DynamicParser.runValidation(tempErrors, model, prop, model[prop], f)
+        ValidationUtils.runValidation(tempErrors, model, prop, model[prop], f)
         if (tempErrors[prop]?.message?.includes('CONFIGURACIÓN')) {
           console.error('[CRITICAL] Configuration error detected:', tempErrors[prop].message)
           criticalConfigError.value = tempErrors[prop].message
@@ -259,7 +260,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
       // 1. Validación del Padre (Global)
       schema.value.forEach((itm: any) => {
         const prop = DynamicParser.getProp(itm)
-        if (prop && !DynamicParser.runValidation(validationErrors, model, prop, model[prop], itm)) {
+        if (prop && !ValidationUtils.runValidation(validationErrors, model, prop, model[prop], itm)) {
           isFormValid = false
           hasParentErrors = true
         }
@@ -270,7 +271,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
         const childSchema = (activeSubmodule.value.module || activeSubmodule.value.schema || [])
         childSchema.forEach((itm: any) => {
           const prop = DynamicParser.getProp(itm)
-          if (prop && !DynamicParser.runValidation(validationErrors, submoduleModel, prop, submoduleModel[prop], itm)) {
+          if (prop && !ValidationUtils.runValidation(validationErrors, submoduleModel, prop, submoduleModel[prop], itm)) {
             isFormValid = false
           }
         })
@@ -353,7 +354,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
       const prop = DynamicParser.getProp(itm)
       const currentModel = (activeSubmodule.value && !(itm.config?.useMasterModel || itm.useMasterModel)) ? submoduleModel : model
 
-      if (prop && !DynamicParser.runValidation(validationErrors, currentModel, prop, currentModel[prop], itm)) {
+      if (prop && !ValidationUtils.runValidation(validationErrors, currentModel, prop, currentModel[prop], itm)) {
         isFormValid = false
         if (validationErrors[prop]?.message?.includes('[ERROR DE CONFIGURACIÓN]')) {
           criticalConfigError.value = validationErrors[prop].message
