@@ -9,19 +9,20 @@
     <ConfigErrorModal :error="criticalConfigError" />
 
     <!-- Header con Titulo y Breadcrumbs estilo TailAdmin -->
-    <div v-if="!isDashboardView" class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div class="flex flex-col gap-1">
-        <h1 class="dynamic-renderer-title">
-          {{ activeSubmodule ? (activeSubmodule.config?.metadata?.title || activeSubmodule.config?.title || 'Detalle') : (moduleConfig.metadata?.title || moduleConfig.module || 'Detalle') }}
-        </h1>
+    <div v-if="!isDashboardView" class="mb-6 flex flex-col gap-2">
+      <h1 class="dynamic-renderer-title">
+        {{ activeSubmodule ? (activeSubmodule.config?.metadata?.title || activeSubmodule.config?.title || 'Detalle') : (moduleConfig.metadata?.title || moduleConfig.module || 'Detalle') }}
+      </h1>
+      
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <BreadcrumbsNative :items="processedBreadcrumbs" />
-      </div>
 
-      <!-- Header Toolbars (Top Actions) - Solo si no hay submódulo activo (evita duplicidad) -->
-      <div v-if="!activeSubmodule && (moduleConfig.toolbarTopLeft?.length || moduleConfig.toolbarTopRight?.length)" 
-           class="flex items-center gap-4 mt-4">
-        <ToolbarNative v-if="moduleConfig.toolbarTopLeft?.length" :items="moduleConfig.toolbarTopLeft" @action="handleButtonClick" />
-        <ToolbarNative v-if="moduleConfig.toolbarTopRight?.length" :items="moduleConfig.toolbarTopRight" @action="handleButtonClick" />
+        <!-- Header Toolbars (Top Actions) - Solo si no hay submódulo activo (evita duplicidad) -->
+        <div v-if="!activeSubmodule && (moduleConfig.toolbarTopLeft?.length || moduleConfig.toolbarTopRight?.length)" 
+             class="flex items-center gap-4">
+          <ToolbarNative v-if="moduleConfig.toolbarTopLeft?.length" :items="moduleConfig.toolbarTopLeft" @action="handleButtonClick" />
+          <ToolbarNative v-if="moduleConfig.toolbarTopRight?.length" :items="moduleConfig.toolbarTopRight" @action="handleButtonClick" />
+        </div>
       </div>
     </div>
 
@@ -62,10 +63,10 @@
             v-if="!(moduleConfig.module === 'invoices' && Number(index) > 0) && !((hideFooterActions || hasChildSubmit) && DynamicParser.isButton(item))"
             class="dynamic-renderer__cell"
             :class="item.column || 'col-12'"
-            :style="DynamicParser.columnStyle(item)"
+            :style="StyleUtils.columnStyle(item)"
             v-show="item.visible !== false"
           >
-            <div :class="DynamicParser.alignClass(item)" class="dynamic-renderer__inner">
+            <div :class="StyleUtils.alignClass(item)" class="dynamic-renderer__inner">
               <component
                 :is="getComponentForSchema(item)"
                 :ref="DynamicParser.getRefSetter(fieldRefs, item, Number(index))"
@@ -116,6 +117,7 @@ import { ServiceLocator } from './core/ServiceLocator'
 import { useRendererOrchestrator } from '@/composables/renderer/useRendererOrchestrator'
 import BreadcrumbsNative from '@/components/atoms/display/BreadcrumbsNative.vue'
 import ToolbarNative from '@/components/molecules/navigation/ToolbarNative.vue'
+import { StyleUtils } from '@/utils/renderer/StyleUtils'
 import NestedModuleNative from '@/components/molecules/module/NestedModuleNative.vue'
 import ConfigErrorModal from '@/components/atoms/special/ConfigErrorModal.vue'
 import type { SchemaField } from '@/lib/types/module'

@@ -31,10 +31,10 @@
         <div
           class="nested-module__cell"
           :class="item.column || 'col-12'"
-          :style="DynamicParser.columnStyle(item)"
+          :style="StyleUtils.columnStyle(item)"
           v-show="item.visible !== false"
         >
-          <div :class="DynamicParser.alignClass(item)" class="nested-module__inner">
+          <div :class="StyleUtils.alignClass(item)" class="nested-module__inner">
             <component
               :is="getComponentForSchema(item)"
               v-bind="bindProps(item, Number(index))"
@@ -58,6 +58,7 @@
 <script setup lang="ts">
 import ToolbarNative from '../navigation/ToolbarNative.vue'
 import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
+import { StyleUtils } from '@/utils/renderer/StyleUtils'
 import { ServiceLocator } from '@/lib/components/core/ServiceLocator'
 import { resolveOrchestrationTag } from '@/utils/module/orchestration'
 

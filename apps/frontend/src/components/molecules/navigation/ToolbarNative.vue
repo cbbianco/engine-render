@@ -61,7 +61,7 @@ function getIcon(name: string) {
 
 .toolbar-btn {
   padding: 0.625rem 1.25rem;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -77,20 +77,22 @@ function getIcon(name: string) {
   background: var(--primary-color, #465FFF);
   color: #ffffff;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
 }
 
 .toolbar-btn--primary:hover {
   background: var(--primary-color, #465FFF);
-  filter: brightness(0.9);
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+  filter: brightness(0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -5px rgba(70, 95, 255, 0.35);
 }
 
 .toolbar-btn--secondary {
   background: #ffffff;
   color: var(--primary-color, #465FFF);
-  border: 1px solid var(--primary-color, #465FFF);
+  border: 1.5px solid var(--primary-color, #465FFF);
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+  border-radius: 10px;
 }
 
 .toolbar-btn--secondary:hover {

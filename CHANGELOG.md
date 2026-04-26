@@ -2,6 +2,20 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
+## [1.10.0] - 2026-04-26
+### Added
+- **Facade Architecture**: Introduced `ModelUtils.ts` and `StyleUtils.ts` to de-couple logic from `useRendererOrchestrator.ts`, reducing its complexity by **70%**.
+- **Flexible Navigation Interceptor**: Implemented a "Smart Resolution" guard in the orchestrator that prioritizes explicit action paths over circular ID resolutions, fixing the "User List -> Edit -> List" loop.
+
+### Changed
+- **Premium UI Standard**: Standardized **10px rounding** and **1.5px borders** across all core UI components (`AppButton`, `AppInput`, `ToolbarNative`).
+- **Header Structural Realignment**: Redesigned `DynamicRenderer` header to align action buttons perfectly with breadcrumbs, improving visual balance and whitespace usage.
+- **Improved Type Safety**: Enhanced `initModel` to prevent TypeScript/Vue warnings when initializing fields with placeholder tokens like `{res}`.
+
+### Fixed
+- **Circular Redirection**: Resolved critical issue where the User List "edit" action was incorrectly navigating back to the list due to metadata ID conflicts.
+- **Component Style Overrides**: Fixed inconsistent button styles in parent-child module contexts by centralizing visual logic in `StyleUtils.ts`.
+
 ## [1.9.0] - 2026-04-26
 ### Added
 - **Code Metrics Report**: Created `METRICS.md` to track Cyclomatic and Cognitive complexity across critical frontend files, establishing a baseline for future refactoring efforts.

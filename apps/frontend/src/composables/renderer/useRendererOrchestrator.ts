@@ -7,6 +7,7 @@ import { RouteUtils } from '@/utils/renderer/RouteUtils'
 import { ModuleUtils } from '@/utils/renderer/ModuleUtils'
 import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 import { rendererService } from '@/services/renderer/RendererService'
+import { ModelUtils } from '@/utils/renderer/ModelUtils'
 
 /**
  * useRendererOrchestrator - Orquestador lógico del DynamicRenderer.
@@ -90,8 +91,12 @@ export function useRendererOrchestrator(props: any, emit: any) {
       const propKey = DynamicParser.getProp(f)
       if (!propKey) return
 
-      const isTable = f.type?.includes('table')
-      model[propKey] = baseData[propKey] === '{res}' ? (isTable ? [] : '') : (baseData[propKey] ?? f.value ?? (isTable ? [] : ''))
+      const isTable = f.type?.toLowerCase().includes('table')
+      // FIX: Si el valor es {res}, inicializar como array/objeto vacío para evitar warnings de tipos antes del fetch
+      const rawVal = baseData[propKey] ?? f.value
+      const isToken = typeof rawVal === 'string' && rawVal.startsWith('{') && rawVal.endsWith('}')
+      
+      model[propKey] = isToken ? (isTable ? [] : {}) : (rawVal ?? (isTable ? [] : ''))
     })
 
     // 1.2 Inyectar moduleId de la configuración si existe para resolución de endpoints
@@ -229,16 +234,15 @@ export function useRendererOrchestrator(props: any, emit: any) {
    * Actualiza un valor en el modelo binario y ejecuta validaciones inmediatas.
    */
   function updateModel(prop: string, val: any): void {
-    model[prop] = val
-    if (backendErrors[prop]) delete backendErrors[prop]
-    const item = schema.value.find((f: any) => DynamicParser.getProp(f) === prop)
-    if (item) {
-      DynamicParser.runValidation(validationErrors, model, prop, val, item)
-      // Detección inmediata de error crítico
-      if (validationErrors[prop]?.message?.includes('[ERROR DE CONFIGURACIÓN]')) {
-        criticalConfigError.value = validationErrors[prop].message
-      }
-    }
+    ModelUtils.updateModel(
+      prop, 
+      val, 
+      model, 
+      schema.value, 
+      validationErrors, 
+      backendErrors, 
+      criticalConfigError
+    )
   }
 
   /**
@@ -467,7 +471,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
 
     // SERVICE LOCATOR INTERCEPTOR: Si recibimos una acción de 'edit' y tenemos metadatos dinámicos,
     // abrimos un submódulo virtual con ese esquema inmediatamente.
-    if (e.type === 'edit' && dynamicComponentMetadata.value) {
+    if (e.type === 'edit' && dynamicComponentMetadata.value && props.config?.config?.moduleId !== '69ed7c91bef92b550f1d54a7') {
       console.log('[Orchestrator] Launching virtual submodule from dynamic metadata')
       
       // Transformar el esquema para modo edición
@@ -532,10 +536,32 @@ export function useRendererOrchestrator(props: any, emit: any) {
     const actionDef = rendererService.prepareAction(actionsConfig[e.type], e.payload || {})
 
     // Navegación con persistencia de parámetros
-    if (actionDef.type === 'navigate' && actionDef.path) {
+    if (actionDef.type === 'navigate' && (actionDef.path || actionDef.moduleId)) {
       const queryParams: any = { ...actionDef.params }
       if (actionDef.params?.mode === 'edit' && e.payload) {
         try { queryParams._rd = btoa(encodeURIComponent(JSON.stringify(e.payload))) } catch { }
+      }
+
+      // BUSCAR E IR HACIA ALLÁ: Si tenemos moduleId, buscamos la ruta real en el catálogo de módulos configurados
+      let targetPath = actionDef.path
+      if (actionDef.moduleId) {
+        const targetModule = authStore.modulesConfig.find((m: any) => {
+          const cfg = m.configurationUi?.config || m.configuration_ui?.config
+          return m._id === actionDef.moduleId || m.modulo === actionDef.moduleId || cfg?.moduleId === actionDef.moduleId
+        })
+        
+        if (targetModule) {
+          const cfg = targetModule.configurationUi?.config || (targetModule as any).configuration_ui?.config
+          const resolvedPath = cfg?.path || (targetModule as any).path
+          
+          // REGLA: Si el ID resuelto apunta al mismo módulo actual pero la acción define un path diferente,
+          // priorizamos el path de la acción (caso Listar Usuarios -> Editar -> Crear Usuario)
+          if (resolvedPath && resolvedPath !== route.path) {
+            targetPath = resolvedPath
+          }
+          
+          console.log(`[Orchestrator] Dynamic navigation resolved for ${actionDef.moduleId} -> ${targetPath}`)
+        }
       }
 
       // INTERCEPTOR: Si la acción corresponde a un submódulo local, swapeamos la vista en lugar de navegar
@@ -546,8 +572,8 @@ export function useRendererOrchestrator(props: any, emit: any) {
         if (hasActionTrigger) return true
 
         // PRIORIDAD 2: El path o moduleId coinciden directamente
-        const childPath = child.config?.path || child.path
-        const childModuleId = child.config?.moduleId || child.moduleId
+        const childPath = child.config?.path || child.path || (child.configurationUi?.config?.path)
+        const childModuleId = child.config?.moduleId || child.moduleId || (child.configurationUi?.config?.moduleId)
 
         // REGLA: Si es una acción de editar de TablaPremium (típicamente tiene ID y va a /edit), no interceptamos
         if (actionDef.path?.includes('/edit') && e.payload?.id) return false
@@ -557,9 +583,9 @@ export function useRendererOrchestrator(props: any, emit: any) {
 
       if (localSubmodule) {
         activateSubmodule(localSubmodule)
-      } else {
+      } else if (targetPath) {
         router.push({
-          path: actionDef.path,
+          path: targetPath as string,
           query: {
             ...queryParams,
             fromPath: route.path,
@@ -599,14 +625,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
    * Obtiene el valor real de un campo, manejando casos de datos complejos y arrays vacíos.
    */
   function getFieldValue(item: any) {
-    const prop = DynamicParser.getProp(item)
-    const val = model[prop]
-    const isEmpty = val === undefined || val === null || (Array.isArray(val) ? val.length === 0 : (typeof val === 'string' && val === ''))
-
-    if (isEmpty && DynamicParser.isComplex(item.type || '')) {
-      return model
-    }
-    return val
+    return ModelUtils.getFieldValue(item, model)
   }
 
   /**

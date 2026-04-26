@@ -24,6 +24,8 @@ export interface ModuleConfigResponse {
   configuration_ui: ConfigurationUi
   /** Alias oficial para configuration_ui compatible con los nuevos estándares. */
   configurationUi?: ConfigurationUi
+  /** Alias oficial para model compatible con los nuevos estándares en el raíz del módulo. */
+  bodyModel?: Record<string, unknown>
   orchestrationDetails?: {
     status: string
     consult?: {

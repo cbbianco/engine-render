@@ -15,7 +15,7 @@
           class="dynamic-module-page__module"
         >
           <DynamicRenderer 
-            :config="{ ...(modules[0].configurationUi ?? (modules[0] as any).configuration_ui), bodyModel: (modules[0] as any).bodyModel }" 
+            :config="{ ...(modules[0].configurationUi ?? modules[0].configuration_ui), bodyModel: modules[0].bodyModel }" 
             :orchestration-details="modules[0].orchestrationDetails"
           />
         </div>
@@ -84,6 +84,19 @@ async function fetchConfig(): Promise<void> {
     if (moduleFromStore) {
       // Hidratación reactiva con datos del token si aplica (dataSource: 'token')
       const decorated = applyDataSourceToken(moduleFromStore as any, token)
+      
+      // SOPORTE EDICIÓN: Si viene recordData (_rd), lo inyectamos en el bodyModel
+      const rd = route.query._rd as string
+      if (rd) {
+        try {
+          const decoded = JSON.parse(decodeURIComponent(atob(rd)))
+          decorated.bodyModel = { ...(decorated.bodyModel || {}), ...decoded }
+          console.log('[DynamicModuleView] Record data injected into module configuration')
+        } catch (e) {
+          console.warn('[DynamicModuleView] Error decoding _rd parameter', e)
+        }
+      }
+
       modules.value = [decorated]
     } else {
       // Si no existe configuración en el store, limpiamos rutas para forzar re-sincronización

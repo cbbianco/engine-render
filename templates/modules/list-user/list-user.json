@@ -79,7 +79,7 @@
                         "edit": {
                             "type": "navigate",
                             "moduleId": "register-user",
-                            "path": "/modules/register-user",
+                            "path": "/create-user",
                             "params": {
                                 "id": "{id}",
                                 "mode": "edit"
