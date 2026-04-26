@@ -115,6 +115,21 @@
                 "align": "left",
                 "match": "password",
                 "noSubmit": true
+            },
+            {
+                "type": "button",
+                "label": "Crear Usuario",
+                "property": "btnSubmit",
+                "column": "col-12",
+                "variant": "primary",
+                "action": "submit",
+                "icon": "plus",
+                "endpoint": {
+                    "method": "POST",
+                    "uri": "{backend}/{endpoint}",
+                    "endpoint": "/api/v1/users",
+                    "backend": "http://localhost:4001"
+                }
             }
         ],
         "schemaChild": [

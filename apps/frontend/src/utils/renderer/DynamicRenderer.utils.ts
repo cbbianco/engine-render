@@ -1,4 +1,5 @@
 import type { SchemaField } from '@/lib/types/module'
+import { ModelUtils } from './ModelUtils'
 
 /**
  * Clase de utilidades estáticas para el procesamiento y parseo del DynamicRenderer.
@@ -28,27 +29,6 @@ export class DynamicParser {
     return (item as any).separator === true
   }
 
-  /**
-   * Patrones de validación por defecto para reglas comunes.
-   */
-  private static readonly DEFAULT_PATTERNS: Record<string, { pattern: string; message: string }> = {
-    password: { 
-      pattern: "^(?=.*[A-Z])(?=.*[0-9]).{8,255}$", 
-      message: "Mínimo 8 caracteres, una mayúscula y un número" 
-    },
-    userName: { 
-      pattern: "^[a-zA-Z0-9._]{4,20}$", 
-      message: "4-20 caracteres, alfanumérico, punto o guión bajo" 
-    },
-    nombre: { 
-      pattern: "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$", 
-      message: "Nombre no válido (2-50 caracteres)" 
-    },
-    default: {
-      pattern: "^.{1,255}$",
-      message: "Este campo es requerido"
-    }
-  }
 
   /**
    * Tipos que no representan datos en el modelo.
@@ -63,29 +43,6 @@ export class DynamicParser {
     return !this.NON_DATA_TYPES.includes(type)
   }
 
-  /**
-   * Normaliza llaves que vienen escapadas o en formato array desde el JSON.
-   */
-  static normalizeKey(key: unknown): string {
-    if (typeof key === 'string') {
-      try {
-        const parsed = JSON.parse(key) as unknown
-        if (Array.isArray(parsed) && parsed[0] != null) return String(parsed[0])
-      } catch {
-        // no es JSON, devolver tal cual
-      }
-      return key
-    }
-    if (Array.isArray(key) && key[0] != null) return String(key[0])
-    return String(key)
-  }
-
-  /**
-   * Genera una llave única para el renderizado de Vue.
-   */
-  static fieldKey(item: SchemaField, index: number): string {
-    return `field-${index}-${this.getProp(item)}-${item.type}`
-  }
 
   /**
    * Crea un modelo de datos normalizado a partir de la configuración inicial.
@@ -94,7 +51,7 @@ export class DynamicParser {
     const base = (config?.bodyModel ?? config?.model ?? {}) as Record<string, unknown>
     const out: Record<string, unknown> = {}
     for (const rawKey of Object.keys(base)) {
-      const key = this.normalizeKey(rawKey)
+      const key = ModelUtils.normalizeKey(rawKey)
       out[key] = base[rawKey]
     }
     return out
@@ -105,77 +62,10 @@ export class DynamicParser {
    */
   static getRefSetter(fieldRefs: Map<string, unknown>, item: SchemaField, index: number) {
     return (el: unknown) => {
-      if (el) fieldRefs.set(this.fieldKey(item, index), el)
+      if (el) fieldRefs.set(ModelUtils.fieldKey(item, index), el)
     }
   }
 
-  /**
-   * Ejecuta la validación lógica de un campo.
-   */
-  static runValidation(
-    validationErrors: Record<string, { invalid: boolean; message?: string }>,
-    model: Record<string, unknown>,
-    prop: string,
-    value: unknown,
-    item: SchemaField
-  ): boolean {
-    if (!item) return true
-    const validation = item.validation
-    const rule = validation?.rule || 'default'
-    const defaultRule = this.DEFAULT_PATTERNS[rule] || this.DEFAULT_PATTERNS.default
-    
-    const pattern = validation?.pattern || defaultRule.pattern
-    let message = validation?.message || defaultRule.message
-
-    if (item.visible === false || item.readonly === true) {
-      validationErrors[prop] = { invalid: false }
-      return true
-    }
-    if (!validation?.pattern && !(item as any).match) {
-      validationErrors[prop] = { invalid: false }
-      return true
-    }
-
-    try {
-      let invalid = false
-      let finalMessage = message
-
-      // 1. Validación de coincidencia (match)
-      const matchProp = (item as any).match
-      if (matchProp) {
-        const hasMatchProp = matchProp in model && model[matchProp] !== undefined
-        if (hasMatchProp && value !== model[matchProp]) {
-          invalid = true
-          finalMessage = 'Las contraseñas no coinciden'
-        }
-      }
-
-      // 2. Validación de Patrón y Requerido
-      if (!invalid && pattern) {
-        const str = (value !== undefined && value !== null) ? String(value) : ''
-        
-        // Si es requerido y está vacío, error inmediato
-        if ((item as any).required && !str) {
-          invalid = true
-          finalMessage = 'Este campo es obligatorio'
-        } else if (pattern && str && !(new RegExp(pattern)).test(str)) {
-          // Si tiene contenido pero no cumple el patrón, error de formato
-          invalid = true
-          // finalMessage ya tiene el mensaje de la regla por defecto o del item
-        }
-      }
-
-      validationErrors[prop] = {
-        invalid,
-        message: invalid ? (finalMessage || 'Valor no válido') : undefined
-      }
-      return !invalid
-    } catch (e) {
-      console.error('[runValidation] Error:', e)
-      validationErrors[prop] = { invalid: false }
-      return true
-    }
-  }
 
   /**
    * Resuelve placeholders tipo {id} usando un mapa de datos.

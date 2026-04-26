@@ -1,9 +1,35 @@
 import { DynamicParser } from './DynamicRenderer.utils'
+import { ValidationUtils } from './ValidationUtils'
+import type { SchemaField } from '@/lib/types/module'
 
 /**
  * Clase utilitaria para la manipulación y obtención de valores del modelo de datos.
  */
 export class ModelUtils {
+  /**
+   * Normaliza llaves que vienen escapadas o en formato array desde el JSON.
+   */
+  static normalizeKey(key: unknown): string {
+    if (typeof key === 'string') {
+      try {
+        const parsed = JSON.parse(key) as unknown
+        if (Array.isArray(parsed) && parsed[0] != null) return String(parsed[0])
+      } catch {
+        // no es JSON, devolver tal cual
+      }
+      return key
+    }
+    if (Array.isArray(key) && key[0] != null) return String(key[0])
+    return String(key)
+  }
+
+  /**
+   * Genera una llave única para el renderizado de Vue.
+   */
+  static fieldKey(item: SchemaField, index: number): string {
+    return `field-${index}-${DynamicParser.getProp(item)}-${item.type}`
+  }
+
   /**
    * Obtiene el valor real de un campo, manejando casos de datos complejos y arrays vacíos.
    */
@@ -35,7 +61,7 @@ export class ModelUtils {
     
     const item = schema.find((f: any) => DynamicParser.getProp(f) === prop)
     if (item) {
-      DynamicParser.runValidation(validationErrors, model, prop, val, item)
+      ValidationUtils.runValidation(validationErrors, model, prop, val, item)
       
       // Detección inmediata de error crítico de configuración
       if (criticalConfigError && validationErrors[prop]?.message?.includes('[ERROR DE CONFIGURACIÓN]')) {

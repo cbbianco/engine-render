@@ -5,6 +5,28 @@ import type { SchemaField } from '@/lib/types/module'
  */
 export class StyleUtils {
   /**
+   * Patrones de validación por defecto para reglas comunes.
+   */
+  public static readonly DEFAULT_PATTERNS: Record<string, { pattern: string; message: string }> = {
+    password: { 
+      pattern: "^(?=.*[A-Z])(?=.*[0-9]).{8,255}$", 
+      message: "Mínimo 8 caracteres, una mayúscula y un número" 
+    },
+    userName: { 
+      pattern: "^[a-zA-Z0-9._]{4,20}$", 
+      message: "4-20 caracteres, alfanumérico, punto o guión bajo" 
+    },
+    nombre: { 
+      pattern: "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$", 
+      message: "Nombre no válido (2-50 caracteres)" 
+    },
+    default: {
+      pattern: "^.{1,255}$",
+      message: "Este campo es requerido"
+    }
+  }
+
+  /**
    * Calcula el estilo de columna para el grid (12 columnas).
    */
   static columnStyle(item: SchemaField): { gridColumn: string } {

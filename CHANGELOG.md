@@ -4,8 +4,9 @@ Todos los cambios notables en este proyecto (Backend y Frontend) serán document
 
 ## [1.10.0] - 2026-04-26
 ### Added
-- **Facade Architecture**: Introduced `ModelUtils.ts` and `StyleUtils.ts` to de-couple logic from `useRendererOrchestrator.ts`, reducing its complexity by **70%**.
-- **Flexible Navigation Interceptor**: Implemented a "Smart Resolution" guard in the orchestrator that prioritizes explicit action paths over circular ID resolutions, fixing the "User List -> Edit -> List" loop.
+- **Validation Chain of Responsibility**: Refactored the validation engine into a chain pattern (`ValidationUtils.ts`), allowing for modular and encadenable rules (`Match`, `Required`, `Pattern`).
+- **Standardized Default Patterns**: Centralized common regex patterns (password, userName, nombre) in `StyleUtils.ts`.
+- **Enhanced Data Handling**: Added `normalizeKey` and `fieldKey` to `ModelUtils.ts` for consistent property resolution.
 
 ### Changed
 - **Premium UI Standard**: Standardized **10px rounding** and **1.5px borders** across all core UI components (`AppButton`, `AppInput`, `ToolbarNative`).
