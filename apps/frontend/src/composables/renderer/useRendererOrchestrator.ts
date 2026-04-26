@@ -86,9 +86,14 @@ export function useRendererOrchestrator(props: any, emit: any) {
           ...model 
         })
         if (response && !response.error) {
-          // Lógica de seteo: Extraer 'data' si el backend envuelve la respuesta
-          const payload = response.data || response
-          Object.assign(model, payload)
+          // Lógica de seteo universal:
+          // 1. Preservamos la estructura original para componentes complejos (Table/Kanban)
+          Object.assign(model, response)
+          
+          // 2. Si hay un objeto 'data' (no array), lo aplanamos para campos simples (Inputs)
+          if (response.data && !Array.isArray(response.data)) {
+            Object.assign(model, response.data)
+          }
         }
       }
     } catch (error: any) {

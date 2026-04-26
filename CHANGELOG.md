@@ -12,7 +12,7 @@ Todos los cambios notables en este proyecto (Backend y Frontend) serán document
 ### Changed
 - **Architectural Flattening**: Simplified the `ms-notifications` module structure (removing subfolders like `service/`, `controller/`) to resolve IDE module resolution issues and streamline development.
 - **Orchestrator Purification**: Cleaned up `useRendererOrchestrator.ts` by delegating 100% of click and submit logic to `ClickUtils.ts`, reducing cyclomatic complexity from 52 to 14.
-- **Enhanced Data Setting**: Improved `initModel` logic to handle backend responses with `data` wrappers and support JWT-based profile fetching without explicit query IDs.
+- **Universal Data Setting**: Refactored `initModel` to support hybrid responses. It now preserves the full structure for complex components (Tables/Kanban) while flattening data for simple forms.
 
 ### Fixed
 - **Module ID Resolution**: Fixed a critical 404 error in the user list by ensuring `{moduleId}` placeholders are correctly resolved in the orchestration engine.
