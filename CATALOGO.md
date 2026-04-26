@@ -1,4 +1,14 @@
-# Catálogo de Componentes Renderizables - Engine v2.1
+# Catálogo de Componentes Renderizables - Engine v2.2
+
+## 7. Componentes de Sistema (Globales)
+
+### **Notification Bell (Campana)**
+- **Descripción**: Centro de notificaciones integrado en el header con historial y contador de mensajes no leídos.
+- **Iconografía**: SVG Nativo (Alta compatibilidad).
+
+### **Toast Notification (Alertas Push)**
+- **Descripción**: Sistema de alertas emergentes con soporte para estados `success`, `error` e `info`.
+- **Configuración**: Tiempo de vida (TTL) configurable mediante variables de entorno (`VITE_NOTIFICATION_TTL_MINUTES`).
 
 Este documento detalla todos los componentes disponibles para ser renderizados dinámicamente mediante el **UI Metadata Render Engine** de SolutionsNplusOne.
 

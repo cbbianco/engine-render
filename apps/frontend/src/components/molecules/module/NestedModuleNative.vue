@@ -107,6 +107,8 @@ function bindProps(item: any, index: number): Record<string, any> {
     options: item.options || item.values,
     variant: item.variant,
     separator: item.separator,
+    align: item.align,
+    block: item.block,
     ...item.config
   }
 }
@@ -164,6 +166,10 @@ function getErrorMessage(item: any) {
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
+  width: 100%;
+}
+
+.nested-module__inner {
   width: 100%;
 }
 

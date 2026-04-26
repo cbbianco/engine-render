@@ -13,7 +13,8 @@ export class FormUtils {
     schema: any[],
     validationErrors: Record<string, any>,
     backendErrors: Record<string, any>,
-    wasSubmitted: Ref<boolean>
+    wasSubmitted: Ref<boolean>,
+    submoduleModel?: Record<string, any>
   ): void {
     // 1. Reset de banderas de estado
     wasSubmitted.value = false
@@ -21,6 +22,11 @@ export class FormUtils {
     // 2. Limpieza de errores
     Object.keys(validationErrors).forEach(k => delete validationErrors[k])
     Object.keys(backendErrors).forEach(k => delete backendErrors[k])
+
+    // 3. Limpieza profunda de submódulos (si existe)
+    if (submoduleModel) {
+      Object.keys(submoduleModel).forEach(k => delete submoduleModel[k])
+    }
 
     // 3. Limpieza de campos según esquema
     schema.forEach((f: any) => {

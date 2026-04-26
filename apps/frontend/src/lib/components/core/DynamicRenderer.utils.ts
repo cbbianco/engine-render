@@ -20,15 +20,16 @@ export class DynamicParser {
    * Devuelve las clases de alineación flex basadas en la configuración del ítem.
    */
   static alignClass(item: SchemaField): string {
-    const align = item.align ?? 'stretch'
+    const align = item.align
+    if (!align || align === 'stretch') return ''
+    
     const map: Record<string, string> = {
       start: 'flex justify-start items-start',
       center: 'flex justify-center items-center',
       end: 'flex justify-end items-end',
-      stretch: 'flex items-stretch',
       baseline: 'flex items-baseline'
     }
-    return (align in map ? map[align] : map.stretch) as string
+    return (align in map ? map[align] : '') as string
   }
 
   /**

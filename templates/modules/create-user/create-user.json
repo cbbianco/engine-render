@@ -50,6 +50,7 @@
                 "type": "text",
                 "label": "Nombre",
                 "property": "firstName",
+                "required": true,
                 "column": "col-6",
                 "align": "left",
                 "noSubmit": false,
@@ -60,6 +61,7 @@
                 "label": "Apellido",
                 "property": "lastName",
                 "column": "col-6",
+                "required": true,
                 "align": "left",
                 "noSubmit": false,
                 "placeholder": "Ingrese el apellido"
@@ -70,12 +72,14 @@
                 "property": "userName",
                 "column": "col-6",
                 "align": "left",
+                "required": true,
                 "noSubmit": false,
                 "placeholder": "jdoe2024"
             },
             {
                 "type": "select",
                 "label": "Rol",
+                "required": true,
                 "property": "role",
                 "column": "col-6",
                 "align": "left",
@@ -96,6 +100,7 @@
                 "label": "Contraseña",
                 "placeholder": "Ingrese la contraseña",
                 "property": "password",
+                "required": true,
                 "column": "col-6",
                 "align": "left",
                 "noSubmit": false
@@ -106,16 +111,9 @@
                 "label": "Confirmar Contraseña",
                 "property": "confirmPassword",
                 "column": "col-6",
+                "required": true,
                 "align": "left",
                 "match": "password",
-                "noSubmit": true
-            },
-            {
-                "type": "button",
-                "label": "Crear Usuario",
-                "property": "btnSubmitMaster",
-                "column": "col-12",
-                "align": "center",
                 "noSubmit": true
             }
         ],
@@ -146,6 +144,7 @@
                         "label": "Color Primario",
                         "property": "primary",
                         "column": "col-4",
+                        "required": true,
                         "noSubmit": false,
                         "options": [
                             {
@@ -166,6 +165,7 @@
                         "type": "select",
                         "label": "Color Secundario",
                         "property": "secondary",
+                        "required": true,
                         "column": "col-4",
                         "noSubmit": false,
                         "options": [
@@ -187,6 +187,7 @@
                         "type": "select",
                         "label": "Color de Error",
                         "property": "errorColor",
+                        "required": true,
                         "column": "col-4",
                         "noSubmit": false,
                         "options": [
@@ -217,6 +218,7 @@
                         "column": "col-12",
                         "align": "left",
                         "noSubmit": false,
+                        "required": true,
                         "placeholder": "Ingrese el identificador del cliente"
                     },
                     {

@@ -205,6 +205,8 @@ function bindProps(item: SchemaField, index: number, curModel: any, overrideConf
     options: (item as any).options || (item as any).values,
     variant: (item as any).variant,
     separator: (item as any).separator,
+    align: (item as any).align,
+    block: (item as any).block,
     ...(item as any).config
   }
 
@@ -252,6 +254,9 @@ function bindProps(item: SchemaField, index: number, curModel: any, overrideConf
 .feedback-msg.error { background: #fef2f2; color: #991b1b; }
 .dynamic-renderer-grid {
   display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; width: 100%;
+}
+.dynamic-renderer__inner {
+  width: 100%;
 }
 .col-12 { grid-column: span 12 / span 12; }
 .col-11 { grid-column: span 11 / span 11; }

@@ -3,6 +3,7 @@ import { computed, ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth/index'
+import { useNotificationStore } from '@/stores/notifications'
 import { getErrorColor, getThemeCssVars } from '@/model/auth/css/auth.css.dto'
 import { 
   AppTitle, 
@@ -21,6 +22,7 @@ import { RoutingService } from '@/router/routing'
 import { getCustomerDomain } from '@/utils/customer/domain'
 
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 const { themeCss: storeThemeCss, customerLogo } = storeToRefs(authStore)
 
 const dynamicStyles = computed(() => getThemeCssVars(storeThemeCss.value))
@@ -93,12 +95,14 @@ const handleLogin = async () => {
 
     // 4. Navegar a la ruta post-login
     const nextPath = authStore.getPostLoginRedirectPath()
+    notificationStore.addNotification('success', 'Sesión Iniciada', `Bienvenido de nuevo, ${userName.value}`)
     await router.push(nextPath ?? '/')
   } else {
     modalError.value = { 
       title: result.title || 'Error', 
       message: result.message || 'Error desconocido' 
     }
+    notificationStore.addNotification('error', 'Error de Acceso', result.message || 'Credenciales inválidas')
   }
 
   isLoading.value = false

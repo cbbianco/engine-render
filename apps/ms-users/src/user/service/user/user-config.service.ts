@@ -10,27 +10,27 @@ export class UserConfigService {
   createDefaultConfig(payload: Record<string, unknown>): { config: UserConfigEntity; privateKey: string } {
     const keys = RsaSecurity.generateRSAKeys();
     const config = new UserConfigEntity();
-    
+
     // Extracción dinámica del payload con fallbacks
     const userName = (payload['userName'] as string) || 'unknown';
-    const customer = (payload['customerIdentifier'] as string) || (payload['domain'] as string) || userName;
-    
+    const customer = (payload['customer'] as string) || (payload['domain'] as string);
+
     config.customer = customer;
     config.userName = userName;
     config.publicKey = keys.publicKey;
     config.privateKey = keys.privateKey;
-    
-    // Branding dinámico desde el payload
-    config.logo = (payload['logoUrl'] as string) || "https://i.ibb.co/5xvrqHCx/logo-1.png";
+
+    // Branding dinámico desde el payload (prioriza archivo subido, luego URL, luego default)
+    config.logo = (payload['logoFile'] as string) || (payload['logoUrl'] as string) || "https://i.ibb.co/5xvrqHCx/logo-1.png";
     config.colorCss = {
       primary: (payload['primary'] as string) || "#1C3FB7",
       secondary: (payload['secondary'] as string) || "#64748B",
       errorColor: (payload['errorColor'] as string) || "#EF4444"
     };
-    
+
     // Textos de Login
     config.loginTexts = this.getDefaultLoginTexts();
-    
+
     return { config, privateKey: keys.privateKey };
   }
 

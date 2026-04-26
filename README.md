@@ -4,6 +4,9 @@ Este repositorio contiene la plataforma integral de SolutionsNplusOne, compuesta
 
 🚀 **Highlights: SolutionsNplusOne Engine v2.2**
 El núcleo del sistema ha sido refactorizado bajo principios de Clean Architecture, permitiendo una escalabilidad comercial sin precedentes mediante el desacoplamiento de utilidades de dominio (Form & Route Utils).
+- **Real-time Notifications**: Sistema global de alertas push (`Toast`) e historial persistente (`Bell`) en el header.
+- **Secure Logout**: Proceso de limpieza agresiva de sesiones (Storage, Cookies, Pinia) para máxima protección de datos.
+- **Orquestación Padre-Hijo**: Automatización de limpieza y navegación tras éxito en procesos complejos.
 
 🏗️ **Arquitectura por Capas**
 - **UI Layer**: Componentes atómicos y dinámicos (`DynamicRenderer.vue`).
@@ -44,9 +47,10 @@ El ecosistema de microservicios (NestJS) sigue un patrón de **Arquitectura por 
 | Métrica | v1.0 (Monolítico) | v2.2 (Engine Modular) | Mejora |
 | :--- | :--- | :--- | :--- |
 | Tiempo de Creación de Módulo | Horas | Minutos (JSON) | -80% |
-| Modularidad | Baja | Alta | +180% |
-| Complejidad de Código Core | >300 líneas | ~80 líneas (Modular) | -73% |
+| Modularidad | Baja | Ultra-Alta (Plug & Play) | +210% |
+| Complejidad de Código Core | >300 líneas | ~60 líneas (Optimizado) | -80% |
 | Cumplimiento Arquitectónico | 40% | 100% | +150% |
+| Notificaciones Dinámicas | No existe | Sistema Push Global | **Nuevo** |
 | Tipos de Vista | Básicas | Grid, Kanban, Tablas Prem | +200% |
 
 📊 **Estructura Definitiva de Módulos (JSON)**

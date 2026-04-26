@@ -1,6 +1,7 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth/index'
+import { useNotificationStore } from '@/stores/notifications'
 import { FormUtils } from '@/lib/components/core/module/FormUtils'
 import { RouteUtils } from '@/lib/components/core/module/RouteUtils'
 import { ModuleUtils } from '@/lib/components/core/module/ModuleUtils'
@@ -20,6 +21,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
   const route = useRoute()
   const router = useRouter()
   const authStore = useAuthStore()
+  const notificationStore = useNotificationStore()
 
   // --- Estado Reactivo ---
   const isSubmitting = ref(false)                      // Indica si hay un proceso de envío en curso
@@ -127,7 +129,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
   /**
    * Limpia el formulario delegando la lógica a FormUtils.
    */
-  const resetForm = () => FormUtils.resetForm(model, schema.value, validationErrors, backendErrors, wasSubmitted)
+  const resetForm = () => FormUtils.resetForm(model, schema.value, validationErrors, backendErrors, wasSubmitted, submoduleModel)
 
   /**
    * Actualiza el modelo del submódulo y sincroniza con el modelo maestro si la propiedad existe.
@@ -257,6 +259,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
 
       if (!isFormValid) {
         feedback.value = { type: 'error', message: 'Por favor, corrija los errores en el formulario' }
+        notificationStore.addNotification('error', 'Error de Validación', 'Existen campos con errores en el formulario')
         // REGLA: Si hay errores en el padre, regresamos a la vista principal para mostrarlos
         if (hasParentErrors && activeSubmodule.value) {
           console.warn('[Orchestrator] Parent validation failed during child submit. Returning to main.');
@@ -341,6 +344,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
 
     if (!isFormValid) {
       feedback.value = { type: 'error', message: 'Por favor, corrija los errores en el formulario' }
+      notificationStore.addNotification('error', 'Formulario Inválido', 'Por favor, revise los campos marcados en rojo')
       return
     }
 
@@ -388,6 +392,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
       const { user, access_token, message } = payload
 
       feedback.value = { type: 'success', message: message || 'Operación completada con éxito' };
+      notificationStore.addNotification('success', 'Éxito', message || 'Operación completada con éxito')
       
       // 2. Hidratación Dinámica y 3. Sincronización de Sesión
       // Determinamos si es el perfil propio para proteger la sesión y los datos del creador
@@ -403,8 +408,12 @@ export function useRendererOrchestrator(props: any, emit: any) {
           }
         });
       } else {
-        // Para creación y otras acciones, limpiamos el formulario para evitar confusión de datos
+        // Para creación y otras acciones (Padre-Hijo), limpiamos todo y regresamos al componente principal
         resetForm();
+        if (activeSubmodule.value) {
+          console.log('[Orchestrator] Parent-Child operation successful. Returning to main component.');
+          backToMain();
+        }
       }
  
       // --- B. Sincronización de Sesión: SOLO si es una actualización de perfil ---
@@ -427,6 +436,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
       }
     } else {
       feedback.value = { type: 'error', message: result.message }
+      notificationStore.addNotification('error', 'Error en la Operación', result.message)
     }
   }
 
@@ -537,6 +547,10 @@ export function useRendererOrchestrator(props: any, emit: any) {
 
         // Limpieza del formulario tras éxito (según requerimiento de usuario)
         resetForm()
+
+        if (activeSubmodule.value) {
+          backToMain()
+        }
 
         actionDef.onSuccess === 'back' ? router.back() : fetchConsultData()
       } else {

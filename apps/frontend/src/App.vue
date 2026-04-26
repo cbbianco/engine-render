@@ -12,6 +12,7 @@ import { sessionRegistry } from '@/services/session/SessionRegistryService'
 
 import { useRouter } from 'vue-router'
 import { bootstrapAuth } from '@/config/auth/bootstrap'
+import ToastNotification from '@/components/atoms/special/ToastNotification.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -90,6 +91,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <ToastNotification />
   <!-- 1) Estado de Carga -->
   <div v-if="isValidating" class="loading">
     Loading...

@@ -2,6 +2,22 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
+## [1.8.0] - 2026-04-25
+### Added
+- **Global Notification System**: Implemented a real-time notification engine with `ToastNotification.vue` for push alerts and `NotificationBell.vue` for history tracking in the header.
+- **Configurable TTL**: Added `VITE_NOTIFICATION_TTL_MINUTES` to control the automatic removal of notifications (default 5 minutes).
+- **Deep Form Reset**: Enhanced `FormUtils.resetForm` to perform a deep cleanup of both parent and child (submodule) models after successful operations.
+- **Automatic Orchestration Flow**: Implemented automatic navigation back to the parent component after successful submodule actions, ensuring a clean and intuitive workflow.
+
+### Changed
+- **Secure Logout Hardening**: Refactored the logout process to aggressively clear all session data including `localStorage`, `sessionStorage`, cookies, and Pinia stores to prevent unauthorized access via history or direct URL.
+- **Reliable Iconography**: Replaced FontAwesome dependencies with native SVGs in critical UI components (Bell, Toasts) for consistent rendering across all environments.
+- **Dynamic Field Preservation**: Updated the backend (`UsersController`, `UserCreationService`) to respect and preserve the original property names from the frontend (e.g., `logoFile`, `logoUrl`) instead of renaming them to `logoPath`.
+
+### Fixed
+- **UI Alignment Precision**: Fixed vertical alignment of the notification bell in the header and adjusted toast positioning to ensure zero overlap with critical UI elements.
+- **Submodule State Isolation**: Improved state management during parent-child transitions to prevent data leakage between different orchestration levels.
+
 ## [1.7.0] - 2026-04-25
 ### Added
 - **Session Protection Guard**: Enhanced `useRendererOrchestrator` to prevent unintentional session overwrites during resource creation (ensuring Admin session remains intact after creating new users).

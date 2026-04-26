@@ -80,7 +80,21 @@ export const useAuthStore = defineStore('auth', () => {
     clearState()
     sessionPersist.clearSession()
     
-    // Forzar recarga completa para resetear todos los estados si no hay router
+    // Borrado agresivo de todo rastro de datos
+    localStorage.clear()
+    sessionStorage.clear()
+
+    // Eliminar cookies de sesión si existieran
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+
+    // Notificación en consola para auditoría
+    console.log('[Auth] Session terminated and cleared successfully');
+    
+    // Forzar recarga completa para resetear todos los estados de la aplicación
     window.location.href = '/'
   }
 

@@ -1,6 +1,18 @@
 <template>
-  <div class="form-group form-group--plantilla">
-    <AppButton type="button" :disabled="loading || disabled" :variant="variant" @click="$emit('click')">
+  <div 
+    class="form-group form-group--plantilla"
+    :style="{ 
+      display: align ? 'flex' : 'block',
+      justifyContent: align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start'
+    }"
+  >
+    <AppButton 
+      type="button" 
+      :disabled="loading || disabled" 
+      :variant="variant" 
+      @click="$emit('click')"
+      style="width: 100%"
+    >
       <span v-if="loading" class="form-group__spinner" />
       {{ label }}
     </AppButton>
@@ -16,8 +28,16 @@ withDefaults(
     loading?: boolean
     disabled?: boolean
     variant?: 'primary' | 'secondary'
+    align?: 'left' | 'center' | 'right'
+    block?: boolean
   }>(),
-  { loading: false, disabled: false, variant: 'primary' }
+  { 
+    loading: false, 
+    disabled: false, 
+    variant: 'primary',
+    align: 'left',
+    block: false
+  }
 )
 defineEmits<{ click: [] }>()
 </script>

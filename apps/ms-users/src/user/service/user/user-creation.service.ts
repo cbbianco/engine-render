@@ -30,7 +30,7 @@ export class UserCreationService {
    */
   async createUser(create: Record<string, unknown>, currentUser: ExtractTokenDto, moduleId?: string, logoFile?: Express.Multer.File) {
     if (logoFile) {
-      create['logoPath'] = logoFile.path;
+      create[logoFile.fieldname] = logoFile.path;
     }
     if (!create) {
       throw new BadRequestException('El perfil del usuario no ha sido proporcionado o es inválido');

@@ -61,6 +61,9 @@
         class="layout-header__user-area"
         :class="{ 'layout-header__user-area--open': isApplicationMenuOpen }"
       >
+        <div class="layout-header__actions">
+          <NotificationBell />
+        </div>
         <UserMenu />
       </div>
     </div>
@@ -72,6 +75,7 @@ import { ref } from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
 import HeaderLogo from './header/HeaderLogo.vue'
 import UserMenu from './header/UserMenu.vue'
+import NotificationBell from '@/components/atoms/special/NotificationBell.vue'
 
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen } = useSidebar()
 
@@ -89,3 +93,18 @@ const toggleApplicationMenu = () => {
   isApplicationMenuOpen.value = !isApplicationMenuOpen.value
 }
 </script>
+
+<style scoped>
+.layout-header__user-area {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.layout-header__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+</style>

@@ -94,7 +94,7 @@ export class UsersController {
     @UploadedFile() file?: Express.Multer.File
   ): unknown {
     if (file) {
-      body['logoPath'] = file.path;
+      body[file.fieldname] = file.path;
     }
     return this.userService.createUser(body, request['user'] as ExtractTokenDto, request['moduleId'] as string);
   }
