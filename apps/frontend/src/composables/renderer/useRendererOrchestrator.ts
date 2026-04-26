@@ -6,6 +6,7 @@ import { RouteUtils } from '@/utils/renderer/RouteUtils'
 import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 import { rendererService } from '@/services/renderer/RendererService'
 import { ClickUtils, type ClickContext } from '@/utils/renderer/ClickUtils'
+import { ModelUtils } from '@/utils/renderer/ModelUtils'
 
 /**
  * useRendererOrchestrator - Orquestador lógico del DynamicRenderer.
