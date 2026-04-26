@@ -1,13 +1,13 @@
-# Reporte de Salud y Métricas Frontend - Engine-Render
+# Reporte de Salud y Métricas FullStack - Engine-Render
 
-Este reporte detalla la salud técnica de **todos** los archivos del frontend basándose en puntos de decisión (complejidad ciclomática proxy). 
+Este reporte detalla la salud técnica de **todos** los archivos del proyecto (Frontend y Backend) basándose en puntos de decisión (complejidad ciclomática proxy). 
 
 ## Escala de Salud
 - **0% - 50%**: 🟢 **Saludable** (Mantenible y modular).
 - **51% - 100%**: 🟡 **Necesita Mejora** (Candidato a revisión).
 - **> 100%**: 🔴 **Candidato a Refactorización** (Complejidad crítica).
 
-## Análisis de Archivos (v1.12.0 - Full Audit)
+## 🎨 Análisis de Archivos Frontend (v1.12.0)
 
 | Archivo | Puntos | Salud % | Estado |
 | :--- | :---: | :---: | :--- |
@@ -18,10 +18,10 @@ Este reporte detalla la salud técnica de **todos** los archivos del frontend ba
 | `src/components/organisms/AppSidebar.vue` | 19 | 95% | 🟡 Necesita Mejora |
 | `src/views/EditModuleView.vue` | 15 | 75% | 🟡 Necesita Mejora |
 | `src/utils/renderer/ClickUtils.ts` | 12 | 60% | 🟡 Necesita Mejora |
-| `src/utils/renderer/DynamicRenderer.utils.ts` | 10 | 50% | 🟢 Saludable |
-| `src/utils/security/encryption.ts` | 10 | 50% | 🟢 Saludable |
 | `src/components/atoms/selection/SelectNative.vue` | 11 | 55% | 🟡 Necesita Mejora |
 | `src/lib/components/core/ChainHandler.ts` | 11 | 55% | 🟡 Necesita Mejora |
+| `src/utils/renderer/DynamicRenderer.utils.ts` | 10 | 50% | 🟢 Saludable |
+| `src/utils/security/encryption.ts` | 10 | 50% | 🟢 Saludable |
 | `src/utils/renderer/ValidationUtils.ts` | 9 | 45% | 🟢 Saludable |
 | `src/services/core/ApiDispatcher.ts` | 9 | 45% | 🟢 Saludable |
 | `src/utils/customer/domain.ts` | 8 | 40% | 🟢 Saludable |
@@ -53,7 +53,7 @@ Este reporte detalla la salud técnica de **todos** los archivos del frontend ba
 | `src/components/molecules/navigation/ToolbarNative.vue` | 3 | 15% | 🟢 Saludable |
 | `src/components/atoms/selection/CheckboxNative.vue` | 3 | 15% | 🟢 Saludable |
 | `src/utils/module/orchestration.ts` | 2 | 10% | 🟢 Saludable |
-| `src/utils/module/index.ts` | 2 | 10% | 🟢 Saludable |
+| `src/utils/module/index.ts" | 2 | 10% | 🟢 Saludable |
 | `src/utils/customer/logo.ts` | 2 | 10% | 🟢 Saludable |
 | `src/stores/auth/index.ts` | 2 | 10% | 🟢 Saludable |
 | `src/persistence/auth/session.persistence.ts` | 2 | 10% | 🟢 Saludable |
@@ -140,11 +140,108 @@ Este reporte detalla la salud técnica de **todos** los archivos del frontend ba
 | `src/components/atoms/button/ButtonNative.vue` | 0 | 0% | 🟢 Saludable |
 | `src/components/atoms/button/AppButton.vue` | 0 | 0% | 🟢 Saludable |
 
-## Limpieza de Código (Deprecados)
-Se han eliminado los siguientes archivos por falta de uso (Código Muerto):
-- `src/composables/useModuleValidation.ts`
-- `src/model/module/create-assignation.dto.ts`
+---
 
-## Plan de Mejora Continua
-1. **useRendererOrchestrator**: Mover el manejo de resultados de API (`handleApiResult`) a un servicio dedicado.
-2. **TablePremium**: Descomponer el renderizado de celdas en sub-componentes especializados.
+## ⚙️ Análisis de Archivos Backend (Microservicios)
+
+| Archivo | Puntos | Salud % | Estado |
+| :--- | :---: | :---: | :--- |
+| `ms-users/src/user/service/user/user-creation.service.ts` | 7 | 35% | 🟢 Saludable |
+| `ms-users/src/user/service/user/user-update.service.ts` | 5 | 25% | 🟢 Saludable |
+| `ms-users/src/user/service/user/user-profile.service.ts` | 5 | 25% | 🟢 Saludable |
+| `ms-modules/src/module/service/generate/module-generate.facade.ts` | 5 | 25% | 🟢 Saludable |
+| `ms-users/src/user/service/auth/auth.service.ts` | 4 | 20% | 🟢 Saludable |
+| `ms-users/src/user/service/validation/module-validation.service.ts` | 3 | 15% | 🟢 Saludable |
+| `ms-users/src/user/service/user/user-list.service.ts` | 3 | 15% | 🟢 Saludable |
+| `ms-users/src/user/commons/guards/auth.guards.ts` | 3 | 15% | 🟢 Saludable |
+| `ms-modules/src/module/commons/guards/role/role.guards.ts` | 3 | 15% | 🟢 Saludable |
+| `ms-modules/src/module/commons/guards/auth/auth.guards.ts` | 3 | 15% | 🟢 Saludable |
+| `ms-users/src/user/service/user/user-delete.service.ts` | 2 | 10% | 🟢 Saludable |
+| `ms-users/src/user/service/payload/payload.service.ts` | 2 | 10% | 🟢 Saludable |
+| `ms-users/src/user/repository/user.repository.ts` | 2 | 10% | 🟢 Saludable |
+| `ms-users/src/user/commons/security/rsa/rsa.security.ts` | 2 | 10% | 🟢 Saludable |
+| `ms-users/src/user/utils/extract/user/user.extract.utils.ts` | 1 | 5% | 🟢 Saludable |
+| `ms-users/src/user/service/user/user-verification.service.ts` | 1 | 5% | 🟢 Saludable |
+| `ms-users/src/user/controller/users.controller.ts` | 1 | 5% | 🟢 Saludable |
+| `ms-users/src/user/commons/guards/module.guard.ts` | 1 | 5% | 🟢 Saludable |
+| `ms-modules/src/module/utils/extract/user/user.extract.utils.ts` | 1 | 5% | 🟢 Saludable |
+| `ms-modules/src/module/service/commons/functions/functions.executions.service.ts` | 1 | 5% | 🟢 Saludable |
+| `ms-customer/src/customer/repository/customer.repository.ts` | 1 | 5% | 🟢 Saludable |
+| `ms-users/src/user/utils/extract/token/extract.token.utils.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/utils/constants/constants.utils.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/user.module.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/service/user/user-config.service.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/service/user.service.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/exception/unauthorized/unauthorized.sys.exception.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/exception/filter/http.error.filter.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/entities/user/user.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/entities/role/user-role.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/entities/role/role.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/entities/module/module-json.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/entities/module/module.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/entities/module/assignation-module.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/entities/config/user.config.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/dto/user/user.payload.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/dto/login/login.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/dto/jwt/user.data.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/dto/jwt/payload.jwt.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/controller/user.controller.spec.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/commons/security/aes/aes.security.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/user/commons/decorators/decrypt-password.decorator.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/main.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-users/src/app.module.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/utils/prompt/prompt.utils.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/utils/extract/token/extract.token.utils.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/utils/constants/constants.utils.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/utils/cipher/extract.payload.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/service/generate/persist/generate-persist.service.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/repository/user/user.repository.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/repository/modules/module.repository.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/repository/assgined/assigned.repository.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/module.module.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/exception/unauthorized/unauthorized.sys.exception.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/exception/filter/http.error.filter.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/entities/user/user.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/entities/role/user-role.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/entities/role/role.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/entities/module/module-json.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/entities/module/module.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/entities/module/assing-module.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/type/type.enum.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/response/model.response.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/module/validation.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/module/orchestration-type.enum.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/module/module-request.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/module/metadata.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/module/create-assignation.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/module/configuration-ui.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/module/config.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/module/component.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/module/breadcrumb.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/jwt/user.data.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/jwt/payload.jwt.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/jwt/generate-json.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/enums/role.enum.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/dto/config/endpoint/endpoint.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/controller/module.controller.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/controller/module.controller.spec.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/commons/security/aes/aes.security.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/module/commons/auth/jwt.strategy.autt.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/main.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-modules/src/app.module.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/main.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/customer/service/handshake-security.service.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/customer/service/customer.service.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/customer/entity/customer.entity.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/customer/dto/text.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/customer/dto/color-css .dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/customer/dto/auth.request.dto.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/customer/customer.module.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/customer/controller/customer.controller.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/customer/controller/customer.controller.spec.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/customer/commons/security/aes/aes.security.ts` | 0 | 0% | 🟢 Saludable |
+| `ms-customer/src/app.module.ts` | 0 | 0% | 🟢 Saludable |
+
+## Limpieza de Código (Deprecados)
+- `frontend/src/composables/useModuleValidation.ts`
+- `frontend/src/model/module/create-assignation.dto.ts`
