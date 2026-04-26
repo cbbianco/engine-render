@@ -14,6 +14,7 @@ Todos los cambios notables en este proyecto (Backend y Frontend) serán document
 - **Orchestrator Purification**: Cleaned up `useRendererOrchestrator.ts` by delegating 100% of click and submit logic to `ClickUtils.ts`, reducing cyclomatic complexity from 52 to 14.
 - **Universal Data Setting**: Refactored `initModel` to support hybrid responses. It now preserves the full structure for complex components (Tables/Kanban) while flattening data for simple forms.
 - **Restored Smart Binding**: Re-implemented the logic that allows complex components to receive the full model when their specific property is empty, ensuring tables display correctly.
+- **Fixed Action Interception**: Removed a hardcoded interceptor that was blocking 'navigate' actions for edit buttons, restoring the standard navigation flow for all modules.
 
 ### Fixed
 - **Module ID Resolution**: Fixed a critical 404 error in the user list by ensuring `{moduleId}` placeholders are correctly resolved in the orchestration engine.

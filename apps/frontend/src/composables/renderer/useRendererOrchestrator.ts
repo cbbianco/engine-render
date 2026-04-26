@@ -191,15 +191,6 @@ export function useRendererOrchestrator(props: any, emit: any) {
   }
 
   async function handleComponentAction(e: { type: string; payload: any }, item: any, childContext?: any) {
-    if (e.type === 'edit' && e.payload) {
-      const rowData = { ...e.payload }
-      if (rowData.roles && Array.isArray(rowData.roles)) {
-        rowData.role = rowData.role || rowData.roles[0]
-      }
-      Object.assign(submoduleModel, rowData)
-      return
-    }
-
     if (e.type === 'back') {
       if (activeSubmodule.value) {
         backToMain()
