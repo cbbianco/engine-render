@@ -1,19 +1,19 @@
 # Changelog - SolutionsNplusOne Monorepo
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
-1: 
-2: ## [1.9.0] - 2026-04-26
-3: ### Added
-4: - **Code Metrics Report**: Created `METRICS.md` in the frontend application to track Cyclomatic and Cognitive complexity across critical files, establishing a baseline for future refactoring efforts.
-5: 
-6: ### Changed
-7: - **Utility Consolidation**: Moved and reorganized all renderer-related utilities (`DynamicRenderer.utils.ts`, `FormUtils.ts`, `ModuleUtils.ts`, `RouteUtils.ts`) from `src/lib/components/core` to a centralized `src/utils/renderer/` directory for better maintainability and discovery.
-8: - **Code Cleanup**: Removed unused computed properties (`rawSchemaChildren`) and redundant destructuring (`backToMain`) in `DynamicRenderer.vue` as part of the "Zero-Waste Frontend" initiative.
-9: - **Build Stabilization**: Fixed several TypeScript build errors related to missing props (`readonly`) and potential undefined values in input emitters across the component library.
-10: 
-11: ### Fixed
-12: - **Double Notification Bug**: Resolved an issue where the "Sesión Iniciada" notification was triggered twice during login by centralizing the notification logic within the authentication store.
-13: 
+
+## [1.9.0] - 2026-04-26
+### Added
+- **Code Metrics Report**: Created `METRICS.md` to track Cyclomatic and Cognitive complexity across critical frontend files, establishing a baseline for future refactoring efforts.
+
+### Changed
+- **Utility Consolidation**: Moved and reorganized all renderer-related utilities (`DynamicRenderer.utils.ts`, `FormUtils.ts`, `ModuleUtils.ts`, `RouteUtils.ts`) from `src/lib/components/core` to a centralized `src/utils/renderer/` directory for better maintainability and discovery.
+- **Code Cleanup**: Removed unused computed properties (`rawSchemaChildren`) and redundant destructuring (`backToMain`) in `DynamicRenderer.vue` as part of the "Zero-Waste Frontend" initiative.
+- **Build Stabilization**: Fixed several TypeScript build errors related to missing props (`readonly`) and potential undefined values in input emitters across the component library.
+
+### Fixed
+- **Double Notification Bug**: Resolved an issue where the "Sesión Iniciada" notification was triggered twice during login by centralizing the notification logic within the authentication store.
+
 
 ## [1.8.0] - 2026-04-25
 ### Added
