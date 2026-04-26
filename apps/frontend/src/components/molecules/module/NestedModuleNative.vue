@@ -1,16 +1,13 @@
 <template>
   <div class="nested-module-native">
     <!-- Header: Title (Left) + Toolbar (Right) -->
-    <div v-if="child.config" class="nested-module__header mb-6">
+    <div v-if="child.config && (child.config.toolbarTopLeft || child.config.toolbarTopRight || child.config.toolbar)" class="nested-module__header mb-6">
       <div class="nested-module__header-left">
         <ToolbarNative 
           v-if="child.config.toolbarTopLeft" 
           :items="child.config.toolbarTopLeft"
           @action="onToolbarAction"
         />
-        <h4 v-if="child.config.metadata?.title || child.config.title" class="nested-module__title">
-          {{ child.config.metadata?.title || child.config.title }}
-        </h4>
       </div>
 
       <div class="nested-module__header-right">
@@ -60,7 +57,7 @@
 
 <script setup lang="ts">
 import ToolbarNative from '../navigation/ToolbarNative.vue'
-import { DynamicParser } from '@/lib/components/core/DynamicRenderer.utils'
+import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 import { ServiceLocator } from '@/lib/components/core/ServiceLocator'
 import { resolveOrchestrationTag } from '@/utils/module/orchestration'
 

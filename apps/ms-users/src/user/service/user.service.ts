@@ -6,6 +6,8 @@ import { UserVerificationService } from './user/user-verification.service';
 import { UserListService } from './user/user-list.service';
 import { UserCreationService } from './user/user-creation.service';
 import { UserProfileService } from './user/user-profile.service';
+import { UserDeleteService } from './user/user-delete.service';
+import { UserUpdateService } from './user/user-update.service';
 
 /**
  * @class UserService
@@ -20,6 +22,8 @@ export class UserService {
     private readonly listService: UserListService,
     private readonly creationService: UserCreationService,
     private readonly profileService: UserProfileService,
+    private readonly deleteService: UserDeleteService,
+    private readonly updateService: UserUpdateService,
   ) {}
 
   /**
@@ -58,7 +62,23 @@ export class UserService {
    * @method getUsersPaginated
    * @description Delegates paginated user retrieval.
    */
-  async getUsersPaginated(page: number = 1, limit: number = 10, currentUser?: ExtractTokenDto) {
-    return this.listService.getUsersPaginated(page, limit, currentUser);
+  async getUsersPaginated(page: number = 1, limit: number = 10, currentUser?: ExtractTokenDto, moduleId?: string) {
+    return this.listService.getUsersPaginated(page, limit, currentUser, moduleId);
+  }
+
+  /**
+   * @method deleteUser
+   * @description Delegates user deletion.
+   */
+  async deleteUser(id: number) {
+    return this.deleteService.deleteUser(id);
+  }
+
+  /**
+   * @method update
+   * @description Delegates user update.
+   */
+  async update(profile: Record<string, unknown>, moduleId?: string) {
+    return this.updateService.updateUser(profile, moduleId);
   }
 }

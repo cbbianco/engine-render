@@ -24,11 +24,14 @@ import { UserListService } from './service/user/user-list.service';
 import { UserCreationService } from './service/user/user-creation.service';
 import { UserProfileService } from './service/user/user-profile.service';
 import { UserConfigService } from './service/user/user-config.service';
+import { AssignationModuleEntity } from './entities/module/assignation-module.entity';
+import { UserDeleteService } from './service/user/user-delete.service';
+import { UserUpdateService } from './service/user/user-update.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature(
-      [UserEntity, RoleEntity, ModuleEntity, UserRoleEntity],
+      [UserEntity, RoleEntity, ModuleEntity, UserRoleEntity, AssignationModuleEntity],
       'mysql',
     ),
     TypeOrmModule.forFeature([UserConfigEntity, ModuleConfigEntity], 'mongo'),
@@ -47,6 +50,8 @@ import { UserConfigService } from './service/user/user-config.service';
     UserCreationService,
     UserProfileService,
     UserConfigService,
+    UserDeleteService,
+    UserUpdateService,
     {
       provide: APP_INTERCEPTOR,
       useClass: UserResponseInterceptor,

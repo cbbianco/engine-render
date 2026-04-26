@@ -1,5 +1,5 @@
 import { apiFetch } from '@/utils/network/api'
-import { DynamicParser } from '@/lib/components/core/DynamicRenderer.utils'
+import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 
 export type ActionExecutionResult = 
   | { success: true; data?: any }
@@ -34,10 +34,16 @@ export class RendererService {
       if (response.ok) {
         return await response.json()
       }
-      return null
+      
+      const errorData = await response.json().catch(() => ({}));
+      return { 
+        error: true, 
+        message: errorData.message || 'Error en la consulta de datos',
+        status: response.status 
+      }
     } catch (err) {
       console.error('[RendererService] Fetch error:', err)
-      return null
+      return { error: true, message: 'Error de conexión' }
     }
   }
 

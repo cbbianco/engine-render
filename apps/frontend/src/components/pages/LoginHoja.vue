@@ -95,7 +95,6 @@ const handleLogin = async () => {
 
     // 4. Navegar a la ruta post-login
     const nextPath = authStore.getPostLoginRedirectPath()
-    notificationStore.addNotification('success', 'Sesión Iniciada', `Bienvenido de nuevo, ${userName.value}`)
     await router.push(nextPath ?? '/')
   } else {
     modalError.value = { 

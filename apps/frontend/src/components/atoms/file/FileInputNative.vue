@@ -51,8 +51,9 @@ withDefaults(
     errorMessage?: string
     errorColor?: string
     disabled?: boolean
+    readonly?: boolean
   }>(),
-  { invalid: false, disabled: false }
+  { invalid: false, disabled: false, readonly: false }
 )
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 

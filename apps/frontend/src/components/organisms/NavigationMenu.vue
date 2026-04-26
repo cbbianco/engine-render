@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useAuthStore } from '../stores/auth/index'
+import { useAuthStore } from '@/stores/auth'
+import type { RouteConfig } from '@/router/routing'
 
 const authStore = useAuthStore()
 
 const activeRoutes = computed(() => {
-  return authStore.availableRoutes.filter(route => route.pathActive === 1)
+  return authStore.availableRoutes.filter((route: RouteConfig) => route.pathActive === 1)
 })
 
 const getLabel = (path: string) => {

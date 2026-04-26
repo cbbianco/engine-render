@@ -1,4 +1,4 @@
-import { DynamicParser } from "../DynamicRenderer.utils"
+import { DynamicParser } from "./DynamicRenderer.utils"
 
 /**
  * Clase utilitaria para la lógica específica de orquestación de módulos y navegación.
@@ -7,7 +7,7 @@ export class ModuleUtils {
   /**
    * Genera la lista de breadcrumbs procesada para la navegación actual.
    */
-  static getProcessedBreadcrumbs(config: any, route: any) {
+  static getProcessedBreadcrumbs(config: any, route: any, activeSubmodule?: any) {
     const base = config?.config?.breadcrumb || []
     const title = config?.config?.metadata?.title || config?.config?.module || 'Tablero'
     const items = [{ ...(base[0] || { label: 'Dashboard', path: '/dashboard' }) }]
@@ -17,9 +17,16 @@ export class ModuleUtils {
     if (fLabel && fPath && fLabel.toLowerCase() !== items[0].label?.toLowerCase()) {
       items.push({ label: fLabel, path: fPath })
     }
+    
     if (title.toLowerCase() !== items[0].label?.toLowerCase() && fLabel?.toLowerCase() !== title.toLowerCase()) {
-      items.push({ label: title })
+      items.push({ label: title, path: activeSubmodule ? route.path : undefined })
     }
+
+    if (activeSubmodule) {
+      const subTitle = activeSubmodule.config?.metadata?.title || activeSubmodule.config?.title || 'Submódulo'
+      items.push({ label: subTitle })
+    }
+
     return items
   }
 

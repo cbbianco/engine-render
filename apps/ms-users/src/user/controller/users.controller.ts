@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -34,23 +34,6 @@ export class UsersController {
   }
 
   /**
-   * @method  findAll
-   */
-  @UseGuards(AuthGuard)
-  @Get('/')
-  findAll(
-    @Query('page') page: string, 
-    @Query('limit') limit: string,
-    @Req() request: Request
-  ): unknown {
-    return this.userService.getUsersPaginated(
-      Number(page) || 1, 
-      Number(limit) || 10, 
-      request['user'] as ExtractTokenDto
-    );
-  }
-
-  /**
    * @method  getProfile
    */
   @UseGuards(AuthGuard)
@@ -70,6 +53,48 @@ export class UsersController {
     @Req() request: Request,
   ): unknown {
     return this.userService.updateUser(body, request['user'] as ExtractTokenDto, request['moduleId'] as string);
+  }
+
+  /**
+   * @method  findAll
+   */
+  @UseGuards(AuthGuard)
+  @Get('/:moduleId')
+  findAll(
+    @Param('moduleId') moduleId: string,
+    @Query('page') page: string, 
+    @Query('limit') limit: string,
+    @Req() request: Request
+  ): unknown {
+    return this.userService.getUsersPaginated(
+      Number(page) || 1, 
+      Number(limit) || 10, 
+      request['user'] as ExtractTokenDto,
+      moduleId
+    );
+  }
+
+  /**
+   * @method  delete
+   */
+  @UseGuards(AuthGuard)
+  @Delete('/:id')
+  delete(@Param('id') id: string): unknown {
+    return this.userService.deleteUser(Number(id));
+  }
+
+  /**
+   * @method  update
+   * @description Handles general user updates
+   */
+  @UseGuards(AuthGuard, ModuleGuard)
+  @DecryptPassword()
+  @Put('/')
+  update(
+    @Body() body: Record<string, unknown>, 
+    @Req() request: Request
+  ): unknown {
+    return this.userService.update(body, request['moduleId'] as string);
   }
 
   /**

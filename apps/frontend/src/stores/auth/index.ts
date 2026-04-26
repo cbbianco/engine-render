@@ -8,6 +8,7 @@ import { domainManager } from '@/utils/customer/domain'
 import type { LoginSuccessData } from '@/services/auth/AuthService'
 import * as sessionPersist from '@/persistence/auth/session.persistence'
 import { setupModulesConfig } from '@/config/module/setup'
+import { useNotificationStore } from '../notifications'
 
 /**
  * Store de Autenticación.
@@ -26,6 +27,7 @@ export const useAuthStore = defineStore('auth', () => {
   const modulesConfig = ref<ModuleConfigResponse[]>([])
   const isReauthenticating = ref(false)
   const publicKey = ref<string>('')
+  const notificationStore = useNotificationStore()
 
   /**
    * Actualiza el estado del store tras un login o re-autenticación exitosa.
@@ -45,6 +47,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Configuración de módulos UI
     setupModulesConfig(this === undefined ? useAuthStore() : this, modules)
+    
+    notificationStore.addNotification('success', 'Sesión Iniciada', `Bienvenido de nuevo, ${identifier}`)
   }
 
   /**
@@ -94,6 +98,8 @@ export const useAuthStore = defineStore('auth', () => {
     // Notificación en consola para auditoría
     console.log('[Auth] Session terminated and cleared successfully');
     
+    notificationStore.addNotification('info', 'Sesión Cerrada', 'Has cerrado sesión correctamente')
+
     // Forzar recarga completa para resetear todos los estados de la aplicación
     window.location.href = '/'
   }

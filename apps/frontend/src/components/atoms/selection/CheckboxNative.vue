@@ -39,8 +39,9 @@ const props = withDefaults(
     errorMessage?: string
     errorColor?: string
     disabled?: boolean
+    readonly?: boolean
   }>(),
-  { options: () => [], disabled: false }
+  { options: () => [], disabled: false, readonly: false }
 )
 
 const emit = defineEmits<{ 'update:modelValue': [value: string[]] }>()

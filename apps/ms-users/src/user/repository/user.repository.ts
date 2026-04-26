@@ -9,6 +9,7 @@ import { ObjectId } from 'mongodb';
 
 import { UserRoleEntity } from '../entities/role/user-role.entity';
 import { RoleEntity } from '../entities/role/role.entity';
+import { AssignationModuleEntity } from '../entities/module/assignation-module.entity';
 
 @Injectable()
 export class UserRepository {
@@ -25,6 +26,8 @@ export class UserRepository {
     private readonly roleRepository: Repository<RoleEntity>,
     @InjectRepository(UserRoleEntity, 'mysql')
     private readonly userRoleRepository: Repository<UserRoleEntity>,
+    @InjectRepository(AssignationModuleEntity, 'mysql')
+    private readonly assignationRepository: Repository<AssignationModuleEntity>,
   ) { }
 
   /**
@@ -194,5 +197,45 @@ export class UserRepository {
    */
   async saveUserConfig(config: UserConfigEntity): Promise<UserConfigEntity> {
     return this.authRepository.save(config);
+  }
+
+  /**
+   * @method findUserById
+   * @description Retrieves a user by their ID from MySQL.
+   */
+  async findUserById(id: number): Promise<UserEntity | null> {
+    return this.repository.findOneBy({ id } as any);
+  }
+
+  /**
+   * @method deleteModuleAssignations
+   * @description Deletes all module assignations for a user.
+   */
+  async deleteModuleAssignations(userId: number): Promise<void> {
+    await this.assignationRepository.delete({ userId });
+  }
+
+  /**
+   * @method deleteUserRoles
+   * @description Deletes all roles assigned to a user.
+   */
+  async deleteUserRoles(userId: number): Promise<void> {
+    await this.userRoleRepository.delete({ userId });
+  }
+
+  /**
+   * @method deleteUserConfig
+   * @description Deletes user configuration from MongoDB.
+   */
+  async deleteUserConfig(userName: string): Promise<void> {
+    await this.authRepository.delete({ userName });
+  }
+
+  /**
+   * @method deleteUser
+   * @description Deletes a user from MySQL.
+   */
+  async deleteUser(id: number): Promise<void> {
+    await this.repository.delete(id);
   }
 }

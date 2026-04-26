@@ -1,5 +1,5 @@
 import type { Ref } from 'vue'
-import { DynamicParser } from '../DynamicRenderer.utils'
+import { DynamicParser } from './DynamicRenderer.utils'
 
 /**
  * Clase utilitaria para la gestión y manipulación de estados de formulario.

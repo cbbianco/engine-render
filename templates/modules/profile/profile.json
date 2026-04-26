@@ -112,7 +112,7 @@
         "consult": {
             "method": "GET",
             "uri": "{backend}/{endpoint}",
-            "endpoint": "/api/v1/users",
+            "endpoint": "/api/v1/users/profile",
             "backend": "http://localhost:4001"
         }
     }

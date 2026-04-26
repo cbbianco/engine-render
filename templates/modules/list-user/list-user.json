@@ -1,6 +1,7 @@
 {
     "configurationUi": {
         "config": {
+            "moduleId": "69ed7c91bef92b550f1d54a7",
             "metadata": {
                 "orchestrationType": "CONSULT",
                 "title": "Listado de Usuarios"
@@ -41,7 +42,7 @@
                         },
                         {
                             "label": "Usuario",
-                            "key": "username",
+                            "key": "userName",
                             "type": "text",
                             "sortable": true
                         },
@@ -86,7 +87,7 @@
                         },
                         "delete": {
                             "type": "api-call",
-                            "endpoint": "/api/v1/user/{id}",
+                            "endpoint": "/api/v1/users/{id}",
                             "method": "DELETE"
                         }
                     }
@@ -98,7 +99,7 @@
         "consult": {
             "method": "GET",
             "uri": "{backend}/{endpoint}",
-            "endpoint": "/api/v1/users",
+            "endpoint": "/api/v1/users/{moduleId}",
             "backend": "http://localhost:4001"
         }
     }

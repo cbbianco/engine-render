@@ -2,10 +2,10 @@ import { ref, reactive, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth/index'
 import { useNotificationStore } from '@/stores/notifications'
-import { FormUtils } from '@/lib/components/core/module/FormUtils'
-import { RouteUtils } from '@/lib/components/core/module/RouteUtils'
-import { ModuleUtils } from '@/lib/components/core/module/ModuleUtils'
-import { DynamicParser } from '@/lib/components/core/DynamicRenderer.utils'
+import { FormUtils } from '@/utils/renderer/FormUtils'
+import { RouteUtils } from '@/utils/renderer/RouteUtils'
+import { ModuleUtils } from '@/utils/renderer/ModuleUtils'
+import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 import { rendererService } from '@/services/renderer/RendererService'
 
 /**
@@ -74,7 +74,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
    * Genera la lista de breadcrumbs procesada para la navegación actual.
    * Maneja el historial de navegación 'desde' (fromPath/fromLabel).
    */
-  const processedBreadcrumbs = computed(() => ModuleUtils.getProcessedBreadcrumbs(props.config, route))
+  const processedBreadcrumbs = computed(() => ModuleUtils.getProcessedBreadcrumbs(props.config, route, activeSubmodule.value))
 
   /**
    * Inicializa o resetea el modelo de datos basado en la configuración del esquema.
@@ -93,6 +93,12 @@ export function useRendererOrchestrator(props: any, emit: any) {
       const isTable = f.type?.includes('table')
       model[propKey] = baseData[propKey] === '{res}' ? (isTable ? [] : '') : (baseData[propKey] ?? f.value ?? (isTable ? [] : ''))
     })
+
+    // 1.2 Inyectar moduleId de la configuración si existe para resolución de endpoints
+    const configData = props.config?.config || props.config?.configurationUi?.config
+    if (configData?.moduleId) {
+      model['moduleId'] = configData.moduleId
+    }
 
     // 1.5 Validar errores críticos inmediatamente tras init (Escaneo Profundo sobre Props Crudas)
     criticalConfigError.value = null
@@ -169,7 +175,16 @@ export function useRendererOrchestrator(props: any, emit: any) {
    */
   async function fetchConsultData(params?: { page?: number; limit?: number }) {
     const consultData = await rendererService.fetchConsultData(props.orchestrationDetails?.consult, model, params)
-    if (!consultData) return
+    
+    if (!consultData || consultData.error) {
+      if (consultData?.error && (consultData.status === 422 || consultData.message?.includes('[ERROR DE CONFIGURACIÓN]'))) {
+        criticalConfigError.value = consultData.message
+        notificationStore.addNotification('error', 'Error de Configuración', consultData.message)
+      } else if (consultData?.error) {
+        notificationStore.addNotification('error', 'Error de Consulta', consultData.message)
+      }
+      return
+    }
 
     // SERVICE LOCATOR: Captura de metadatos dinámicos para edición/vistas posteriores
     if (consultData.component?.properties) {
@@ -454,12 +469,29 @@ export function useRendererOrchestrator(props: any, emit: any) {
     // abrimos un submódulo virtual con ese esquema inmediatamente.
     if (e.type === 'edit' && dynamicComponentMetadata.value) {
       console.log('[Orchestrator] Launching virtual submodule from dynamic metadata')
+      
+      // Transformar el esquema para modo edición
+      const editSchema = JSON.parse(JSON.stringify(dynamicComponentMetadata.value)).map((item: any) => {
+        // 1. Cambiar el botón de submit
+        if (item.type === 'button' && item.action === 'submit-master') {
+          return {
+            ...item,
+            label: 'Editar Registro',
+            endpoint: {
+              ...item.endpoint,
+              method: 'PUT' // Cambiar a PUT para edición
+            }
+          }
+        }
+        return item
+      })
+
       activeSubmodule.value = {
         config: {
           module: 'Editar Registro',
           metadata: { title: 'Editar Registro' }
         },
-        schema: dynamicComponentMetadata.value
+        schema: editSchema
       }
       // Limpiar y cargar data
       Object.keys(submoduleModel).forEach(k => delete submoduleModel[k])
@@ -543,7 +575,9 @@ export function useRendererOrchestrator(props: any, emit: any) {
 
       const result = await rendererService.executeApiCall(actionDef, currentModel)
       if (result.success) {
-        feedback.value = { type: 'success', message: 'Acción realizada con éxito' }
+        const message = result.data?.message || result.data?.data?.message || 'Acción realizada con éxito'
+        feedback.value = { type: 'success', message }
+        notificationStore.addNotification('success', 'Éxito', message)
 
         // Limpieza del formulario tras éxito (según requerimiento de usuario)
         resetForm()
@@ -555,6 +589,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
         actionDef.onSuccess === 'back' ? router.back() : fetchConsultData()
       } else {
         feedback.value = { type: 'error', message: result.message }
+        notificationStore.addNotification('error', 'Error en la Acción', result.message)
       }
       isSubmitting.value = false
     }

@@ -8,17 +8,17 @@
     <!-- Modal de Error Crítico de Configuración (Teleported to Body) -->
     <ConfigErrorModal :error="criticalConfigError" />
 
-    <!-- Header con Titulo y Breadcrumbs estilo TailAdmin (Solo si no hay submódulo activo) -->
-    <div v-if="!isDashboardView && !activeSubmodule" class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <!-- Header con Titulo y Breadcrumbs estilo TailAdmin -->
+    <div v-if="!isDashboardView" class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div class="flex flex-col gap-1">
         <h1 class="dynamic-renderer-title">
-          {{ moduleConfig.metadata?.title || moduleConfig.module || 'Detalle' }}
+          {{ activeSubmodule ? (activeSubmodule.config?.metadata?.title || activeSubmodule.config?.title || 'Detalle') : (moduleConfig.metadata?.title || moduleConfig.module || 'Detalle') }}
         </h1>
         <BreadcrumbsNative :items="processedBreadcrumbs" />
       </div>
 
-      <!-- Header Toolbars (Top Actions) -->
-      <div v-if="moduleConfig.toolbarTopLeft?.length || moduleConfig.toolbarTopRight?.length" 
+      <!-- Header Toolbars (Top Actions) - Solo si no hay submódulo activo (evita duplicidad) -->
+      <div v-if="!activeSubmodule && (moduleConfig.toolbarTopLeft?.length || moduleConfig.toolbarTopRight?.length)" 
            class="flex items-center gap-4 mt-4">
         <ToolbarNative v-if="moduleConfig.toolbarTopLeft?.length" :items="moduleConfig.toolbarTopLeft" @action="handleButtonClick" />
         <ToolbarNative v-if="moduleConfig.toolbarTopRight?.length" :items="moduleConfig.toolbarTopRight" @action="handleButtonClick" />
@@ -111,7 +111,7 @@ import { resolveOrchestrationTag } from '@/utils/module/orchestration'
  * Module: UI Metadata Render Logic
  */
 
-import { DynamicParser } from './core/DynamicRenderer.utils'
+import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 import { ServiceLocator } from './core/ServiceLocator'
 import { useRendererOrchestrator } from '@/composables/renderer/useRendererOrchestrator'
 import BreadcrumbsNative from '@/components/atoms/display/BreadcrumbsNative.vue'
@@ -147,7 +147,6 @@ const {
   getFieldValue,
   activeSubmodule,
   submoduleModel,
-  backToMain,
   hasChildSubmit,
   updateSubmoduleModel,
   criticalConfigError
@@ -159,11 +158,6 @@ const moduleConfig = computed(() => {
   return (cfg?.config || cfg?.configurationUi?.config || {}) as Record<string, any>
 })
 
-/** Propiedad computada para acceder de forma segura a los submódulos hijos */
-const rawSchemaChildren = computed(() => {
-  const cfg = props.config as any
-  return (cfg?.schemaChild || cfg?.configurationUi?.schemaChild || []) as any[]
-})
 
 function getComponentForSchema(item: SchemaField) {
   const configData = props.config?.config as Record<string, unknown> | undefined

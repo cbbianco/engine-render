@@ -11,7 +11,7 @@
       :disabled="disabled"
       :readonly="readonly"
       :error-color="errorColor"
-      @update:model-value="(val: string) => $emit('update:modelValue', val)"
+      @update:model-value="(val: any) => $emit('update:modelValue', val ?? '')"
     />
     <AppFieldError v-if="invalid && errorMessage" :error-color="errorColor">
       {{ errorMessage }}
