@@ -65,10 +65,21 @@ export class ClickUtils {
   private static async handleSubmitMaster(item: any, context: ClickContext) {
     context.wasSubmitted.value = true
     
-    // A. Validación Global
-    const isFormValid = this.validateGlobal(context)
-    if (!isFormValid) {
+    // A. Validación Global con detección de origen del error
+    const parentValid = this.validateSchema(context.schema.value, context.model, context)
+    let childValid = true
+    if (context.activeSubmodule.value) {
+      const childSchema = (context.activeSubmodule.value.module || context.activeSubmodule.value.schema || [])
+      childValid = this.validateSchema(childSchema, context.submoduleModel, context)
+    }
+
+    if (!parentValid || !childValid) {
       this.handleValidationError(context)
+      // REGLA: Si hay errores en el padre, regresamos a la vista principal para que el usuario los vea
+      if (!parentValid && context.activeSubmodule.value) {
+        console.warn('[ClickUtils] Parent validation failed during master submit. Returning to main view.')
+        context.backToMain()
+      }
       return
     }
 
@@ -114,22 +125,6 @@ export class ClickUtils {
     context.isSubmitting.value = false
   }
 
-  /**
-   * Ejecuta validación sobre todos los esquemas presentes (Padre + Hijo).
-   */
-  private static validateGlobal(context: ClickContext): boolean {
-    let isValid = true
-    // Validar Padre
-    if (!this.validateSchema(context.schema.value, context.model, context) ) isValid = false
-    
-    // Validar Hijo
-    if (context.activeSubmodule.value) {
-      const childSchema = (context.activeSubmodule.value.module || context.activeSubmodule.value.schema || [])
-      if (!this.validateSchema(childSchema, context.submoduleModel, context)) isValid = false
-    }
-
-    return isValid
-  }
 
   /**
    * Valida un esquema específico contra un modelo.

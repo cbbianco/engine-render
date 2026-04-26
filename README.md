@@ -97,8 +97,11 @@ npm run dev
 | **ms-users** | 4001 | Autenticación y Perfiles |
 | **ms-modules** | 4002 | Generador Dinámico de Módulos (IA) |
 
-🔒 **Estrategia de Documentación**
-- **[Catálogo de Módulos](./CATALOGO.md)**: Inventario técnico detallado de componentes renderizables con ejemplos JSON.
-- **[CHANGELOG.md](./CHANGELOG.md)**: Historial completo de la evolución del motor.
-- **[MEJORAS.md](./MEJORAS.md)**: Plan estratégico de protección IP y Bytenode.
-- **[STACK_TECNICO.md](./STACK_TECNICO.md)**: Definición del stack tecnológico y uso de IA.
+### 🔒 Documentación del Proyecto
+Para entender la arquitectura y el estado del motor, sigue este orden:
+
+1.  **[STACK_TECNICO.md](./STACK_TECNICO.md)**: Arquitectura, patrones y decisiones técnicas.
+2.  **[CATALOGO.md](./CATALOGO.md)**: Librería de componentes y metadatos UI.
+3.  **[METRICS.md](./METRICS.md)**: Salud técnica del código y candidatos a refactor.
+4.  **[CHANGELOG.md](./CHANGELOG.md)**: Historial de versiones y cambios.
+5.  **[MEJORAS.md](./MEJORAS.md)**: Roadmap y tareas pendientes.

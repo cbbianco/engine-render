@@ -2,7 +2,14 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
-## [1.11.0] - 2026-04-26
+## [1.12.0] - 2026-04-26
+### Added
+- **Global Health Monitoring**: Implemented a comprehensive health metrics system in `METRICS.md`, categorizing files by decision-point density (Healthy, Needs Improvement, Critical).
+- **Dead Code Cleanup**: Deleted deprecated files (`useModuleValidation.ts`, `create-assignation.dto.ts`) to reduce technical debt and maintain a clean monorepo.
+
+### Changed
+- **Documentation Reordering**: Reorganized all `.MD` files to follow a logical development flow (ReadMe -> Stack -> Metrics -> Changelog).
+- **Architecture Refinement**: Finalized the extraction of orchestration logic into the "Realm of Actions" and "Realm of Values".
 ### Added
 - **Click Event Utility**: Introduced `ClickUtils.ts` to centralize all logic for button clicks, breadcrumb navigation, and master-detail form submissions (`submit-master`).
 - **Orchestration Context**: Implemented `ClickContext` to allow safe delegation of business logic from composables to utility classes.
