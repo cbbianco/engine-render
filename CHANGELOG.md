@@ -5,6 +5,7 @@ Todos los cambios notables en este proyecto (Backend y Frontend) serán document
 ## [1.14.0] - 2026-04-26
 ### Added
 - **Persistent Notification System (EDP)**: New microservice `ms-notifications` (Port 4003) for long-term notification storage in MongoDB.
+- **Master Inventory Template**: Created a comprehensive `inventory.json` module for professional product management, stock control, and pricing.
 - **Automatic Notification Cleanup**: Integrated `@nestjs/schedule` for automatic removal of old notifications (>7 days).
 - **Zero-Latency Read Status**: Fully event-driven (EDP) system for marking notifications as read, ensuring instant UI response without blocking network calls.
 - **Notification History Hydration**: Automatic loading of historical notifications from the backend upon login or bell interaction.

@@ -3,18 +3,22 @@
         "config": {
             "metadata": {
                 "orchestrationType": "CREATE",
-                "title": "Creación de Inventario"
+                "title": "Gestión de Inventario Maestro"
             },
-            "module": "Creación de Inventario",
+            "module": "Inventario",
             "path": "/create-inventory",
             "method": "GET",
             "order": 3,
             "menu": "menu-item:Inventario:Crear",
-            "icon": "svg-user-plus",
+            "icon": "svg-package",
             "breadcrumb": [
                 {
                     "label": "Dashboard",
                     "path": "/dashboard"
+                },
+                {
+                    "label": "Inventario",
+                    "path": "/list-inventory"
                 }
             ],
             "raw": true
@@ -22,23 +26,160 @@
         "schema": [
             {
                 "type": "separator",
-                "label": "Información de Inventario",
-                "property": "infoInventory",
+                "label": "Datos Generales del Producto",
+                "property": "sec_general",
                 "column": "col-12",
                 "align": "left",
                 "separator": true
             },
             {
                 "type": "text",
-                "label": "Nombre de Inventario",
+                "label": "Nombre del Producto",
                 "property": "name",
+                "required": true,
+                "column": "col-8",
+                "align": "left",
+                "placeholder": "Ej: MacBook Pro M3 Max",
+                "config": {
+                    "icon": "package"
+                }
+            },
+            {
+                "type": "text",
+                "label": "SKU / Código",
+                "property": "sku",
+                "required": true,
+                "column": "col-4",
+                "align": "left",
+                "placeholder": "INV-001",
+                "config": {
+                    "icon": "hash"
+                }
+            },
+            {
+                "type": "select",
+                "label": "Categoría",
+                "property": "category",
                 "required": true,
                 "column": "col-6",
                 "align": "left",
-                "noSubmit": false,
-                "placeholder": "Ingrese el nombre del inventario"
+                "options": [
+                    { "label": "Electrónica", "value": "electronics" },
+                    { "label": "Mobiliario", "value": "furniture" },
+                    { "label": "Papelería", "value": "stationery" },
+                    { "label": "Software", "value": "software" }
+                ]
+            },
+            {
+                "type": "select",
+                "label": "Unidad de Medida",
+                "property": "unit",
+                "required": true,
+                "column": "col-6",
+                "align": "left",
+                "options": [
+                    { "label": "Unidad (Un)", "value": "unit" },
+                    { "label": "Caja (Box)", "value": "box" },
+                    { "label": "Kilogramo (Kg)", "value": "kg" },
+                    { "label": "Litro (L)", "value": "liter" }
+                ]
+            },
+            {
+                "type": "textarea",
+                "label": "Descripción Detallada",
+                "property": "description",
+                "column": "col-12",
+                "align": "left",
+                "placeholder": "Describa las especificaciones técnicas o características del producto..."
+            },
+            {
+                "type": "separator",
+                "label": "Control de Existencias & Precios",
+                "property": "sec_stock",
+                "column": "col-12",
+                "align": "left",
+                "separator": true
+            },
+            {
+                "type": "number",
+                "label": "Stock Inicial",
+                "property": "stock",
+                "required": true,
+                "column": "col-4",
+                "align": "left",
+                "placeholder": "0",
+                "config": {
+                    "min": 0
+                }
+            },
+            {
+                "type": "number",
+                "label": "Stock Mínimo (Alerta)",
+                "property": "minStock",
+                "column": "col-4",
+                "align": "left",
+                "placeholder": "5"
+            },
+            {
+                "type": "number",
+                "label": "Precio de Venta",
+                "property": "price",
+                "required": true,
+                "column": "col-4",
+                "align": "left",
+                "placeholder": "0.00",
+                "config": {
+                    "prefix": "$",
+                    "step": "0.01"
+                }
+            },
+            {
+                "type": "separator",
+                "label": "Multimedia & Visualización",
+                "property": "sec_media",
+                "column": "col-12",
+                "align": "left",
+                "separator": true
+            },
+            {
+                "type": "file-upload",
+                "label": "Imagen del Producto",
+                "property": "productImage",
+                "column": "col-12",
+                "align": "left",
+                "config": {
+                    "accept": "image/*",
+                    "maxSize": 5,
+                    "helpText": "Formatos permitidos: JPG, PNG. Máximo 5MB."
+                }
+            },
+            {
+                "type": "button",
+                "label": "Guardar Inventario",
+                "property": "submit_btn",
+                "column": "col-12",
+                "align": "right",
+                "variant": "primary",
+                "action": "submit",
+                "config": {
+                    "icon": "save",
+                    "block": false
+                }
             }
         ]
     },
-    "orchestrationDetails": {}
+    "orchestrationDetails": {
+        "actions": {
+            "submit": {
+                "type": "api-call",
+                "method": "POST",
+                "uri": "{backend}/{endpoint}",
+                "endpoint": "/api/v1/inventory",
+                "backend": "http://localhost:4004",
+                "successMessage": "Producto registrado exitosamente en el inventario",
+                "errorMessage": "No se pudo registrar el producto",
+                "redirect": "/list-inventory"
+            }
+        }
+    }
 }
