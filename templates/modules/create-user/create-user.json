@@ -32,7 +32,7 @@
                     "label": "Configuración Adicional",
                     "action": "goToSettings",
                     "icon": "settings",
-                    "variant": "secondary"
+                    "variant": "primary"
                 }
             ],
             "isReauthenticating": false

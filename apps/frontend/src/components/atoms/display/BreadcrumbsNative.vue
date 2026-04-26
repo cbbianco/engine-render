@@ -10,6 +10,7 @@
           v-if="item.path && index < items.length - 1" 
           :to="item.path"
           class="breadcrumbs__link"
+          @click="$emit('click', item)"
         >
           <div class="breadcrumbs__content">
             <svg 
@@ -63,6 +64,8 @@ export interface BreadcrumbItem {
 defineProps<{
   items: BreadcrumbItem[]
 }>()
+
+defineEmits(['click'])
 </script>
 
 <style scoped>

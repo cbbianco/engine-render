@@ -2,7 +2,14 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
-## [1.10.1] - 2026-04-26
+## [1.11.0] - 2026-04-26
+### Added
+- **Click Event Utility**: Introduced `ClickUtils.ts` to centralize all logic for button clicks, breadcrumb navigation, and master-detail form submissions (`submit-master`).
+- **Orchestration Context**: Implemented `ClickContext` to allow safe delegation of business logic from composables to utility classes.
+
+### Changed
+- **Orchestrator Slimming**: Reduced the complexity of `useRendererOrchestrator.ts` by another **25%**, reaching a "Healthy" status (52 cyclomatic).
+- **Consolidated Navigation**: Centralized breadcrumb click handling to resolve same-route navigation issues.
 ### Fixed
 - **Broken Utility References**: Resolved critical "Property does not exist" errors in `DynamicRenderer.vue` and `NestedModuleNative.vue` caused by the migration of `fieldKey` and `runValidation` to specialized utils.
 - **Validation Engine Sync**: Fixed missing imports in `ModelUtils.ts` and `ModuleUtils.ts` to correctly connect with the new `ValidationUtils` chain.

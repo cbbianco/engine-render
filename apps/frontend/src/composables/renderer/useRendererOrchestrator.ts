@@ -9,6 +9,7 @@ import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 import { rendererService } from '@/services/renderer/RendererService'
 import { ModelUtils } from '@/utils/renderer/ModelUtils'
 import { ValidationUtils } from '@/utils/renderer/ValidationUtils'
+import { ClickUtils, type ClickContext } from '@/utils/renderer/ClickUtils'
 
 /**
  * useRendererOrchestrator - Orquestador lógico del DynamicRenderer.
@@ -250,153 +251,27 @@ export function useRendererOrchestrator(props: any, emit: any) {
    * Manejador principal para los clics en botones del renderizador.
    * Realiza validaciones globales antes de ejecutar llamadas a API.
    */
+  /**
+   * Obtiene el contexto necesario para delegar acciones a utilidades.
+   */
+  function getClickContext(): ClickContext {
+    return {
+      model, submoduleModel, schema, activeSubmodule, validationErrors,
+      isSubmitting, wasSubmitted, feedback, route, props,
+      notificationStore,
+      backToMain,
+      fetchConsultData,
+      handleApiResult,
+      handleComponentAction,
+      executeApiCall: (item, payload) => rendererService.executeApiCall(item, payload, { moduleId: props.config?._id })
+    }
+  }
+
+  /**
+   * Maneja el clic en botones (Toolbar o Componentes).
+   */
   async function handleButtonClick(item: any, childContext?: any) {
-    // SOPORTE: Acción especial para delegar el submit al padre desde un hijo
-    if (item.action === 'submit-master') {
-      wasSubmitted.value = true
-      let isFormValid = true
-      let hasParentErrors = false
-
-      // 1. Validación del Padre (Global)
-      schema.value.forEach((itm: any) => {
-        const prop = DynamicParser.getProp(itm)
-        if (prop && !ValidationUtils.runValidation(validationErrors, model, prop, model[prop], itm)) {
-          isFormValid = false
-          hasParentErrors = true
-        }
-      })
-
-      // 2. Validación del Hijo (si existe)
-      if (activeSubmodule.value) {
-        const childSchema = (activeSubmodule.value.module || activeSubmodule.value.schema || [])
-        childSchema.forEach((itm: any) => {
-          const prop = DynamicParser.getProp(itm)
-          if (prop && !ValidationUtils.runValidation(validationErrors, submoduleModel, prop, submoduleModel[prop], itm)) {
-            isFormValid = false
-          }
-        })
-      }
-
-      if (!isFormValid) {
-        feedback.value = { type: 'error', message: 'Por favor, corrija los errores en el formulario' }
-        notificationStore.addNotification('error', 'Error de Validación', 'Existen campos con errores en el formulario')
-        // REGLA: Si hay errores en el padre, regresamos a la vista principal para mostrarlos
-        if (hasParentErrors && activeSubmodule.value) {
-          console.warn('[Orchestrator] Parent validation failed during child submit. Returning to main.');
-          backToMain()
-        }
-        return
-      }
-
-      // 3. Localización del Endpoint del Padre
-      const masterSubmit = schema.value.find(it => DynamicParser.isButton(it) && it.endpoint)
-      if (masterSubmit) {
-        const isUnified = item.config?.useMasterModel !== false // Por defecto unificado en submit-master
-        const currentModel = isUnified ? { ...model, ...submoduleModel } : (activeSubmodule.value ? submoduleModel : model)
-
-        // 3.5 Filtrado estricto (solo lo que tiene noSubmit: false en cualquiera de los esquemas)
-        const filteredPayload = {} as any
-        
-        // A. Procesar Esquema del Padre
-        schema.value.forEach((f: any) => {
-          const prop = DynamicParser.getProp(f)
-          const val = model[prop]
-          const isFileEmpty = f.type === 'file' && (
-            val === null || 
-            val === '' || 
-            (typeof val === 'object' && !(val instanceof File || val instanceof Blob) && Object.keys(val as any).length === 0)
-          )
-
-          if (prop && f.noSubmit === false && val !== undefined && val !== null && !isFileEmpty) {
-            filteredPayload[prop] = val
-          }
-        })
-
-        // B. Procesar Esquema del Hijo (si existe y está unificado)
-        if (activeSubmodule.value && isUnified) {
-          const childSchemaFields = (activeSubmodule.value.module || activeSubmodule.value.schema || [])
-          childSchemaFields.forEach((f: any) => {
-            const prop = DynamicParser.getProp(f)
-            const val = submoduleModel[prop] ?? model[prop]
-            const isFileEmpty = f.type === 'file' && (
-              val === null || 
-              val === '' || 
-              (typeof val === 'object' && !(val instanceof File || val instanceof Blob) && Object.keys(val as any).length === 0)
-            )
-
-            if (prop && f.noSubmit === false && val !== undefined && val !== null && !isFileEmpty) {
-              filteredPayload[prop] = val
-            }
-          })
-        }
-
-        isSubmitting.value = true
-        const result = await rendererService.executeApiCall(masterSubmit, filteredPayload, { moduleId: props.config?._id })
-        handleApiResult(result, masterSubmit)
-        isSubmitting.value = false
-        return
-      }
-    }
-
-    const customAction = item.action
-    if (customAction && customAction !== 'submit-master') {
-      handleComponentAction({ type: customAction, payload: model }, item, childContext)
-      return
-    }
-
-    wasSubmitted.value = true
-    let isFormValid = true
-
-    // REGLA: Validar el esquema correcto (principal o submódulo activo)
-    const targetSchema = (activeSubmodule.value?.module || activeSubmodule.value?.schema || schema.value)
-
-    targetSchema.forEach((itm: any) => {
-      const prop = DynamicParser.getProp(itm)
-      const currentModel = (activeSubmodule.value && !(itm.config?.useMasterModel || itm.useMasterModel)) ? submoduleModel : model
-
-      if (prop && !ValidationUtils.runValidation(validationErrors, currentModel, prop, currentModel[prop], itm)) {
-        isFormValid = false
-        if (validationErrors[prop]?.message?.includes('[ERROR DE CONFIGURACIÓN]')) {
-          criticalConfigError.value = validationErrors[prop].message
-        }
-      }
-    })
-
-    if (!isFormValid) {
-      feedback.value = { type: 'error', message: 'Por favor, corrija los errores en el formulario' }
-      notificationStore.addNotification('error', 'Formulario Inválido', 'Por favor, revise los campos marcados en rojo')
-      return
-    }
-
-    isSubmitting.value = true
-    feedback.value = null
-
-    const isUnified = item.config?.useMasterModel === true || item.useMasterModel === true
-    const rawModel = (activeSubmodule.value && !isUnified) ? submoduleModel : model
-
-    // SOPORTE: Filtrado estricto (solo lo que tiene noSubmit: false)
-    const payload = {} as any
-    const filterSchema = isUnified 
-      ? [...schema.value, ...(activeSubmodule.value?.module || activeSubmodule.value?.schema || [])]
-      : targetSchema
-
-    filterSchema.forEach((f: any) => {
-      const prop = DynamicParser.getProp(f)
-      const val = rawModel[prop]
-      const isFileEmpty = f.type === 'file' && (
-        val === null || 
-        val === '' || 
-        (typeof val === 'object' && !(val instanceof File || val instanceof Blob) && Object.keys(val as any).length === 0)
-      )
-
-      if (prop && f.noSubmit === false && val !== undefined && val !== null && !isFileEmpty) {
-        payload[prop] = val
-      }
-    })
-
-    const result = await rendererService.executeApiCall(item, payload, { moduleId: props.config?._id })
-    handleApiResult(result, item)
-    isSubmitting.value = false
+    await ClickUtils.handleButtonClick(item, getClickContext(), childContext)
   }
 
   /**
@@ -667,6 +542,13 @@ export function useRendererOrchestrator(props: any, emit: any) {
     }
   })
 
+  /**
+   * Maneja el clic en un breadcrumb.
+   */
+  function handleBreadcrumbClick(item: any) {
+    ClickUtils.handleBreadcrumbClick(item, getClickContext())
+  }
+
   return {
     model,
     schema,
@@ -688,6 +570,7 @@ export function useRendererOrchestrator(props: any, emit: any) {
     hasChildSubmit,
     updateSubmoduleModel,
     criticalConfigError,
-    initModel // Exportamos para re-uso si es necesario
+    initModel, // Exportamos para re-uso si es necesario
+    handleBreadcrumbClick
   }
 }

@@ -8,22 +8,13 @@
     <!-- Modal de Error Crítico de Configuración (Teleported to Body) -->
     <ConfigErrorModal :error="criticalConfigError" />
 
-    <!-- Header con Titulo y Breadcrumbs estilo TailAdmin -->
-    <div v-if="!isDashboardView" class="mb-6 flex flex-col gap-2">
+    <!-- Header estilo TailAdmin: Titulo a la Izquierda, Breadcrumbs a la Derecha -->
+    <div v-if="!isDashboardView" class="mb-6 flex items-center justify-between">
       <h1 class="dynamic-renderer-title">
         {{ activeSubmodule ? (activeSubmodule.config?.metadata?.title || activeSubmodule.config?.title || 'Detalle') : (moduleConfig.metadata?.title || moduleConfig.module || 'Detalle') }}
       </h1>
       
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <BreadcrumbsNative :items="processedBreadcrumbs" />
-
-        <!-- Header Toolbars (Top Actions) - Solo si no hay submódulo activo (evita duplicidad) -->
-        <div v-if="!activeSubmodule && (moduleConfig.toolbarTopLeft?.length || moduleConfig.toolbarTopRight?.length)" 
-             class="flex items-center gap-4">
-          <ToolbarNative v-if="moduleConfig.toolbarTopLeft?.length" :items="moduleConfig.toolbarTopLeft" @action="handleButtonClick" />
-          <ToolbarNative v-if="moduleConfig.toolbarTopRight?.length" :items="moduleConfig.toolbarTopRight" @action="handleButtonClick" />
-        </div>
-      </div>
+      <BreadcrumbsNative :items="processedBreadcrumbs" @click="handleBreadcrumbClick" />
     </div>
 
     <div v-if="feedback" :class="['feedback-msg', feedback.type]" class="mb-4">
@@ -33,6 +24,17 @@
     <!-- MODO STANDALONE: Visualización de Submódulo (Navegación Interna) -->
     <template v-if="activeSubmodule">
       <div class="dynamic-renderer-card">
+        <!-- Card Toolbar para Submódulo -->
+        <div v-if="activeSubmodule.config?.toolbarTopLeft?.length || activeSubmodule.config?.toolbarTopRight?.length" 
+             class="flex items-center justify-between mb-4 px-2 pt-4">
+          <div class="flex items-center gap-2">
+            <ToolbarNative v-if="activeSubmodule.config?.toolbarTopLeft?.length" :items="activeSubmodule.config?.toolbarTopLeft" @action="handleButtonClick" />
+          </div>
+          <div class="flex items-center gap-2">
+            <ToolbarNative v-if="activeSubmodule.config?.toolbarTopRight?.length" :items="activeSubmodule.config?.toolbarTopRight" @action="handleButtonClick" />
+          </div>
+        </div>
+
         <NestedModuleNative 
           :child="activeSubmodule"
           :model="submoduleModel"
@@ -54,6 +56,17 @@
     <!-- MODO MASTER: Visualización principal del módulo -->
     <template v-else>
     <div class="dynamic-renderer-card">
+      <!-- Card Toolbar: Acciones específicas del módulo dentro del contenedor blanco -->
+      <div v-if="!activeSubmodule && (moduleConfig.toolbarTopLeft?.length || moduleConfig.toolbarTopRight?.length)" 
+           class="flex items-center justify-between mb-4 px-2 pt-4">
+        <div class="flex items-center gap-2">
+          <ToolbarNative v-if="moduleConfig.toolbarTopLeft?.length" :items="moduleConfig.toolbarTopLeft" @action="handleButtonClick" />
+        </div>
+        <div class="flex items-center gap-2">
+          <ToolbarNative v-if="moduleConfig.toolbarTopRight?.length" :items="moduleConfig.toolbarTopRight" @action="handleButtonClick" />
+        </div>
+      </div>
+
       <form class="dynamic-renderer-grid" @submit.prevent>
         
 
@@ -116,6 +129,7 @@ import { DynamicParser } from '@/utils/renderer/DynamicRenderer.utils'
 import { ServiceLocator } from './core/ServiceLocator'
 import { useRendererOrchestrator } from '@/composables/renderer/useRendererOrchestrator'
 import ToolbarNative from '@/components/molecules/navigation/ToolbarNative.vue'
+import BreadcrumbsNative from '@/components/atoms/display/BreadcrumbsNative.vue'
 import { StyleUtils } from '@/utils/renderer/StyleUtils'
 import { ModelUtils } from '@/utils/renderer/ModelUtils'
 import NestedModuleNative from '@/components/molecules/module/NestedModuleNative.vue'
@@ -151,7 +165,8 @@ const {
   submoduleModel,
   hasChildSubmit,
   updateSubmoduleModel,
-  criticalConfigError
+  criticalConfigError,
+  handleBreadcrumbClick
 } = useRendererOrchestrator(props, emit)
 
 /** Propiedad computada para acceder de forma segura a la configuración del módulo */
