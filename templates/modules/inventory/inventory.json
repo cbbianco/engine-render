@@ -64,10 +64,22 @@
                 "column": "col-6",
                 "align": "left",
                 "options": [
-                    { "label": "Electrónica", "value": "electronics" },
-                    { "label": "Mobiliario", "value": "furniture" },
-                    { "label": "Papelería", "value": "stationery" },
-                    { "label": "Software", "value": "software" }
+                    {
+                        "label": "Electrónica",
+                        "value": "electronics"
+                    },
+                    {
+                        "label": "Mobiliario",
+                        "value": "furniture"
+                    },
+                    {
+                        "label": "Papelería",
+                        "value": "stationery"
+                    },
+                    {
+                        "label": "Software",
+                        "value": "software"
+                    }
                 ]
             },
             {
@@ -78,10 +90,22 @@
                 "column": "col-6",
                 "align": "left",
                 "options": [
-                    { "label": "Unidad (Un)", "value": "unit" },
-                    { "label": "Caja (Box)", "value": "box" },
-                    { "label": "Kilogramo (Kg)", "value": "kg" },
-                    { "label": "Litro (L)", "value": "liter" }
+                    {
+                        "label": "Unidad (Un)",
+                        "value": "unit"
+                    },
+                    {
+                        "label": "Caja (Box)",
+                        "value": "box"
+                    },
+                    {
+                        "label": "Kilogramo (Kg)",
+                        "value": "kg"
+                    },
+                    {
+                        "label": "Litro (L)",
+                        "value": "liter"
+                    }
                 ]
             },
             {
@@ -168,18 +192,5 @@
             }
         ]
     },
-    "orchestrationDetails": {
-        "actions": {
-            "submit": {
-                "type": "api-call",
-                "method": "POST",
-                "uri": "{backend}/{endpoint}",
-                "endpoint": "/api/v1/inventory",
-                "backend": "http://localhost:4004",
-                "successMessage": "Producto registrado exitosamente en el inventario",
-                "errorMessage": "No se pudo registrar el producto",
-                "redirect": "/list-inventory"
-            }
-        }
-    }
+    "orchestrationDetails": {}
 }

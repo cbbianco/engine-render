@@ -2,6 +2,27 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
+## [1.15.0] - 2026-04-26
+### Added
+- **Secure ID-Based Notification System**: Standardized all notifications to use User IDs instead of names, ensuring data integrity and cross-browser security.
+- **Global Mention & Tagging Engine**: Implemented a robust system to tag ANY user in the system via `@username`.
+- **Real-Time Notification Reactivity**: Added 10s global polling in the `NotificationStore` to automatically update the bell counter and show Toasts without user interaction.
+- **Persistent Comment Status**: Implemented a "Checkmark" system in tables that persists across page refreshes, indicating which records have already been commented.
+- **Advanced Mention Autocomplete**: Created a specialized endpoint in `ms-users` to provide a global user list for tagging in any module.
+- **Notification Deduplication**: Added a smart filter in the frontend and backend to avoid duplicate "Sesión Iniciada" or tag notifications within short timeframes.
+
+### Changed
+- **JWT-Enforced Backend**: Secured all `ms-notifications` endpoints using `AuthGuard`, extracting user identity directly from the JWT token.
+- **Optimized Mention Processing**: Removed redundant microservice calls during mention resolution by passing direct user IDs from the frontend.
+- **Enhanced Notification Store**: Refactored the store to use atomic updates and content-based deduplication for 100% reliable UI synchronization.
+
+### Fixed
+- **Counter Desync**: Fixed a bug where the notification count was not updating automatically until a manual click occurred.
+- **Disappearing Checkmarks**: Resolved an issue where the table "Success" icon would disappear after a page refresh.
+- **Vanishing Modal Content**: Fixed the comment detail retrieval to ensure the modal correctly displays previously saved text when reopened.
+- **Duplicate Toasts**: Eliminated the "cascade" of duplicate toasts when multiple notification sources synced simultaneously.
+
+
 ## [1.14.0] - 2026-04-26
 ### Added
 - **Persistent Notification System (EDP)**: New microservice `ms-notifications` (Port 4003) for long-term notification storage in MongoDB.

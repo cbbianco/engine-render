@@ -23,6 +23,13 @@ Estandarización visual para consistencia de marca.
 - **Estados**: Soporte para `disabled` y `readonly` con fondo `#F3F4F6` y borde de color primario dinámico.
 - **Validación**: Soporte para `pattern` y `message` personalizado por JSON.
 
+## 💬 Comentarios y Tagueo (CommentModal)
+Sistema interactivo para anotaciones y menciones.
+
+- **Menciones**: Soporte nativo para `@username` con autocompletado global.
+- **Persistencia**: Los comentarios se guardan en el historial y activan un "Checkmark" visual en la fila correspondiente de la tabla.
+- **Detalle**: El modal recupera automáticamente el último comentario guardado por el usuario para permitir su edición.
+
 ## ⚙️ Orquestación (Service Locator)
 El "Cerebro" que une todo.
 

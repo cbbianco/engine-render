@@ -17,7 +17,9 @@ export const apiFetch = async (url: string, options: RequestInit = {}): Promise<
         }
     }
 
-    if (body != null && options.method !== 'GET' && !isFormData) {
+    const noEncrypt = (options as any).noEncrypt === true
+
+    if (body != null && options.method !== 'GET' && !isFormData && !noEncrypt) {
         try {
             const { encryptPayloadRecursive } = await import('@/utils/security/encryption')
 

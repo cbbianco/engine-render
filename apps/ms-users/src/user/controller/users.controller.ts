@@ -123,4 +123,34 @@ export class UsersController {
     }
     return this.userService.createUser(body, request['user'] as ExtractTokenDto, request['moduleId'] as string);
   }
+
+  /**
+   * @method findByUserName
+   * @description Finds a user by their username.
+   */
+  @Get('username/:userName')
+  findByUserName(@Param('userName') userName: string): unknown {
+    console.log(`[ms-users] Buscando usuario por userName: "${userName}"`);
+    return this.userService.findUserByUserName(userName);
+  }
+
+  /**
+   * @method search
+   * @description Searches for users by query.
+   */
+  @UseGuards(AuthGuard)
+  @Get('search/find')
+  search(@Query('q') query: string): unknown {
+    return this.userService.searchUsers(query || '');
+  }
+
+  /**
+   * @method getMentions
+   * @description Returns a simplified list of all users for tagging.
+   */
+  @UseGuards(AuthGuard)
+  @Get('mentions/all')
+  getMentions(): unknown {
+    return this.userService.findAllForMentions();
+  }
 }

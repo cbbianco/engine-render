@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { eventBus } from '@/utils/events/EventBus'
 import { useAuthStore } from '@/stores/auth'
 import { NotificationPersistenceService } from '@/services/notifications/NotificationPersistenceService'
 
 export interface Notification {
   id: string
-  type: 'success' | 'error' | 'info' | 'warning'
+  type: 'success' | 'error' | 'info' | 'warning' | 'tagueo'
   title: string
   message: string
   timestamp: Date
@@ -21,15 +21,17 @@ export const useNotificationStore = defineStore('notifications', () => {
   // Tiempo de vida configurable (default 5 minutos)
   const ttlMinutes = parseInt(import.meta.env.VITE_NOTIFICATION_TTL_MINUTES || '5', 10)
   const ttlMs = ttlMinutes * 60 * 1000
+  
+  // Contador reactivo de no leídas
+  const unreadCount = computed(() => notifications.value.filter(n => !n.read).length)
 
   /**
    * Carga el historial persistido desde el microservicio
    */
   async function loadHistory() {
-    if (!authStore.userName) return
-    const history = await NotificationPersistenceService.init().getHistory(authStore.userName)
+    const history = await NotificationPersistenceService.init().getHistory()
     if (history && Array.isArray(history)) {
-      notifications.value = history.map((n: any) => ({
+      const historyMapped = history.map((n: any) => ({
         id: n._id || n.id,
         type: n.type,
         title: n.title,
@@ -37,13 +39,58 @@ export const useNotificationStore = defineStore('notifications', () => {
         timestamp: new Date(n.createdAt),
         read: n.read || false
       }))
+
+      // 1. Mapear contenido actual para evitar duplicados en Toasts
+      const currentContent = new Set(notifications.value.map(n => `${n.title}|${n.message}`))
+      const historyIds = new Set(historyMapped.map(n => n.id))
+      const historyContent = new Set(historyMapped.map(n => `${n.title}|${n.message}`))
+
+      // 2. Identificar las REALMENTE nuevas (que no tenemos ni por ID ni por contenido)
+      const newItems = historyMapped.filter(n => {
+        const isById = notifications.value.some(local => local.id === n.id)
+        const isByContent = currentContent.has(`${n.title}|${n.message}`)
+        return !isById && !isByContent
+      })
+
+      // 3. Mostrar Toasts solo si hay novedades reales y no es la carga inicial
+      if (notifications.value.length > 0 && newItems.length > 0) {
+        newItems.forEach(n => {
+          if (!n.read) {
+            activeToasts.value.push(n)
+            setTimeout(() => {
+              activeToasts.value = activeToasts.value.filter(t => t.id !== n.id)
+            }, 5000)
+          }
+        })
+      }
+
+      // 4. Fusionar manteniendo lo local que no esté en el historial (por ID o Contenido)
+      const localOnly = notifications.value.filter(n => {
+        const isById = historyIds.has(n.id)
+        const isByContent = historyContent.has(`${n.title}|${n.message}`)
+        return !isById && !isByContent
+      })
+      
+      // Actualización directa para garantizar reactividad
+      notifications.value = [...localOnly, ...historyMapped].sort((a, b) => 
+        b.timestamp.getTime() - a.timestamp.getTime()
+      )
     }
   }
 
   /**
    * Añade una notificación al historial y la muestra como Toast
+   * Incluye deduplicación para evitar duplicados por refresco (ej. Sesión Iniciada)
    */
   function addNotification(type: Notification['type'], title: string, message: string) {
+    // REGLA DE ORO: Evitar duplicados idénticos en los últimos 30 segundos
+    const isDuplicate = notifications.value.some(n => 
+      n.title === title && 
+      n.message === message && 
+      (new Date().getTime() - n.timestamp.getTime()) < 30000
+    )
+    if (isDuplicate) return
+
     const id = Math.random().toString(36).substring(2, 9)
     const newNotification: Notification = {
       id,
@@ -103,15 +150,30 @@ export const useNotificationStore = defineStore('notifications', () => {
 
   function markAllAsRead() {
     notifications.value.forEach(n => n.read = true)
-    if (authStore.userName) {
-      // EDP: Emitir evento para persistencia
-      eventBus.emit('notification.markAllRead', { author: authStore.userName })
-    }
+    // EDP: Emitir evento para persistencia
+    eventBus.emit('notification.markAllRead', {})
   }
 
   function clearAll() {
     notifications.value = []
     activeToasts.value = []
+  }
+
+  let pollingInterval: any = null
+
+  function startPolling() {
+    if (pollingInterval) return
+    loadHistory() // Carga inicial
+    pollingInterval = setInterval(() => {
+      loadHistory()
+    }, 10000) // Cada 10 segundos para máxima reactividad
+  }
+
+  function stopPolling() {
+    if (pollingInterval) {
+      clearInterval(pollingInterval)
+      pollingInterval = null
+    }
   }
 
   return {
@@ -123,6 +185,9 @@ export const useNotificationStore = defineStore('notifications', () => {
     markAsRead,
     markAllAsRead,
     clearAll,
-    loadHistory
+    loadHistory,
+    unreadCount,
+    startPolling,
+    stopPolling
   }
 })

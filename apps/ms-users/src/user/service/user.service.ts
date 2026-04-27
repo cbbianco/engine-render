@@ -81,4 +81,28 @@ export class UserService {
   async update(profile: Record<string, unknown>, moduleId?: string) {
     return this.updateService.updateUser(profile, moduleId);
   }
+
+  /**
+   * @method findUserByUserName
+   * @description Delegates retrieval of a user by username.
+   */
+  async findUserByUserName(userName: string) {
+    return this.listService.findUserByUserName(userName);
+  }
+
+  /**
+   * @method searchUsers
+   * @description Delegates user search.
+   */
+  async searchUsers(query: string) {
+    return this.listService.searchUsers(query);
+  }
+
+  /**
+   * @method findAllForMentions
+   * @description Delegates retrieval of all users for tagging.
+   */
+  async findAllForMentions() {
+    return this.listService.findAllForMentions();
+  }
 }

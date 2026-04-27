@@ -269,4 +269,28 @@ export class UserRepository {
   async deleteModuleById(id: number): Promise<void> {
     await this.moduleRepository.delete(id);
   }
+
+  /**
+   * @method searchUsers
+   * @description Searches for users by username, firstName, or lastName.
+   */
+  async searchUsers(query: string): Promise<UserEntity[]> {
+    return this.repository
+      .createQueryBuilder('user')
+      .where('user.userName LIKE :query', { query: `%${query}%` })
+      .orWhere('user.firstName LIKE :query', { query: `%${query}%` })
+      .orWhere('user.lastName LIKE :query', { query: `%${query}%` })
+      .take(10)
+      .getMany();
+  }
+
+  /**
+   * @method findAllSimple
+   * @description Retrieves a list of all users with only essential fields.
+   */
+  async findAllSimple(): Promise<UserEntity[]> {
+    return this.repository.find({
+      select: ['id', 'userName']
+    });
+  }
 }

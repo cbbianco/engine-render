@@ -29,7 +29,7 @@
             @click="markAsRead(item.id)"
           >
             <div :class="['item-icon', item.type]">
-              <svg v-if="item.type === 'success'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <svg v-if="item.type === 'success' || item.type === 'tagueo'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
               <svg v-else-if="item.type === 'error'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
@@ -57,19 +57,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useNotificationStore } from '@/stores/notifications'
 
 const notificationStore = useNotificationStore()
+let pollingInterval: any = null
 
 onMounted(() => {
-  notificationStore.loadHistory()
+  notificationStore.startPolling()
+})
+
+onUnmounted(() => {
+  notificationStore.stopPolling()
 })
 const isOpen = ref(false)
 
-const unreadCount = computed(() => 
-  notificationStore.notifications.filter(n => !n.read).length
-)
+const unreadCount = computed(() => notificationStore.unreadCount)
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
@@ -227,7 +230,7 @@ const vClickOutside = {
   flex-shrink: 0;
 }
 
-.item-icon.success { background: #dcfce7; color: #166534; }
+.item-icon.success, .item-icon.tagueo { background: #dcfce7; color: #166534; }
 .item-icon.error { background: #fee2e2; color: #991b1b; }
 .item-icon.info { background: #e0f2fe; color: #075985; }
 

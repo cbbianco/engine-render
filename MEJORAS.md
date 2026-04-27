@@ -1,5 +1,11 @@
 # Plan de Mejoras y Protección IP
 
+## ✅ Completado (v1.15.0)
+- **Tagueo Global Multi-Usuario**: Sistema de menciones `@username` con autocompletado desde base de datos global.
+- **Estandarización por ID**: Migración total de nombres a IDs en el sistema de notificaciones para mayor seguridad.
+- **Reactividad en Tiempo Real**: Implementación de Polling global y Toasts inteligentes para menciones externas.
+- **Persistencia de Estado de Comentarios**: Sincronización de iconos de check en tablas tras refresco de página.
+
 ## ✅ Completado (v1.14.0)
 - **Notificaciones Persistentes (EDP)**: Sistema de almacenamiento en MongoDB con arquitectura orientada a eventos para latencia cero.
 - **Refactorización de Orquestador**: Desacoplamiento total de la lógica de clics y navegación.

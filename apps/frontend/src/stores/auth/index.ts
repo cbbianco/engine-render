@@ -24,6 +24,7 @@ export const useAuthStore = defineStore('auth', () => {
   const loginTexts = ref<LoginTexts>(mergeLoginTexts(null))
   const customerDomain = ref<string>(domainManager.domain)
   const userName = ref<string>('')
+  const userId = ref<string>('') // Nuevo campo para estandarización por ID
   const modulesConfig = ref<ModuleConfigResponse[]>([])
   const isReauthenticating = ref(false)
   const publicKey = ref<string>('')

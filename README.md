@@ -2,9 +2,12 @@
 
 Este repositorio contiene la plataforma integral de SolutionsNplusOne, compuesta por un ecosistema de microservicios en el backend y un Motor de Renderizado Dinámico (Engine v2.2) en el frontend.
 
-🚀 **Highlights: SolutionsNplusOne Engine v2.2**
+🚀 **Highlights: SolutionsNplusOne Engine v2.3**
 El núcleo del sistema ha sido refactorizado bajo principios de Clean Architecture, permitiendo una escalabilidad comercial sin precedentes mediante el desacoplamiento de utilidades de dominio (Form & Route Utils).
-- **Real-time Notifications**: Sistema global de alertas push (`Toast`) e historial persistente (`Bell`) en el header.
+- **Secure ID-Based Notifications**: Sistema global de alertas push (`Toast`) e historial persistente (`Bell`) basado en IDs de usuario para máxima seguridad.
+- **Global Tagging Engine**: Motor de menciones `@username` con autocompletado desde base de datos global.
+- **Real-time Reactivity**: Actualización automática de la campana y notificaciones mediante Polling Inteligente (10s).
+- **Persistent Comment Icons**: Indicadores visuales en tablas que persisten tras refresco de página.
 - **Secure Logout**: Proceso de limpieza agresiva de sesiones (Storage, Cookies, Pinia) para máxima protección de datos.
 - **Orquestación Padre-Hijo**: Automatización de limpieza y navegación tras éxito en procesos complejos.
 
@@ -96,6 +99,7 @@ npm run dev
 | **ms-customer** | 4000 | Gestión de Clientes y Branding |
 | **ms-users** | 4001 | Autenticación y Perfiles |
 | **ms-modules** | 4002 | Generador Dinámico de Módulos (IA) |
+| **ms-notifications** | 4003 | Historial Persistente y Menciones (MongoDB) |
 
 ### 🔒 Documentación del Proyecto
 Para entender la arquitectura y el estado del motor, sigue este orden:

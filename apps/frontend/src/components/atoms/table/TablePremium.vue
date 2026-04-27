@@ -45,11 +45,12 @@
           <thead>
             <tr>
               <th 
-                v-for="(col, index) in columns" 
+                v-for="(col, index) in tableColumns" 
                 :key="col.key || index" 
                 class="data-table__th"
                 :class="{ 'sortable': col.sortable !== false }"
-                @click="toggleSort(col.key)"
+                :style="col.key === 'comments_col' ? 'width: 60px' : ''"
+                @click="col.sortable !== false ? toggleSort(col.key) : null"
               >
                 <div class="header-content" :class="{ 'header-content--center': col.align === 'center', 'header-content--right': col.align === 'right' }">
                   {{ col.label }}
@@ -79,12 +80,47 @@
               class="data-table__tr"
             >
               <td 
-                v-for="(col, index) in columns" 
+                v-for="(col, index) in tableColumns" 
                 :key="col.key || index" 
                 class="data-table__td"
               >
+                <!-- Comment Type -->
+                <div v-if="col.type === 'comments'" class="cell-comments">
+                  <button 
+                    class="comment-btn" 
+                    :class="[
+                      'comment-btn', 
+                      { 
+                        'has-comment': commentStatus[String(row.id || row._id)] === 'success',
+                        'is-pending': commentStatus[String(row.id || row._id)] === 'pending',
+                        'is-error': commentStatus[String(row.id || row._id)] === 'error'
+                      }
+                    ]"
+                    @click.stop="handleCommentClick(row)"
+                  >
+                    <!-- Pending state: ? -->
+                    <span v-if="commentStatus[String(row.id || row._id)] === 'pending'" class="status-icon">?</span>
+                    
+                    <!-- Success state: Check -->
+                    <svg v-else-if="commentStatus[String(row.id || row._id)] === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+
+                    <!-- Error state: X -->
+                    <svg v-else-if="commentStatus[String(row.id || row._id)] === 'error'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+
+                    <!-- Default: Comment Icon -->
+                    <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.5 8.5 0 0 1 7.6 10.6L21 15v-3.5z"></path>
+                    </svg>
+                  </button>
+                </div>
+
                 <!-- Avatar Type -->
-                <div v-if="col.type === 'avatar'" class="cell-avatar">
+                <div v-else-if="col.type === 'avatar'" class="cell-avatar">
                   <div class="avatar-img-wrapper">
                     <img v-if="row[col.avatarKey || 'avatar']" :src="row[col.avatarKey || 'avatar']" class="avatar-img" />
                     <div v-else class="avatar-placeholder">{{ getInitials(row[col.key]) }}</div>
@@ -182,17 +218,31 @@
         </div>
       </div>
     </div>
+    
+    <!-- Comment Modal -->
+    <CommentModal 
+      :show="showCommentModal" 
+      :initial-comment="initialComment"
+      :loading="isSavingComment"
+      :available-users="normalizedRows"
+      @confirm="saveComment"
+      @cancel="showCommentModal = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import ToolbarNative from '@/components/molecules/navigation/ToolbarNative.vue'
+import CommentModal from '@/components/atoms/special/CommentModal.vue'
+import { rendererService } from '@/services/renderer/RendererService'
+import { useAuthStore } from '@/stores/auth/index'
+import { useNotificationStore } from '@/stores/notifications/index'
 
 interface TableColumn {
   label: string
   key: string
-  type?: 'text' | 'avatar' | 'badge' | 'actions' | 'price' | 'date'
+  type?: 'text' | 'avatar' | 'badge' | 'actions' | 'price' | 'date' | 'comments'
   sortable?: boolean
   avatarKey?: string
   align?: 'left' | 'center' | 'right'
@@ -216,6 +266,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits(['update:modelValue', 'action'])
+const authStore = useAuthStore()
 
 // State
 const searchTerm = ref('')
@@ -223,6 +274,20 @@ const pageSize = ref(10)
 const currentPage = ref(1)
 const sortKey = ref('')
 const sortOrder = ref<'asc' | 'desc'>('asc')
+
+// Comment Logic State
+const commentStatus = ref<Record<string, 'none' | 'pending' | 'success' | 'error'>>({})
+const showCommentModal = ref(false)
+const activeRow = ref<any>(null)
+const initialComment = ref('')
+const isSavingComment = ref(false)
+
+const tableColumns = computed<TableColumn[]>(() => {
+  return [
+    { label: '', key: 'comments_col', type: 'comments', align: 'center', sortable: false } as TableColumn,
+    ...props.columns
+  ]
+})
 
 // Reset page on search or page size change
 watch([searchTerm, pageSize], () => {
@@ -237,10 +302,6 @@ watch([currentPage, pageSize], ([page, limit]) => {
   })
 })
 
-// Debugging
-watch(() => props.modelValue, (newVal) => {
-  console.log(`[TablePremium] Received modelValue for "${props.label}":`, newVal)
-}, { immediate: true, deep: true })
 
 // Normalized Data Access
 const normalizedRows = computed(() => {
@@ -384,6 +445,79 @@ function formatCurrency(val: any): string {
   if (isNaN(num)) return String(val)
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num)
 }
+
+// Comment Methods
+async function fetchCommentStatus() {
+  const rows = paginatedRows.value
+  if (!rows.length) return
+  const ids = rows.map((r: any) => String(r.id || r._id)).filter(Boolean)
+  if (!ids.length) return
+  
+  console.log('[TablePremium] Fetching comment status for IDs:', ids)
+  const statusMap = await rendererService.getCommentStatus(ids)
+  console.log('[TablePremium] Status Map received:', statusMap)
+  
+  // Mapear booleanos a estados visuales
+  Object.keys(statusMap).forEach(id => {
+    commentStatus.value[String(id)] = statusMap[id] ? 'success' : 'none'
+  })
+}
+
+async function handleCommentClick(row: any) {
+  activeRow.value = row
+  const rowId = String(row.id || row._id)
+  const author = authStore.userName || 'system'
+  
+  initialComment.value = ''
+  const detail = await rendererService.getCommentDetail(rowId)
+  if (detail) {
+    initialComment.value = detail.message
+  }
+  
+  showCommentModal.value = true
+}
+
+async function saveComment(payload: { message: string, mentions: any[] }) {
+  if (!activeRow.value) return
+  
+  const { message, mentions } = payload
+  const rowId = String(activeRow.value.id || activeRow.value._id)
+  
+  commentStatus.value[rowId] = 'pending'
+  isSavingComment.value = true
+  
+  const result = await rendererService.saveComment({
+    resourceId: rowId,
+    moduleName: props.label || 'Módulo',
+    message,
+    mentions // Pasamos la lista de tagueados recolectada en el modal
+  })
+  
+  if (result.success) {
+    commentStatus.value[rowId] = 'success'
+    showCommentModal.value = false
+    
+    // HACER REACTIVO: Añadir notificación al historial local para que el contador suba al instante
+    const notificationStore = useNotificationStore()
+    notificationStore.addNotification(
+      'tagueo', 
+      `Comentario en ${props.label || 'Módulo'}`, 
+      message
+    )
+  } else {
+    commentStatus.value[rowId] = 'error'
+  }
+  
+  isSavingComment.value = false
+}
+
+// Watch for changes and fetch comment status
+watch(() => props.modelValue, (newVal) => {
+  if (newVal) {
+    console.log(`[TablePremium] Refreshing comment status for "${props.label}"`)
+    fetchCommentStatus()
+  }
+}, { immediate: true, deep: true })
 </script>
 
 <style scoped>
@@ -705,4 +839,60 @@ function formatCurrency(val: any): string {
 }
 
 .text-secondary { color: #667085; }
+
+/* Comment Button */
+.cell-comments {
+  display: flex;
+  justify-content: center;
+}
+
+.comment-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #D0D5DD;
+  background: #ffffff;
+  color: #667085;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.comment-btn:hover {
+  background: #F9FAFB;
+  color: var(--primary-color, #465FFF);
+  border-color: var(--primary-color, #465FFF);
+}
+
+.comment-btn.has-comment {
+  background: #ECFDF3;
+  color: #027A48;
+  border-color: #32D583;
+}
+
+.comment-btn.is-pending {
+  background: #F2F4F7;
+  color: #667085;
+  border-color: #D0D5DD;
+  animation: pulse 1.5s infinite;
+}
+
+.comment-btn.is-error {
+  background: #FEF3F2;
+  color: #B42318;
+  border-color: #FDA29B;
+}
+
+.status-icon {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
 </style>

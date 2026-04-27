@@ -7,13 +7,15 @@ Este reporte detalla la salud técnica de **todos** los archivos del proyecto (F
 - **51% - 100%**: 🟡 **Necesita Mejora** (Candidato a revisión).
 - **> 100%**: 🔴 **Candidato a Refactorización** (Complejidad crítica).
 
-## 🎨 Análisis de Archivos Frontend (v1.14.0)
+## 🎨 Análisis de Archivos Frontend (v1.15.0)
 
 | Archivo | Puntos | Salud % | Estado |
 | :--- | :---: | :---: | :--- |
 | `src/components/atoms/special/DrawOwner.vue` | 37 | 185% | 🔴 Refactorizar |
-| `src/services/renderer/RendererService.ts` | 29 | 145% | 🔴 Refactorizar |
-| `src/components/atoms/table/TablePremium.vue` | 27 | 135% | 🔴 Refactorizar |
+| `src/services/renderer/RendererService.ts` | 32 | 160% | 🔴 Refactorizar |
+| `src/components/atoms/table/TablePremium.vue` | 29 | 145% | 🔴 Refactorizar |
+| `src/components/atoms/special/CommentModal.vue` | 22 | 110% | 🔴 Refactorizar |
+| `src/stores/notifications/index.ts` | 15 | 75% | 🟡 Necesita Mejora |
 | `src/components/organisms/AppSidebar.vue` | 19 | 95% | 🟡 Necesita Mejora |
 | `src/views/EditModuleView.vue` | 15 | 75% | 🟡 Necesita Mejora |
 | `src/composables/renderer/useRendererOrchestrator.ts` | 14 | 70% | 🟡 Mejorado |
@@ -86,25 +88,11 @@ Este reporte detalla la salud técnica de **todos** los archivos del proyecto (F
 | Archivo | Puntos | Salud % | Estado |
 | :--- | :---: | :---: | :--- |
 | `ms-users/src/user/service/user/user-creation.service.ts` | 7 | 35% | 🟢 Saludable |
-| `ms-notifications/src/notification/notification.service.ts` | 6 | 30% | 🟢 Saludable |
-| `ms-users/src/user/service/user/user-update.service.ts` | 5 | 25% | 🟢 Saludable |
-| `ms-users/src/user/service/user/user-profile.service.ts` | 5 | 25% | 🟢 Saludable |
-| `ms-modules/src/module/service/generate/module-generate.facade.ts` | 5 | 25% | 🟢 Saludable |
-| `ms-users/src/user/service/auth/auth.service.ts` | 4 | 20% | 🟢 Saludable |
-| `ms-notifications/src/notification/notification.repository.ts` | 3 | 15% | 🟢 Saludable |
-| `ms-users/src/user/service/validation/module-validation.service.ts` | 3 | 15% | 🟢 Saludable |
-| `ms-users/src/user/service/user/user-list.service.ts` | 3 | 15% | 🟢 Saludable |
-| `ms-users/src/user/commons/guards/auth.guards.ts` | 3 | 15% | 🟢 Saludable |
-| `ms-modules/src/module/commons/guards/role/role.guards.ts` | 3 | 15% | 🟢 Saludable |
-| `ms-modules/src/module/commons/guards/auth/auth.guards.ts` | 3 | 15% | 🟢 Saludable |
-| `ms-notifications/src/notification/notification.controller.ts` | 2 | 10% | 🟢 Saludable |
-| `ms-users/src/user/service/user/user-delete.service.ts` | 2 | 10% | 🟢 Saludable |
-| `ms-users/src/user/service/payload/payload.service.ts` | 2 | 10% | 🟢 Saludable |
-| `ms-users/src/user/repository/user.repository.ts` | 2 | 10% | 🟢 Saludable |
-| `ms-users/src/user/commons/security/rsa/rsa.security.ts` | 2 | 10% | 🟢 Saludable |
-| `ms-users/src/user/utils/extract/user/user.extract.utils.ts` | 1 | 5% | 🟢 Saludable |
-| `ms-users/src/user/service/user/user-verification.service.ts` | 1 | 5% | 🟢 Saludable |
-| `ms-users/src/user/controller/users.controller.ts` | 1 | 5% | 🟢 Saludable |
+| `ms-notifications/src/notification/notification.service.ts` | 10 | 50% | 🟢 Saludable |
+| `ms-notifications/src/notification/notification.repository.ts` | 6 | 30% | 🟢 Saludable |
+| `ms-notifications/src/notification/notification.controller.ts` | 5 | 25% | 🟢 Saludable |
+| `ms-users/src/user/controller/users.controller.ts` | 3 | 15% | 🟢 Saludable |
+| `ms-users/src/user/service/user/user-list.service.ts` | 5 | 25% | 🟢 Saludable |
 | `ms-users/src/user/commons/guards/module.guard.ts` | 1 | 5% | 🟢 Saludable |
 | `ms-modules/src/module/utils/extract/user/user.extract.utils.ts` | 1 | 5% | 🟢 Saludable |
 | `ms-modules/src/module/service/commons/functions/functions.executions.service.ts` | 1 | 5% | 🟢 Saludable |

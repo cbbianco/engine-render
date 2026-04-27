@@ -13,8 +13,22 @@ export class NotificationService {
     return await this.repository.create(data);
   }
 
-  async getNotifications(author?: string): Promise<NotificationEntity[]> {
-    return await this.repository.findAll(author);
+  async getNotifications(userId: string): Promise<NotificationEntity[]> {
+    return await this.repository.findForUser(userId);
+  }
+
+  /**
+   * Determina cuáles de los recursos proporcionados ya tienen un comentario por parte del usuario.
+   */
+  async getCommentStatus(resourceIds: string[], userId: string): Promise<Record<string, boolean>> {
+    const notifications = await this.repository.findByResourcesAndAuthor(resourceIds, userId);
+    
+    const statusMap: Record<string, boolean> = {};
+    resourceIds.forEach(id => {
+      statusMap[id] = notifications.some(n => n.metadata?.resourceId === id);
+    });
+    
+    return statusMap;
   }
 
   /**
@@ -34,5 +48,72 @@ export class NotificationService {
 
   async markAllAsRead(author: string): Promise<void> {
     await this.repository.markAllAsReadByAuthor(author);
+  }
+
+  async processTagNotification(dto: any) {
+    this.logger.log(`Procesando notificación de tagueo: ${JSON.stringify(dto)}`);
+    const { resourceId, moduleName, message, author } = dto;
+
+    try {
+      this.logger.log(`DEBUG: Iniciando persistencia para recurso ${resourceId} y autor ${author}`);
+      
+      // Limpiar notificaciones previas de este autor para este recurso (para soporte de edición)
+      await this.repository.deleteByResourceAndAuthor(resourceId, author, 'tagueo');
+      this.logger.log('DEBUG: Borrado previo completado');
+
+      // 3. SIEMPRE creamos un registro base del comentario para asegurar la persistencia
+      this.logger.log('DEBUG: Creando registro base de comentario...');
+      const baseComment = await this.repository.create({
+        type: 'tagueo',
+        title: `Comentario en ${moduleName}`,
+        message: message,
+        author: author,
+        targetUserId: undefined,
+        metadata: {
+          resourceId,
+          moduleName,
+        }
+      });
+      this.logger.log(`DEBUG: Registro base guardado con éxito. ID: ${baseComment.id}`);
+
+      // 4. Procesar menciones (si vienen del frontend)
+      const mentions = dto.mentions || [];
+      this.logger.log(`DEBUG: Procesando ${mentions.length} menciones directas enviadas por el frontend`);
+
+      if (mentions.length > 0) {
+        for (const mention of mentions) {
+          try {
+            const targetId = String(mention.id || mention._id);
+            const taggedUser = mention.userName || 'usuario';
+            
+            this.logger.log(`DEBUG: Creando notificación dirigida para @${taggedUser} (ID: ${targetId})...`);
+            
+            await this.repository.create({
+              type: 'tagueo',
+              title: `Mención en ${moduleName}`,
+              message: message,
+              author: author,
+              targetUserId: targetId,
+              metadata: {
+                resourceId,
+                moduleName,
+                taggedUser
+              }
+            });
+          } catch (error) {
+            this.logger.error(`DEBUG: Error procesando mención para ID ${mention.id}: ${error.message}`);
+          }
+        }
+      }
+
+      return { success: true, debug: dto };
+    } catch (error) {
+      this.logger.error(`Error en processTagNotification: ${error.message}`, error.stack);
+      return { success: false, message: error.message };
+    }
+  }
+
+  async getCommentByResourceAndAuthor(resourceId: string, author: string) {
+    return await this.repository.findOneByResourceAndAuthor(resourceId, author, 'tagueo');
   }
 }

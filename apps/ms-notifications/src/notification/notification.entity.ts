@@ -23,7 +23,7 @@ export class NotificationEntity {
   @Column({ nullable: true })
   targetUserId: string; // Optional: If the notification is for a specific user
 
-  @Column({ type: 'json', nullable: true })
+  @Column({ nullable: true })
   metadata: any; // Flexible data for future actions
 
   @CreateDateColumn()

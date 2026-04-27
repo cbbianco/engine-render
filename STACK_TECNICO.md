@@ -6,9 +6,10 @@
 - **Router**: Vue Router 4
 - **Bundler**: Vite 5+
 - **Styling**: Vanilla CSS + TailAdmin (Tailwind-like structure)
-- **Components**: UI Metadata Render Engine (v2.2)
+- **Components**: UI Metadata Render Engine (v2.3)
+- **Notifications**: Real-time Polling + Persistence (MongoDB)
 - **Language**: TypeScript
-- **Patterns**: Event-Driven Programming (EDP) with mitt.
+- **Patterns**: Event-Driven Programming (EDP), Facade Pattern, Microservices.
 
 ## Backend
 - **Framework**: NestJS (v11)

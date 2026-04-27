@@ -156,6 +156,60 @@ export class RendererService {
     
     return actionDef
   }
+
+  async getCommentStatus(resourceIds: string[]): Promise<Record<string, boolean>> {
+    try {
+      const response = await apiFetch(`http://localhost:4003/api/v1/notifications/comment-status?ids=${resourceIds.join(',')}`);
+      if (response.ok) return await response.json();
+      return {};
+    } catch {
+      return {};
+    }
+  }
+
+  async getCommentDetail(resourceId: string): Promise<any> {
+    try {
+      const response = await apiFetch(`http://localhost:4003/api/v1/notifications/comment-detail?resourceId=${resourceId}`);
+      if (response.ok) return await response.json();
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  async saveComment(dto: any): Promise<ActionExecutionResult> {
+    try {
+      const response = await apiFetch(`http://localhost:4003/api/v1/notifications/tag`, {
+        method: 'POST',
+        body: JSON.stringify(dto),
+        noEncrypt: true
+      } as any);
+      if (response.ok) return { success: true };
+      return { success: false, message: 'Error al guardar el comentario' };
+    } catch {
+      return { success: false, message: 'Error de conexión' };
+    }
+  }
+
+  async searchUsers(query: string): Promise<any[]> {
+    try {
+      const response = await apiFetch(`http://localhost:4001/api/v1/users/search/find?q=${query}`);
+      if (response.ok) return await response.json();
+      return [];
+    } catch {
+      return [];
+    }
+  }
+
+  async getAllUsersForMentions(): Promise<any[]> {
+    try {
+      const response = await apiFetch(`http://localhost:4001/api/v1/users/mentions/all`);
+      if (response.ok) return await response.json();
+      return [];
+    } catch {
+      return [];
+    }
+  }
 }
 
 export const rendererService = new RendererService()

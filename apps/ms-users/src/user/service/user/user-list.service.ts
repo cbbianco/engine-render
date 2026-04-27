@@ -57,4 +57,45 @@ export class UserListService {
       },
     };
   }
+
+  /**
+   * @method findUserByUserName
+   * @description Finds a user by their username.
+   */
+  async findUserByUserName(userName: string) {
+    const user = await this.authRepository.findUserByUserName(userName);
+    if (!user) return null;
+    return {
+      id: user.id,
+      userName: user.userName,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    };
+  }
+
+  /**
+   * @method searchUsers
+   * @description Searches for users by query.
+   */
+  async searchUsers(query: string) {
+    const users = await this.authRepository.searchUsers(query);
+    return users.map(user => ({
+      id: user.id,
+      userName: user.userName,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    }));
+  }
+
+  /**
+   * @method findAllForMentions
+   * @description Retrieves all users for tagging purposes.
+   */
+  async findAllForMentions() {
+    const users = await this.authRepository.findAllSimple();
+    return users.map(user => ({
+      id: user.id,
+      userName: user.userName,
+    }));
+  }
 }

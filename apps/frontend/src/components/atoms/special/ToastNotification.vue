@@ -7,7 +7,7 @@
         :class="['toast-card', toast.type]"
       >
         <div class="toast-icon">
-          <svg v-if="toast.type === 'success'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg v-if="toast.type === 'success' || toast.type === 'tagueo'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
@@ -70,7 +70,7 @@ const notificationStore = useNotificationStore()
   overflow: hidden;
 }
 
-.toast-card.success { border-left-color: #10B981; }
+.toast-card.success, .toast-card.tagueo { border-left-color: #10B981; }
 .toast-card.error { border-left-color: #EF4444; }
 .toast-card.warning { border-left-color: #F59E0B; }
 .toast-card.info { border-left-color: #3B82F6; }
@@ -79,7 +79,7 @@ const notificationStore = useNotificationStore()
   font-size: 1.25rem;
   margin-top: 0.125rem;
 }
-.success .toast-icon { color: #10B981; }
+.success .toast-icon, .tagueo .toast-icon { color: #10B981; }
 .error .toast-icon { color: #EF4444; }
 .warning .toast-icon { color: #F59E0B; }
 .info .toast-icon { color: #3B82F6; }

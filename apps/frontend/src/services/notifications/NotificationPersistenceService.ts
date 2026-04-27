@@ -1,4 +1,5 @@
 import { eventBus } from '@/utils/events/EventBus';
+import { apiFetch } from '@/utils/network/api';
 
 /**
  * Servicio encargado de la persistencia de notificaciones en segundo plano (EDP).
@@ -24,10 +25,9 @@ export class NotificationPersistenceService {
       try {
         console.log('[EDP] Persistiendo notificación en el backend:', data.title);
         
-        // Ejecución en segundo plano (Fire and Forget) para no generar latencia en la UI
-        fetch(this.apiUrl, {
+        // Usamos apiFetch para inyectar el Token automáticamente
+        apiFetch(this.apiUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         }).catch(err => console.error('[EDP] Error al persistir notificación:', err));
 
@@ -40,17 +40,18 @@ export class NotificationPersistenceService {
       this.markAsRead(id).catch(err => console.error('[EDP] Error al marcar como leída:', err));
     });
 
-    eventBus.on('notification.markAllRead', async ({ author }) => {
-      this.markAllAsRead(author).catch(err => console.error('[EDP] Error al marcar todas como leídas:', err));
+    eventBus.on('notification.markAllRead', async () => {
+      this.markAllAsRead().catch(err => console.error('[EDP] Error al marcar todas como leídas:', err));
     });
   }
 
   /**
-   * Obtiene las notificaciones persistidas desde el backend.
+   * Obtiene las notificaciones persistidas desde el backend de forma segura (con Token).
    */
-  public async getHistory(userName: string) {
+  public async getHistory() {
     try {
-      const response = await fetch(`${this.apiUrl}?author=${userName}`);
+      // Ya no pasamos el author por URL, el backend lo saca del Token
+      const response = await apiFetch(this.apiUrl);
       if (!response.ok) throw new Error('Error al obtener historial');
       return await response.json();
     } catch (error) {
@@ -61,15 +62,15 @@ export class NotificationPersistenceService {
 
   public async markAsRead(id: string) {
     try {
-      await fetch(`${this.apiUrl}/${id}/read`, { method: 'PATCH' });
+      await apiFetch(`${this.apiUrl}/${id}/read`, { method: 'PATCH' });
     } catch (err) {
       console.error('[EDP] Error al marcar como leída:', err);
     }
   }
 
-  public async markAllAsRead(userName: string) {
+  public async markAllAsRead() {
     try {
-      await fetch(`${this.apiUrl}/read-all?author=${userName}`, { method: 'PATCH' });
+      await apiFetch(`${this.apiUrl}/read-all`, { method: 'PATCH' });
     } catch (err) {
       console.error('[EDP] Error al marcar todas como leídas:', err);
     }
