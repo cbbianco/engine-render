@@ -45,6 +45,7 @@ export class NotificationController {
 
   @Patch('/:id/read')
   async markAsRead(@Param('id') id: string) {
+    console.log(`[NotificationController] markAsRead ID: ${id}`);
     await this.service.markAsRead(id);
     return { success: true };
   }
@@ -53,6 +54,7 @@ export class NotificationController {
   @UseGuards(AuthGuard)
   async markAllAsRead(@Req() req: any) {
     const { userId } = req.user;
+    console.log(`[NotificationController] markAllAsRead userId: ${userId}`);
     await this.service.markAllAsRead(userId);
     return { success: true };
   }
