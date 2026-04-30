@@ -63,7 +63,7 @@ export class NotificationRepository {
         { author: userId, targetUserId: null },
         { author: userId, targetUserId: { $exists: false } }
       ],
-      read: false
+      read: { $ne: true }
     };
     console.log(`[NotificationRepository] markAllAsReadByUser Filter:`, JSON.stringify(filter));
     const result = await this.repo.updateMany(filter as any, { $set: { read: true } });

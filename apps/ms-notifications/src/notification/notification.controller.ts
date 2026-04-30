@@ -11,8 +11,8 @@ export class NotificationController {
   @UseGuards(AuthGuard)
   async create(@Body() data: Partial<NotificationEntity>, @Req() req: any) {
     const user = req.user;
-    // Forzamos el autor al ID del usuario en sesión
-    const secureData = { ...data, author: user.userId };
+    // Forzamos el autor al ID del usuario en sesión y read explicitamente
+    const secureData = { ...data, author: user.userId, read: false };
     return await this.service.createNotification(secureData);
   }
 
