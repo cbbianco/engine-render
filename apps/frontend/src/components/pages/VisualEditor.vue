@@ -12,20 +12,20 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           Instrucciones 📖
         </button>
-        <button v-if="currentStep === 1" class="app-button--primary generate-btn" @click="showStepConfirmModal = true">
+        <button v-if="currentStep === 1" class="app-button--primary" @click="showStepConfirmModal = true">
           Siguiente: Validaciones ➡️
         </button>
         <div v-else-if="currentStep === 2" class="step-actions">
           <button class="app-button--secondary" @click="currentStep = 1">⬅️ Volver al Diseño</button>
-          <button class="app-button--primary generate-btn" @click="currentStep = 3">Siguiente: Orquestación ➡️</button>
+          <button class="app-button--primary" @click="currentStep = 3">Siguiente: Orquestación ➡️</button>
         </div>
         <div v-else-if="currentStep === 3" class="step-actions">
           <button class="app-button--secondary" @click="currentStep = 2">⬅️ Volver a Validaciones</button>
-          <button class="app-button--primary generate-btn" @click="currentStep = 4">Siguiente: Asignación ➡️</button>
+          <button class="app-button--primary" @click="goToStep4">Siguiente: Asignación ➡️</button>
         </div>
         <div v-else class="step-actions">
           <button class="app-button--secondary" @click="currentStep = 3">⬅️ Volver a Orquestación</button>
-          <button class="app-button--primary generate-btn" @click="generateJSON">Finalizar y Generar JSON 🚀</button>
+          <button class="app-button--primary" @click="generateJSON">Finalizar y Generar JSON 🚀</button>
         </div>
       </div>
     </div>
@@ -347,7 +347,13 @@ const assignmentConfig = ref({
 
 const availableUsers = ref<any[]>([])
 
-onMounted(async () => {
+onMounted(() => {
+  // Inicialización (sin llamadas API innecesarias)
+})
+
+const fetchUsersForAssignment = async () => {
+  if (availableUsers.value.length > 0) return
+  
   try {
     const session = sessionPersist.loadSession()
     if (session?.token) {
@@ -372,7 +378,7 @@ onMounted(async () => {
   } catch (error) {
     availableUsers.value = []
   }
-})
+}
 
 const mockColumns = [
   { label: 'ID', key: 'id' },
@@ -501,6 +507,11 @@ const removeComponent = (index: number) => {
 const goToStep2 = () => {
   showStepConfirmModal.value = false
   currentStep.value = 2
+}
+
+const goToStep4 = async () => {
+  currentStep.value = 4
+  await fetchUsersForAssignment()
 }
 
 // Drag and drop Step 2 (Validations)
@@ -656,22 +667,13 @@ const copyJson = () => {
   color: white;
 }
 
-.generate-btn {
-  background-color: var(--primary-color, #465FFF);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  transition: opacity 0.2s;
-}
 
-.generate-btn:hover {
-  opacity: 0.9;
-}
 
 .app-button--primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   background-color: var(--primary-color, #465FFF);
   color: white;
   padding: 0.5rem 1rem;

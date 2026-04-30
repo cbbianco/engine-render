@@ -280,6 +280,29 @@ const resetColors = () => {
   pointer-events: none;
 }
 
+.app-button--primary {
+  background-color: var(--primary-color, #465FFF);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-button--primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.app-button--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .app-button--secondary {
   padding: 0.5rem 1rem;
   border-radius: 6px;
