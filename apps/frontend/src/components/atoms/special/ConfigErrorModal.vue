@@ -15,8 +15,8 @@
         <p><strong>Causa:</strong> Se ha detectado una inconsistencia en el esquema JSON del módulo.</p>
         <p><strong>Acción:</strong> Revise las propiedades "match" y "property" en el archivo de plantilla correspondiente.</p>
       </div>
-      <button @click="reloadPage" class="reload-btn">
-        Recargar Aplicación
+      <button @click="reloadPage" class="reload-btn app-button--primary">
+        Recargar Aplicación 🔄
       </button>
     </div>
     </div>

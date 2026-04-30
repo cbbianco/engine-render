@@ -17,7 +17,7 @@
             @change="saveColors"
           />
         </div>
-        <button class="reset-btn app-button--secondary" @click="resetColors">Restaurar por defecto</button>
+        <button class="reset-btn app-button--primary" @click="resetColors">Restaurar por defecto 🔄</button>
       </div>
     </div>
 
@@ -66,9 +66,9 @@
         </table>
       </div>
       <div class="pagination" v-if="totalPages > 1">
-        <button class="app-button--secondary" :disabled="currentPage === 1" @click="currentPage--">Anterior</button>
+        <button class="app-button--secondary" :disabled="currentPage === 1" @click="currentPage--">⬅️ Anterior</button>
         <span class="page-info">Página {{ currentPage }} de {{ totalPages }}</span>
-        <button class="app-button--secondary" :disabled="currentPage === totalPages" @click="currentPage++">Siguiente</button>
+        <button class="app-button--secondary" :disabled="currentPage === totalPages" @click="currentPage++">Siguiente ➡️</button>
       </div>
     </div>
   </div>

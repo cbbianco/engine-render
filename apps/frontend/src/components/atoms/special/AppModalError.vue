@@ -18,8 +18,8 @@ defineEmits<{
       <div class="modal-card" :style="errorColor ? { '--error-color': errorColor } : undefined">
         <h2 class="modal-title">{{ title ?? 'Error' }}</h2>
         <p class="modal-message">{{ message }}</p>
-        <button type="button" class="modal-btn" @click="$emit('close')">
-          Aceptar
+        <button type="button" class="modal-btn app-button--primary" @click="$emit('close')">
+          Aceptar ✔️
         </button>
       </div>
     </div>

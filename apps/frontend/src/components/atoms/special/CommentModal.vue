@@ -56,12 +56,12 @@
 
         <!-- Footer -->
         <div class="modal-footer">
-          <button class="btn btn--secondary" @click="handleCancel" :disabled="loading">
-            Cancelar
+          <button class="btn btn--secondary app-button--secondary" @click="handleCancel" :disabled="loading">
+            Cancelar ❌
           </button>
-          <button class="btn btn--primary" @click="handleConfirm" :disabled="loading || !comment.trim()">
+          <button class="btn btn--primary app-button--primary" @click="handleConfirm" :disabled="loading || !comment.trim()">
             <span v-if="loading" class="btn-spinner"></span>
-            {{ initialComment ? 'Actualizar' : 'Confirmar' }}
+            {{ initialComment ? 'Actualizar 🔄' : 'Comentar 💬' }}
           </button>
         </div>
       </div>

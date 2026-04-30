@@ -10,22 +10,22 @@
       <div class="header-actions">
         <button class="app-button--secondary" @click="showHelpModal = true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-          Instrucciones
+          Instrucciones 📖
         </button>
         <button v-if="currentStep === 1" class="app-button--primary generate-btn" @click="showStepConfirmModal = true">
-          Siguiente: Validaciones
+          Siguiente: Validaciones ➡️
         </button>
         <div v-else-if="currentStep === 2" class="step-actions">
-          <button class="app-button--secondary" @click="currentStep = 1">Volver al Diseño</button>
-          <button class="app-button--primary generate-btn" @click="currentStep = 3">Siguiente: Orquestación</button>
+          <button class="app-button--secondary" @click="currentStep = 1">⬅️ Volver al Diseño</button>
+          <button class="app-button--primary generate-btn" @click="currentStep = 3">Siguiente: Orquestación ➡️</button>
         </div>
         <div v-else-if="currentStep === 3" class="step-actions">
-          <button class="app-button--secondary" @click="currentStep = 2">Volver a Validaciones</button>
-          <button class="app-button--primary generate-btn" @click="currentStep = 4">Siguiente: Asignación</button>
+          <button class="app-button--secondary" @click="currentStep = 2">⬅️ Volver a Validaciones</button>
+          <button class="app-button--primary generate-btn" @click="currentStep = 4">Siguiente: Asignación ➡️</button>
         </div>
         <div v-else class="step-actions">
-          <button class="app-button--secondary" @click="currentStep = 3">Volver a Orquestación</button>
-          <button class="app-button--primary generate-btn" @click="generateJSON">Finalizar y Generar JSON</button>
+          <button class="app-button--secondary" @click="currentStep = 3">⬅️ Volver a Orquestación</button>
+          <button class="app-button--primary generate-btn" @click="generateJSON">Finalizar y Generar JSON 🚀</button>
         </div>
       </div>
     </div>
@@ -268,8 +268,8 @@
           ¿Estás seguro de continuar al Paso 2? En el siguiente paso te enfocarás exclusivamente en <strong>asignar validaciones (requeridos, reglas, regex)</strong> a los campos arrastrándolas sobre ellos. El diseño (ancho y orden) quedará fijo temporalmente.
         </p>
         <div class="modal-actions">
-          <button class="app-button--secondary"  @click="showStepConfirmModal = false">Seguir editando diseño</button>
-          <button class="app-button--primary" @click="goToStep2">Ir a Validaciones</button>
+          <button class="app-button--secondary"  @click="showStepConfirmModal = false">Seguir editando diseño 🛠️</button>
+          <button class="app-button--primary" @click="goToStep2">Ir a Validaciones ➡️</button>
         </div>
       </div>
     </div>
@@ -280,8 +280,8 @@
         <h3>JSON Generado Final</h3>
         <textarea readonly :value="generatedJson"></textarea>
         <div class="modal-actions">
-          <button class="app-button--primary" @click="copyJson">Copiar</button>
-          <button class="app-button--secondary" @click="showJsonModal = false">Cerrar</button>
+          <button class="app-button--primary" @click="copyJson">Copiar 📋</button>
+          <button class="app-button--secondary" @click="showJsonModal = false">Cerrar ❌</button>
         </div>
       </div>
     </div>
@@ -309,7 +309,7 @@
           </div>
         </div>
         <div class="modal-actions">
-          <button class="app-button--primary" @click="showHelpModal = false">Entendido</button>
+          <button class="app-button--primary" @click="showHelpModal = false">Entendido 👍</button>
         </div>
       </div>
     </div>

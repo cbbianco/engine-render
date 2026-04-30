@@ -11,7 +11,7 @@
       <div v-if="isOpen" class="notification-dropdown">
         <div class="dropdown-header">
           <h3 class="dropdown-title">Notificaciones</h3>
-          <button class="mark-all" @click="notificationStore.markAllAsRead">Marcar todas como leídas</button>
+          <button class="mark-all" @click="notificationStore.markAllAsRead">Marcar todas como leídas ✔️</button>
         </div>
 
         <div class="notification-list">
@@ -49,7 +49,7 @@
         </div>
 
         <div class="dropdown-footer">
-          <button class="clear-all" @click="notificationStore.clearAll">Limpiar Historial</button>
+          <button class="clear-all" @click="notificationStore.clearAll">Limpiar Historial 🗑️</button>
         </div>
       </div>
     </Transition>
