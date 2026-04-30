@@ -46,17 +46,14 @@ export const useNotificationStore = defineStore('notifications', () => {
         title: n.title,
         message: n.message,
         timestamp: new Date(n.createdAt),
-        read: n.read || false
+        read: n.read || false,
+        metadata: n.metadata || {}
       }))
 
       // 1. Mapear contenido actual para evitar duplicados en Toasts
       const currentContent = new Set(notifications.value.map(n => `${n.title}|${n.message}`))
       const historyIds = new Set(historyMapped.map(n => n.id))
-      
-      // Mapeamos el contenido solo de notificaciones recientes del backend (< 1 min)
-      // para no borrar notificaciones locales nuevas si coinciden con textos de hace días.
-      const recentHistoryMapped = historyMapped.filter((n: any) => (new Date().getTime() - n.timestamp.getTime()) < 60000)
-      const recentHistoryContent = new Set(recentHistoryMapped.map((n: any) => `${n.title}|${n.message}`))
+      const historyLocalIds = new Set(historyMapped.map(n => n.metadata?.localId).filter(Boolean))
 
       // 2. Identificar las REALMENTE nuevas (que no tenemos ni por ID ni por contenido)
       const newItems = historyMapped.filter(n => {
@@ -77,11 +74,11 @@ export const useNotificationStore = defineStore('notifications', () => {
         })
       }
 
-      // 4. Fusionar manteniendo lo local que no esté en el historial (por ID o Contenido reciente)
+      // 4. Fusionar manteniendo lo local que no esté en el historial (por ID o localId)
       const localOnly = notifications.value.filter(n => {
         const isById = historyIds.has(n.id)
-        const isByRecentContent = recentHistoryContent.has(`${n.title}|${n.message}`)
-        return !isById && !isByRecentContent
+        const isByLocalId = historyLocalIds.has(n.id)
+        return !isById && !isByLocalId
       })
       
       // Actualización directa para garantizar reactividad
@@ -127,7 +124,7 @@ export const useNotificationStore = defineStore('notifications', () => {
         title,
         message,
         author: authStore.userName || 'system',
-        metadata: { source: 'frontend_orchestrator' }
+        metadata: { source: 'frontend_orchestrator', localId: id }
       })
     }
 
