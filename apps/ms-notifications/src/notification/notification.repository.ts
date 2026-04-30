@@ -46,11 +46,18 @@ export class NotificationRepository {
   }
 
   async updateReadStatus(id: string, read: boolean): Promise<void> {
-    await this.repo.update(id, { read });
+    const { ObjectId } = require('mongodb');
+    await this.repo.updateMany({ _id: new ObjectId(id) }, { $set: { read } });
   }
 
-  async markAllAsReadByAuthor(author: string): Promise<void> {
-    await this.repo.updateMany({ author, read: false }, { $set: { read: true } });
+  async markAllAsReadByUser(userId: string): Promise<void> {
+    await this.repo.updateMany({
+      $or: [
+        { targetUserId: userId },
+        { author: userId, targetUserId: null }
+      ],
+      read: false
+    }, { $set: { read: true } });
   }
 
   async findByResource(resourceId: string, type?: string): Promise<NotificationEntity[]> {

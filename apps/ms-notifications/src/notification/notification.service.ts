@@ -53,8 +53,8 @@ export class NotificationService {
     await this.repository.updateReadStatus(id, true);
   }
 
-  async markAllAsRead(author: string): Promise<void> {
-    await this.repository.markAllAsReadByAuthor(author);
+  async markAllAsRead(userId: string): Promise<void> {
+    await this.repository.markAllAsReadByUser(userId);
   }
 
   async processTagNotification(dto: any) {

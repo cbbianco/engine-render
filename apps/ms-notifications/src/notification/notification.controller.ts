@@ -52,8 +52,8 @@ export class NotificationController {
   @Patch('/read-all')
   @UseGuards(AuthGuard)
   async markAllAsRead(@Req() req: any) {
-    const { userName } = req.user;
-    await this.service.markAllAsRead(userName);
+    const { userId } = req.user;
+    await this.service.markAllAsRead(userId);
     return { success: true };
   }
 
