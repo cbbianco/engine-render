@@ -7,7 +7,7 @@ Este reporte detalla la salud técnica de **todos** los archivos del proyecto (F
 - **51% - 100%**: 🟡 **Necesita Mejora** (Candidato a revisión).
 - **> 100%**: 🔴 **Candidato a Refactorización** (Complejidad crítica).
 
-## 🎨 Análisis de Archivos Frontend (v1.15.0)
+## 🎨 Análisis de Archivos Frontend (v1.16.0)
 
 | Archivo | Puntos | Salud % | Estado |
 | :--- | :---: | :---: | :--- |

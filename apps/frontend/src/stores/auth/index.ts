@@ -28,6 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
   const modulesConfig = ref<ModuleConfigResponse[]>([])
   const isReauthenticating = ref(false)
   const publicKey = ref<string>('')
+  const roleId = ref<number | null>(null)
   const notificationStore = useNotificationStore()
 
   /**
@@ -42,6 +43,20 @@ export const useAuthStore = defineStore('auth', () => {
     userName.value = identifier.trim()
     isAuthenticated.value = true
     isReauthenticating.value = false // Reset reauth state upon successful authentication
+    
+    // Asignar el roleId desde el token
+    if (apiResponse.access_token) {
+      try {
+        const payload = JSON.parse(atob(apiResponse.access_token.split('.')[1]));
+        const userContent = payload.content?.[identifier.trim()];
+        if (userContent && userContent.roleId !== undefined) {
+          roleId.value = userContent.roleId;
+        }
+      } catch (e) {
+        console.error('[AuthStore] Error parsing token for roleId:', e);
+      }
+    }
+
     if (theme) {
       themeCss.value = theme
     }
@@ -124,5 +139,6 @@ export const useAuthStore = defineStore('auth', () => {
     getPostLoginRedirectPath: () => RoutingService.getRedirectPath(availableRoutes.value, '/dashboard'),
     isReauthenticating,
     publicKey,
+    roleId,
   }
 })

@@ -51,11 +51,11 @@ const props = withDefaults(
     placeholder: '+1 (555) 000-0000',
     disabled: false,
     countryOptions: () => [
-      { value: 'US', label: 'US' },
-      { value: 'MX', label: 'MX' },
-      { value: 'CO', label: 'CO' },
-      { value: 'ES', label: 'ES' },
-      { value: 'AR', label: 'AR' }
+      { value: 'US', label: '🇺🇸 +1' },
+      { value: 'MX', label: '🇲🇽 +52' },
+      { value: 'CO', label: '🇨🇴 +57' },
+      { value: 'ES', label: '🇪🇸 +34' },
+      { value: 'AR', label: '🇦🇷 +54' }
     ]
   }
 )

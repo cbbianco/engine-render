@@ -2,6 +2,17 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
+## [1.16.0] - 2026-04-29
+### Added
+- **Date Utilities**: Creada función `formatRelativeTime` en `apps/frontend/src/utils/date.ts` para conversión de tiempos relativos a formato "hace X horas/días".
+- **Phone Flags**: Agregadas banderas (Ej: 🇺🇸) a las opciones del componente de número telefónico.
+
+### Changed
+- **Smart Notification Display**: La campana de notificaciones ahora solo muestra notificaciones no leídas (`!n.read`), asegurando que las ya vistas desaparezcan.
+- **Clean User Select**: Eliminados usuarios estáticos del Select en el Visual Editor cuando falla el servidor de usuarios reales.
+- **Header Icon Visibility**: Removida restricción de roles (v-if) para el botón de configuración en la barra superior.
+- **Button Standards**: Normalizados estilos visuales de botones para usar clases estándar `app-button--primary` y `app-button--secondary`.
+
 ## [1.15.0] - 2026-04-26
 ### Added
 - **Secure ID-Based Notification System**: Standardized all notifications to use User IDs instead of names, ensuring data integrity and cross-browser security.

@@ -1,0 +1,44 @@
+{
+  "name": "ms-inventory",
+  "version": "0.0.1",
+  "description": "Microservice for dynamic inventory persistence",
+  "author": "Solutions Team",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "nest build",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "start": "nest start --port=4004",
+    "start:dev": "nest start --watch --port=4004",
+    "start:debug": "nest start --debug --watch --port=4004",
+    "start:prod": "node dist/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/typeorm": "^11.0.0",
+    "@nestjs/schedule": "^6.0.0",
+    "ajv": "^8.12.0",
+    "class-validator": "^0.14.3",
+    "mongodb": "^6.21.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.28"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.7",
+    "@types/cron": "^2.4.0",
+    "eslint": "^9.18.0",
+    "prettier": "^3.4.2",
+    "ts-loader": "^9.5.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3"
+  }
+}

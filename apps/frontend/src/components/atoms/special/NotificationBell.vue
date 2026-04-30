@@ -15,7 +15,7 @@
         </div>
 
         <div class="notification-list">
-          <div v-if="notificationStore.notifications.length === 0" class="empty-state">
+          <div v-if="notificationStore.notifications.filter(n => !n.read).length === 0" class="empty-state">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 0.5rem; color: #cbd5e1;">
               <path d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.37 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.64 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z" fill="currentColor" opacity="0.5"/>
               <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -23,7 +23,7 @@
             <p>No tienes notificaciones recientes</p>
           </div>
           <div 
-            v-for="item in notificationStore.notifications" 
+            v-for="item in notificationStore.notifications.filter(n => !n.read)" 
             :key="item.id" 
             :class="['notification-item', { unread: !item.read }]"
             @click="markAsRead(item.id)"
@@ -59,6 +59,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useNotificationStore } from '@/stores/notifications'
+import { formatRelativeTime } from '@/utils/date'
 
 const notificationStore = useNotificationStore()
 let pollingInterval: any = null
@@ -90,10 +91,7 @@ const markAsRead = (id: string) => {
 }
 
 const formatTime = (date: Date) => {
-  return new Intl.RelativeTimeFormat('es', { numeric: 'auto' }).format(
-    Math.round((date.getTime() - new Date().getTime()) / 60000), 
-    'minute'
-  )
+  return formatRelativeTime(date)
 }
 
 // Directiva simple para cerrar al hacer clic fuera

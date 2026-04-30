@@ -17,6 +17,7 @@ export const useNotificationStore = defineStore('notifications', () => {
   const authStore = useAuthStore()
   const notifications = ref<Notification[]>([])
   const activeToasts = ref<Notification[]>([])
+  const customColors = ref<Record<string, string>>({})
   
   // Tiempo de vida configurable (default 5 minutos)
   const ttlMinutes = parseInt(import.meta.env.VITE_NOTIFICATION_TTL_MINUTES || '5', 10)
@@ -30,6 +31,14 @@ export const useNotificationStore = defineStore('notifications', () => {
    */
   async function loadHistory() {
     const history = await NotificationPersistenceService.init().getHistory()
+    
+    if (Object.keys(customColors.value).length === 0) {
+       const config = await NotificationPersistenceService.init().getConfig()
+       if (config && config.colors) {
+         customColors.value = config.colors
+       }
+    }
+
     if (history && Array.isArray(history)) {
       const historyMapped = history.map((n: any) => ({
         id: n._id || n.id,
@@ -151,12 +160,17 @@ export const useNotificationStore = defineStore('notifications', () => {
   function markAllAsRead() {
     notifications.value.forEach(n => n.read = true)
     // EDP: Emitir evento para persistencia
-    eventBus.emit('notification.markAllRead', {})
+    eventBus.emit('notification.markAllRead', { author: authStore.userName || 'unknown' })
   }
 
   function clearAll() {
     notifications.value = []
     activeToasts.value = []
+  }
+
+  async function saveConfig(colors: Record<string, string>) {
+    customColors.value = { ...customColors.value, ...colors }
+    await NotificationPersistenceService.init().saveConfig(colors)
   }
 
   let pollingInterval: any = null
@@ -188,6 +202,8 @@ export const useNotificationStore = defineStore('notifications', () => {
     loadHistory,
     unreadCount,
     startPolling,
-    stopPolling
+    stopPolling,
+    customColors,
+    saveConfig
   }
 })

@@ -2,26 +2,26 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { JwtModule } from '@nestjs/jwt';
-import { NotificationModule, NotificationEntity } from './notification';
-import { NotificationConfigEntity } from './notification/notification-config.entity';
+import { InventoryModule } from './inventory/inventory.module';
+import { ModuleConfigEntity } from './inventory/entities/module-json.entity';
 
 @Module({
   imports: [
-    // MongoDB Connection
+    // MongoDB Connection to main CRM DB to fetch modules configurations
     TypeOrmModule.forRoot({
       name: 'mongo',
       type: 'mongodb',
-      url: 'mongodb://localhost:27017/solutionsplusone_crm',
-      entities: [NotificationEntity, NotificationConfigEntity],
+      url: process.env.MONGODB_URI || 'mongodb://localhost:27017/solutionsplusone_crm',
+      entities: [ModuleConfigEntity],
       synchronize: false,
     }),
     JwtModule.register({
       global: true,
-      secret: 'TU_SUPER_SECRET_KEY_IA_CRM',
+      secret: process.env.JWT_SECRET || 'TU_SUPER_SECRET_KEY_IA_CRM',
       signOptions: { expiresIn: '1h' },
     }),
     ScheduleModule.forRoot(),
-    NotificationModule,
+    InventoryModule,
   ],
 })
 export class AppModule {}

@@ -76,4 +76,18 @@ export class NotificationController {
     const { userId } = req.user;
     return await this.service.getCommentByResourceAndAuthor(resourceId, userId);
   }
+
+  @Get('/config')
+  @UseGuards(AuthGuard)
+  async getConfig(@Req() req: any) {
+    const { userId } = req.user;
+    return await this.service.getConfig(userId);
+  }
+
+  @Patch('/config')
+  @UseGuards(AuthGuard)
+  async updateConfig(@Body() body: any, @Req() req: any) {
+    const { userId } = req.user;
+    return await this.service.updateConfig(userId, body.colors);
+  }
 }

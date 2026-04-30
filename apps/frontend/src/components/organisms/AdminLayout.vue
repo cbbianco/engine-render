@@ -10,6 +10,9 @@
       <div class="layout-main__inner">
         <slot />
       </div>
+      <footer class="layout-footer">
+        v1.16.0 - Copyright © César Bianco
+      </footer>
     </div>
   </div>
 </template>
@@ -22,3 +25,15 @@ import { useSidebar } from '@/composables/useSidebar'
 
 const { isExpanded, isHovered } = useSidebar()
 </script>
+
+<style scoped>
+.layout-footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: #64748b;
+  border-top: 1px solid #e2e8f0;
+  background-color: white;
+  margin-top: auto;
+}
+</style>

@@ -15,7 +15,9 @@ router.beforeEach((to, _from, next) => {
   const isAllowed = 
     allowedPaths.length === 0 || 
     allowedPaths.includes(to.path) || 
-    to.path.startsWith('/modules/')
+    to.path.startsWith('/modules/') ||
+    to.path === '/visual-editor' ||
+    to.path === '/notifications-history'
 
   if (!isAllowed && to.path !== '/') {
     const first = allowedPaths[0]

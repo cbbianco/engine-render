@@ -2,12 +2,19 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { NotificationRepository } from './notification.repository';
 import { NotificationEntity } from './notification.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { NotificationConfigEntity } from './notification-config.entity';
 
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private readonly repository: NotificationRepository) {}
+  constructor(
+    private readonly repository: NotificationRepository,
+    @InjectRepository(NotificationConfigEntity, 'mongo')
+    private readonly configRepo: Repository<NotificationConfigEntity>,
+  ) {}
 
   async createNotification(data: Partial<NotificationEntity>): Promise<NotificationEntity> {
     return await this.repository.create(data);
@@ -115,5 +122,20 @@ export class NotificationService {
 
   async getCommentByResourceAndAuthor(resourceId: string, author: string) {
     return await this.repository.findOneByResourceAndAuthor(resourceId, author, 'tagueo');
+  }
+
+  async getConfig(userId: string) {
+    const config = await this.configRepo.findOne({ where: { userId } as any });
+    return config || { colors: {} };
+  }
+
+  async updateConfig(userId: string, colors: any) {
+    let config = await this.configRepo.findOne({ where: { userId } as any });
+    if (!config) {
+      config = this.configRepo.create({ userId, colors });
+    } else {
+      config.colors = { ...config.colors, ...colors };
+    }
+    return await this.configRepo.save(config);
   }
 }

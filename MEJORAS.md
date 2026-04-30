@@ -1,5 +1,9 @@
 # Plan de Mejoras y Protección IP
 
+## ✅ Completado (v1.16.0)
+- **Mejora en UX de Notificaciones**: Filtro de notificaciones ya leídas y formateo relativo de fechas.
+- **Refinamiento de UI**: Banderas internacionales en teléfonos, estandarización de botones y limpieza de configuraciones hardcodeadas.
+
 ## ✅ Completado (v1.15.0)
 - **Tagueo Global Multi-Usuario**: Sistema de menciones `@username` con autocompletado desde base de datos global.
 - **Estandarización por ID**: Migración total de nombres a IDs en el sistema de notificaciones para mayor seguridad.

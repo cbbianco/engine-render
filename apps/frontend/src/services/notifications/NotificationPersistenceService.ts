@@ -75,4 +75,28 @@ export class NotificationPersistenceService {
       console.error('[EDP] Error al marcar todas como leídas:', err);
     }
   }
+
+  public async getConfig() {
+    try {
+      const response = await apiFetch(`${this.apiUrl}/config`);
+      if (response.ok) {
+        return await response.json();
+      }
+      return null;
+    } catch (error) {
+      console.error('[EDP] Error al obtener la configuración:', error);
+      return null;
+    }
+  }
+
+  public async saveConfig(colors: any) {
+    try {
+      await apiFetch(`${this.apiUrl}/config`, {
+        method: 'PATCH',
+        body: JSON.stringify({ colors })
+      });
+    } catch (error) {
+      console.error('[EDP] Error al guardar la configuración:', error);
+    }
+  }
 }

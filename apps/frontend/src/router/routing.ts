@@ -23,6 +23,8 @@ export class RoutingService {
     const viewModules = import.meta.glob('../views/*.vue')
     const dynamicView = () => import('../views/DynamicModuleView.vue')
     const editView = () => import('../views/EditModuleView.vue')
+    const notificationsHistoryView = () => import('../components/pages/NotificationsHistory.vue')
+    const visualEditorView = () => import('../components/pages/VisualEditor.vue')
 
     // 1. Rutas Dinámicas desde Backend (Tienen prioridad)
     routes.forEach((route) => {
@@ -42,6 +44,19 @@ export class RoutingService {
       path: '/modules/:moduleId',
       name: 'module-edit-detail',
       component: editView as () => Promise<Component>
+    })
+
+    // 3. Rutas estáticas especiales
+    router.addRoute({
+      path: '/notifications-history',
+      name: 'notifications-history',
+      component: notificationsHistoryView as () => Promise<Component>
+    })
+
+    router.addRoute({
+      path: '/visual-editor',
+      name: 'visual-editor',
+      component: visualEditorView as () => Promise<Component>
     })
 
     // Ruta 404 genérica si existe el componente
