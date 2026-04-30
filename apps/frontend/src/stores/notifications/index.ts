@@ -184,7 +184,7 @@ export const useNotificationStore = defineStore('notifications', () => {
     loadHistory() // Carga inicial
     pollingInterval = setInterval(() => {
       loadHistory()
-    }, 10000) // Cada 10 segundos para máxima reactividad
+    }, 60000) // Cada 60 segundos para no saturar la red (Polling)
   }
 
   function stopPolling() {
