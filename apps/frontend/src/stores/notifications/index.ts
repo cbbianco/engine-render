@@ -52,7 +52,11 @@ export const useNotificationStore = defineStore('notifications', () => {
       // 1. Mapear contenido actual para evitar duplicados en Toasts
       const currentContent = new Set(notifications.value.map(n => `${n.title}|${n.message}`))
       const historyIds = new Set(historyMapped.map(n => n.id))
-      const historyContent = new Set(historyMapped.map(n => `${n.title}|${n.message}`))
+      
+      // Mapeamos el contenido solo de notificaciones recientes del backend (< 1 min)
+      // para no borrar notificaciones locales nuevas si coinciden con textos de hace días.
+      const recentHistoryMapped = historyMapped.filter((n: any) => (new Date().getTime() - n.timestamp.getTime()) < 60000)
+      const recentHistoryContent = new Set(recentHistoryMapped.map((n: any) => `${n.title}|${n.message}`))
 
       // 2. Identificar las REALMENTE nuevas (que no tenemos ni por ID ni por contenido)
       const newItems = historyMapped.filter(n => {
@@ -73,11 +77,11 @@ export const useNotificationStore = defineStore('notifications', () => {
         })
       }
 
-      // 4. Fusionar manteniendo lo local que no esté en el historial (por ID o Contenido)
+      // 4. Fusionar manteniendo lo local que no esté en el historial (por ID o Contenido reciente)
       const localOnly = notifications.value.filter(n => {
         const isById = historyIds.has(n.id)
-        const isByContent = historyContent.has(`${n.title}|${n.message}`)
-        return !isById && !isByContent
+        const isByRecentContent = recentHistoryContent.has(`${n.title}|${n.message}`)
+        return !isById && !isByRecentContent
       })
       
       // Actualización directa para garantizar reactividad
