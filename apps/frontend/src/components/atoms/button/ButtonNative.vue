@@ -11,7 +11,7 @@
       :disabled="loading || disabled" 
       :variant="variant" 
       @click="$emit('click')"
-      style="width: 100%"
+      :style="{ width: block ? '100%' : 'auto', minWidth: '120px' }"
     >
       <span v-if="loading" class="form-group__spinner" />
       {{ label }}

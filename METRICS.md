@@ -11,6 +11,7 @@ Este reporte detalla la salud técnica de **todos** los archivos del proyecto (F
 
 | Archivo | Puntos | Salud % | Estado |
 | :--- | :---: | :---: | :--- |
+| `src/components/pages/VisualEditor.vue` | 42 | 210% | 🔴 Refactorizar (Crecimiento Dinámico) |
 | `src/components/atoms/special/DrawOwner.vue` | 37 | 185% | 🔴 Refactorizar |
 | `src/services/renderer/RendererService.ts` | 32 | 160% | 🔴 Refactorizar |
 | `src/components/atoms/table/TablePremium.vue` | 29 | 145% | 🔴 Refactorizar |

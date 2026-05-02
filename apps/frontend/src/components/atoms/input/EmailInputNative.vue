@@ -1,5 +1,5 @@
 <template>
-  <div class="form-group form-group--plantilla">
+  <div class="form-group form-group--plantilla" :style="{ textAlign: align }">
     <AppLabel v-if="label" :for="inputId">{{ label }}</AppLabel>
     <div
       class="email-input-wrap"
@@ -41,12 +41,14 @@ withDefaults(
     errorMessage?: string
     errorColor?: string
     disabled?: boolean
+    align?: 'left' | 'center' | 'right'
   }>(),
   { 
     label: 'Email',
     invalid: false, 
     placeholder: 'info@gmail.com',
-    disabled: false
+    disabled: false,
+    align: 'left'
   }
 )
 defineEmits<{ 'update:modelValue': [value: string] }>()
@@ -68,9 +70,10 @@ defineEmits<{ 'update:modelValue': [value: string] }>()
 }
 
 .email-input-wrap--disabled {
-  background-color: #ffffff;
+  background-color: #F3F4F6;
   cursor: not-allowed;
   border-color: var(--primary-color);
+  opacity: 0.8;
 }
 
 .email-input-wrap:focus-within:not(.email-input-wrap--disabled) {

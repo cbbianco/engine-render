@@ -1,24 +1,28 @@
 {
+    "uuid": "inventory-pro-2026",
+    "modulo": "Inventario Pro",
+    "userId": "1",
+    "instruccion": "Sistema integral de inventario con gestión de productos y stock",
     "configurationUi": {
         "config": {
             "metadata": {
-                "orchestrationType": "CREATE",
-                "title": "Gestión de Inventario Maestro"
+                "orchestrationType": "MANAGEMENT",
+                "title": "Control Total de Inventario (MCP Powered)"
             },
-            "module": "Inventario",
-            "path": "/create-inventory",
+            "module": "Inventario Pro",
+            "path": "/inventory-pro",
             "method": "GET",
-            "order": 3,
-            "menu": "menu-item:Inventario:Crear",
-            "icon": "svg-package",
+            "order": 1,
+            "menu": "menu-item:Logística:Inventario Pro",
+            "icon": "svg-archive",
             "breadcrumb": [
                 {
-                    "label": "Dashboard",
+                    "label": "Home",
                     "path": "/dashboard"
                 },
                 {
-                    "label": "Inventario",
-                    "path": "/list-inventory"
+                    "label": "Logística",
+                    "path": "/logistics"
                 }
             ],
             "raw": true
@@ -26,171 +30,142 @@
         "schema": [
             {
                 "type": "separator",
-                "label": "Datos Generales del Producto",
-                "property": "sec_general",
+                "label": "Dashboard de Estado Actual",
+                "property": "sec_dashboard",
                 "column": "col-12",
-                "align": "left",
                 "separator": true
             },
             {
-                "type": "text",
-                "label": "Nombre del Producto",
-                "property": "name",
-                "required": true,
-                "column": "col-8",
-                "align": "left",
-                "placeholder": "Ej: MacBook Pro M3 Max",
-                "config": {
-                    "icon": "package"
-                }
-            },
-            {
-                "type": "text",
-                "label": "SKU / Código",
-                "property": "sku",
-                "required": true,
+                "type": "estimated-revenue",
+                "label": "Valor Total en Stock",
+                "property": "total_value",
                 "column": "col-4",
-                "align": "left",
-                "placeholder": "INV-001",
-                "config": {
-                    "icon": "hash"
-                }
-            },
-            {
-                "type": "select",
-                "label": "Categoría",
-                "property": "category",
-                "required": true,
-                "column": "col-6",
-                "align": "left",
-                "options": [
-                    {
-                        "label": "Electrónica",
-                        "value": "electronics"
-                    },
-                    {
-                        "label": "Mobiliario",
-                        "value": "furniture"
-                    },
-                    {
-                        "label": "Papelería",
-                        "value": "stationery"
-                    },
-                    {
-                        "label": "Software",
-                        "value": "software"
-                    }
-                ]
-            },
-            {
-                "type": "select",
-                "label": "Unidad de Medida",
-                "property": "unit",
-                "required": true,
-                "column": "col-6",
-                "align": "left",
-                "options": [
-                    {
-                        "label": "Unidad (Un)",
-                        "value": "unit"
-                    },
-                    {
-                        "label": "Caja (Box)",
-                        "value": "box"
-                    },
-                    {
-                        "label": "Kilogramo (Kg)",
-                        "value": "kg"
-                    },
-                    {
-                        "label": "Litro (L)",
-                        "value": "liter"
-                    }
-                ]
-            },
-            {
-                "type": "textarea",
-                "label": "Descripción Detallada",
-                "property": "description",
-                "column": "col-12",
-                "align": "left",
-                "placeholder": "Describa las especificaciones técnicas o características del producto..."
-            },
-            {
-                "type": "separator",
-                "label": "Control de Existencias & Precios",
-                "property": "sec_stock",
-                "column": "col-12",
-                "align": "left",
-                "separator": true
-            },
-            {
-                "type": "number",
-                "label": "Stock Inicial",
-                "property": "stock",
-                "required": true,
-                "column": "col-4",
-                "align": "left",
-                "placeholder": "0",
-                "config": {
-                    "min": 0
-                }
-            },
-            {
-                "type": "number",
-                "label": "Stock Mínimo (Alerta)",
-                "property": "minStock",
-                "column": "col-4",
-                "align": "left",
-                "placeholder": "5"
-            },
-            {
-                "type": "number",
-                "label": "Precio de Venta",
-                "property": "price",
-                "required": true,
-                "column": "col-4",
-                "align": "left",
-                "placeholder": "0.00",
                 "config": {
                     "prefix": "$",
-                    "step": "0.01"
+                    "color": "success"
+                }
+            },
+            {
+                "type": "estimated-revenue",
+                "label": "Alertas de Stock Bajo",
+                "property": "low_stock_count",
+                "column": "col-4",
+                "config": {
+                    "color": "danger"
+                }
+            },
+            {
+                "type": "estimated-revenue",
+                "label": "Movimientos Hoy",
+                "property": "today_movements",
+                "column": "col-4",
+                "config": {
+                    "color": "info"
                 }
             },
             {
                 "type": "separator",
-                "label": "Multimedia & Visualización",
-                "property": "sec_media",
+                "label": "Listado Maestro & Niveles",
+                "property": "sec_list",
                 "column": "col-12",
-                "align": "left",
                 "separator": true
             },
             {
-                "type": "file-upload",
-                "label": "Imagen del Producto",
-                "property": "productImage",
+                "type": "table-products",
+                "label": "Inventario por Bodega",
+                "property": "inventory_list",
                 "column": "col-12",
-                "align": "left",
                 "config": {
-                    "accept": "image/*",
-                    "maxSize": 5,
-                    "helpText": "Formatos permitidos: JPG, PNG. Máximo 5MB."
+                    "searchable": true,
+                    "filterable": true
+                }
+            },
+            {
+                "type": "separator",
+                "label": "Operaciones Rápidas (Registrar Movimiento)",
+                "property": "sec_ops",
+                "column": "col-12",
+                "separator": true
+            },
+            {
+                "type": "select",
+                "label": "Producto (SKU)",
+                "property": "op_sku",
+                "column": "col-3",
+                "required": true,
+                "options": [
+                    {
+                        "label": "MacBook Pro M3",
+                        "value": "PROD-001"
+                    },
+                    {
+                        "label": "Monitor Studio Display",
+                        "value": "PROD-002"
+                    }
+                ]
+            },
+            {
+                "type": "select",
+                "label": "Bodega",
+                "property": "op_warehouse",
+                "column": "col-3",
+                "required": true,
+                "options": [
+                    {
+                        "label": "Bodega Central",
+                        "value": "BOD-001"
+                    },
+                    {
+                        "label": "Bodega Norte",
+                        "value": "BOD-002"
+                    }
+                ]
+            },
+            {
+                "type": "select",
+                "label": "Tipo de Movimiento",
+                "property": "op_type",
+                "column": "col-2",
+                "required": true,
+                "options": [
+                    {
+                        "label": "Entrada (IN)",
+                        "value": "IN"
+                    },
+                    {
+                        "label": "Salida (OUT)",
+                        "value": "OUT"
+                    },
+                    {
+                        "label": "Ajuste (ADJ)",
+                        "value": "ADJUSTMENT"
+                    }
+                ]
+            },
+            {
+                "type": "number",
+                "label": "Cantidad",
+                "property": "op_quantity",
+                "column": "col-2",
+                "required": true,
+                "config": {
+                    "min": 1
                 }
             },
             {
                 "type": "button",
-                "label": "Guardar Inventario",
-                "property": "submit_btn",
-                "column": "col-12",
-                "align": "right",
+                "label": "Ejecutar Movimiento",
+                "property": "op_submit",
+                "column": "col-2",
                 "variant": "primary",
                 "action": "submit",
                 "config": {
-                    "icon": "save",
-                    "block": false
+                    "icon": "refresh-cw"
                 }
             }
         ]
     },
-    "orchestrationDetails": {}
+    "orchestrationDetails": {
+        "status": "active"
+    }
 }

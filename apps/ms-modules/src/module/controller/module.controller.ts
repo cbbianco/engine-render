@@ -28,22 +28,6 @@ export class ModuleController {
     return this.moduleFacade.generateJson(generate, request['user']);
   }
 
-  /**
-   * @method  createAssignation
-   * @description Assignation of module
-   *
-   */
-  @Post('/assignation')
-  @Roles(RoleEnum.SUPERADMIN)
-  createAssignation(@Body() assignation: CreateAssignationDto): unknown {
-    return this.moduleGenerateService.assignationModule(assignation);
-  }
-
-  /**
-   * @method  consultModule
-   * @description Assignation of module
-   *
-   */
   @Get('/')
   consultModule(@Req() request: Request): unknown {
     return this.moduleGenerateService.consultModule(request['user']);

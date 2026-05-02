@@ -2,6 +2,19 @@
 
 Todos los cambios notables en este proyecto (Backend y Frontend) serán documentados en este archivo.
 
+## [1.17.0] - 2026-05-01
+### Added
+- **Dynamic Palette Learning**: El Visual Editor ahora "aprende" nuevos tipos de componentes desde importaciones JSON y los añade permanentemente a la paleta lateral.
+- **Global Catalog of Extended Attributes**: Propiedades detectadas (como `noSubmit`) se registran globalmente en un catálogo dinámico persistente via LocalStorage.
+- **Unified Attribute UI**: Los atributos personalizados ahora usan el estilo estándar de checkbox y etiqueta para una consistencia visual total en el panel de configuración.
+- **System Modal Overhaul**: Sustitución de todos los `alert()`, `confirm()` y `prompt()` nativos por un sistema de Modales profesional y de marca.
+- **Robust Module Assignment**: Integración de `AssignationModuleEntity` en el backend para vinculación segura de módulos y usuarios con campos de auditoría (`createdBy`).
+
+### Fixed
+- **Ref Access Errors**: Corregidos errores de TypeScript al acceder a arrays reactivos (`.value`) en la lógica del editor.
+- **Double Declarations**: Limpieza de funciones duplicadas (`addCustomProperty`) en el setup del editor.
+- **Database Constraints**: Corregida la falta de campos obligatorios en los registros de asignación de módulos.
+
 ## [1.16.0] - 2026-04-29
 ### Added
 - **Date Utilities**: Creada función `formatRelativeTime` en `apps/frontend/src/utils/date.ts` para conversión de tiempos relativos a formato "hace X horas/días".

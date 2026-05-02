@@ -78,9 +78,9 @@ const countryCode = ref(props.countryOptions[0]?.value ?? 'US')
   transition: all 0.2s ease;
 }
 .phone-input-wrap--disabled {
-  background-color: #ffffff;
+  background-color: #F3F4F6;
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 .phone-input__country {
   padding: 0.75rem 0.5rem 0.75rem 0.75rem;

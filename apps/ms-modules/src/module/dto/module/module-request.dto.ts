@@ -23,4 +23,10 @@ export class ModuleRequestDto {
   orchestrationDetails?: {
     status: string;
   };
+
+  @IsOptional()
+  assignedUser?: string;
+
+  @IsOptional()
+  assignedRole?: string;
 }

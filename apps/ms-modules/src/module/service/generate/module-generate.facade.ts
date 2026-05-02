@@ -8,6 +8,7 @@ import { UserRepository } from '../../repository/user/user.repository';
 import { ModuleRepository } from '../../repository/modules/module.repository';
 import { IAService } from '../commons/ia.service';
 import { ModelResponseDto } from '../../dto/response/model.response.dto';
+import { AssignationModuleEntity } from '../../entities/module/assing-module.entity';
 
 @Injectable()
 export class ModuleGenerateFacade {
@@ -95,12 +96,50 @@ export class ModuleGenerateFacade {
 
       await queryRunner.commitTransaction();
       console.log('[ModuleGenerateFacade] Transacción SQL confirmada');
+
+      // 4. Asignación automática si se especificó un usuario
+      if (generate.assignedUser && generate.assignedUser !== 'all') {
+        const adminName = userToken.content[userEntity.userName]?.userName ?? 'SystemAdmin';
+        console.log(`[ModuleGenerateFacade] Iniciando asignación automática para: ${generate.assignedUser}`);
+        await this.assignModuleToUser(module.id.toString(), generate.assignedUser, adminName);
+      }
     } catch (error) {
       console.error('[ModuleGenerateFacade] Error SQL, aplicando rollback:', error.message);
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
       await queryRunner.release();
+    }
+  }
+
+  /**
+   * @method assignModuleToUser
+   * @description Lógica interna para vincular el módulo recién generado con el usuario.
+   */
+  private async assignModuleToUser(moduleUuid: string, userName: string, createdBy: string) {
+    try {
+      const moduleEntity = await this.repositoryModule.consultModules({ uuid: moduleUuid });
+      if (!moduleEntity?.id) return;
+
+      const userEntity = await this.repositoryUser.consultUser(userName);
+      if (!userEntity?.id) return;
+
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      
+      // Usar la entidad para asegurar que todos los campos obligatorios (como createdBy) se envíen
+      await queryRunner.manager.insert(AssignationModuleEntity, {
+        userId: userEntity.id,
+        moduleId: moduleEntity.id,
+        isActive: 1,
+        createdBy: createdBy,
+        updatedBy: createdBy
+      });
+      
+      await queryRunner.release();
+      console.log('[ModuleGenerateFacade] Asignación completada con éxito');
+    } catch (error) {
+      console.error('[ModuleGenerateFacade] Error en asignación automática:', error.message);
     }
   }
 }

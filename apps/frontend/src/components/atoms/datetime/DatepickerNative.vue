@@ -69,10 +69,10 @@ defineEmits<{ 'update:modelValue': [value: string] }>()
 }
 .app-datepicker-input:disabled,
 .app-datepicker-input:read-only {
-  background-color: #ffffff;
+  background-color: #F3F4F6;
   color: var(--primary-color) !important;
   -webkit-text-fill-color: var(--primary-color) !important;
-  opacity: 1 !important;
+  opacity: 0.8 !important;
   cursor: not-allowed;
   border-color: var(--primary-color);
 }

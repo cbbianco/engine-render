@@ -1,5 +1,10 @@
 # Plan de Mejoras y Protección IP
 
+## ✅ Completado (v1.17.0)
+- **Evolución del Editor Visual**: Implementación de aprendizaje dinámico de componentes y catálogo global de atributos.
+- **Sistema de Modales de Marca**: Eliminación de alertas nativas del navegador a favor de modales estilizados con el sistema.
+- **Estabilización de Integración**: Asociación robusta de módulos a nivel de base de datos con persistencia transaccional.
+
 ## ✅ Completado (v1.16.0)
 - **Mejora en UX de Notificaciones**: Filtro de notificaciones ya leídas y formateo relativo de fechas.
 - **Refinamiento de UI**: Banderas internacionales en teléfonos, estandarización de botones y limpieza de configuraciones hardcodeadas.

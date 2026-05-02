@@ -31,6 +31,7 @@
                 "label": "Nombre",
                 "type": "text",
                 "property": "firstName",
+                "placeholder": "Ingrese el nombre",
                 "disabled": true,
                 "noSubmit": false,
                 "column": "col-6",
@@ -43,6 +44,15 @@
                 "disabled": true,
                 "noSubmit": false,
                 "column": "col-6",
+                "align": "left"
+            },
+            {
+                "label": "Correo electrónico",
+                "type": "text",
+                "property": "email",
+                "disabled": true,
+                "noSubmit": false,
+                "column": "col-12",
                 "align": "left"
             },
             {
@@ -59,6 +69,7 @@
                 "property": "userName",
                 "required": true,
                 "disabled": false,
+                "placeholder": "Ingrese el nombre de usuario",
                 "noSubmit": false,
                 "column": "col-12",
                 "validation": {
@@ -72,6 +83,7 @@
                 "property": "password",
                 "disabled": false,
                 "required": true,
+                "placeholder": "Ingrese la contraseña",
                 "noSubmit": false,
                 "column": "col-6",
                 "validation": {
@@ -82,6 +94,7 @@
             {
                 "label": "Confirmar Contraseña",
                 "type": "password",
+                "placeholder": "Confirme la contraseña",
                 "match": "password",
                 "property": "confirmPassword",
                 "disabled": false,

@@ -1,5 +1,5 @@
 <template>
-  <div :class="['title-container', { 'has-separator': separator }]">
+  <div :class="['title-container', { 'has-separator': separator }]" :style="{ textAlign: align }">
     <h4 class="title-text">{{ label }}</h4>
     <p v-if="description" class="description-text">{{ description }}</p>
     <div v-if="separator" class="separator-line"></div>
@@ -11,6 +11,7 @@ defineProps<{
   label: string
   description?: string
   separator?: boolean
+  align?: 'left' | 'center' | 'right'
 }>()
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="form-group form-group--plantilla">
+  <div class="form-group form-group--plantilla" :style="{ textAlign: align }">
     <AppLabel v-if="label" :for="inputId">{{ label }}</AppLabel>
     <AppInput
       :id="inputId"
@@ -36,8 +36,9 @@ const props = withDefaults(
     errorColor?: string
     disabled?: boolean
     readonly?: boolean
+    align?: 'left' | 'center' | 'right'
   }>(),
-  { type: 'text', invalid: false, disabled: false, readonly: false }
+  { type: 'text', invalid: false, disabled: false, readonly: false, align: 'left' }
 )
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 </script>
