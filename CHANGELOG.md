@@ -6,7 +6,7 @@ Todos los cambios notables en este proyecto (Backend y Frontend) serán document
 ### Added
 - **Dynamic Palette Learning**: El Visual Editor ahora "aprende" nuevos tipos de componentes desde importaciones JSON y los añade permanentemente a la paleta lateral.
 - **Global Catalog of Extended Attributes**: Propiedades detectadas (como `noSubmit`) se registran globalmente en un catálogo dinámico persistente via LocalStorage.
-- **Unified Attribute UI**: Los atributos personalizados ahora usan el estilo estándar de checkbox y etiqueta para una consistencia visual total en el panel de configuración.
+- **Unified Attribute UI**: Los atributos personalizados ahora usan el estilo estándar de checkbox y etiqueta para una consistencia visual total en el panel de configuración, eliminando controles redundantes para una interfaz más limpia.
 - **System Modal Overhaul**: Sustitución de todos los `alert()`, `confirm()` y `prompt()` nativos por un sistema de Modales profesional y de marca.
 - **Robust Module Assignment**: Integración de `AssignationModuleEntity` en el backend para vinculación segura de módulos y usuarios con campos de auditoría (`createdBy`).
 

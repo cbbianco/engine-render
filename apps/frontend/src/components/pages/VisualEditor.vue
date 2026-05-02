@@ -233,7 +233,6 @@
                           :checked="!!comp.config[key]" 
                           @change="e => comp.config[key] = (e.target as HTMLInputElement).checked" />
                         <span>{{ key }}</span>
-                        <button class="remove-prop-minimal" @click="dynamicExtraKeys = dynamicExtraKeys.filter(k => k !== key)" title="Eliminar del catálogo global">×</button>
                       </label>
 
                       <!-- Propiedades Locales -->
@@ -241,7 +240,6 @@
                         <input type="checkbox" v-model="comp.config[key]" v-if="typeof comp.config[key] === 'boolean'" />
                         <input type="text" v-model="comp.config[key]" v-else :placeholder="key" class="mini-input" />
                         <span>{{ key }}</span>
-                        <button class="remove-prop-minimal" @click="removeCustomProperty(comp, key)">×</button>
                       </label>
 
                       <button class="add-prop-link" @click="addCustomProperty(comp)">+ Añadir Atributo</button>
